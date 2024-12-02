@@ -12,6 +12,13 @@ import NearbyPage from './pages/Nearby_Hos_Crime'
 import SignUpPage from './pages/Signup';
 import LogoutPage from './pages/Logout';
 import IntroPage from './pages/Intro';
+import DashboardPage from './pages/Dashboard';
+import ProfilePage from './pages/Profile';
+import TeacherDashboardPage from './pages/TDashboard';
+import GamePage from './pages/GameInterface';
+import StartPage from './pages/StartPage';
+
+import './App.css';
 
 export const theme = createTheme({
   palette: {
@@ -35,6 +42,11 @@ export default function App() {
           <Route path="/nearby" element={<NearbyPage />} />
           <Route path="/renderSignup" element={<SignUpPage />} />
           <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/teacherDashboard" element={<TeacherDashboardPage />} />
+          <Route path="/game" element={<GamePage />} />
+          <Route path="/startGame" element={<StartPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

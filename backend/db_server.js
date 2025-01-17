@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');  // To securely compare passwords
+// const bcrypt = require('bcrypt');  // To securely compare passwords
 const mysql = require('mysql2');
 const cookieParser = require('cookie-parser');  // To parse cookies
 const cors = require('cors');

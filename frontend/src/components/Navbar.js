@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function Navbar() {
     return (
         <nav class="navbar">
-            <div class="logo">MyBrand</div>
+            <div class="logo">EduQuest</div>
             
             <ul class="nav-links">
                 <li>

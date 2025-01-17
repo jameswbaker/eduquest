@@ -47,10 +47,59 @@ export default function CourseSelectionPage() {
         }
     };
 
-    // For demonstration, let’s log what’s selected when you click “Import Selected”
-    const handleImportSelected = () => {
-        console.log('Selected Courses:', selectedCourses);
-        // You can send these to your backend, or handle them however you want
+    /**
+     * Called when the user clicks the "Next" button.
+     * 1. Takes the list of selected course IDs.
+     * 2. For each course, calls a Canvas API (or your own backend) to get detailed info.
+     * 3. Stores the relevant info in your database.
+    */
+    const handleNext = async () => {
+        console.log('Selected course IDs:', selectedCourses);
+
+        try {
+        // For each selected course, call Canvas API to get detailed info, then store in DB
+        for (const courseId of selectedCourses) {
+            // 1) Call your backend to fetch *detailed* info about this course from Canvas
+            //    This endpoint is hypothetical; adjust as needed.
+            //    e.g. GET http://localhost:4000/api/course-details?token=...&courseId=...
+            const detailResponse = await axios.get('http://localhost:4000/api/course-details', {
+                params: {
+                    token: queryParamsAPIToken,
+                    courseId,
+                },
+            });
+
+            // Suppose detailResponse.data looks like:
+            // {
+            //   course_id: 12345,
+            //   name: "My Course",
+            //   account_id: 6789,
+            //   ...other fields...
+            // }
+            const { course_id, name, account_id } = detailResponse.data;
+
+            // 2) Now store this info in your own database
+            //    e.g. POST http://localhost:4000/api/store-course
+            //    sending the relevant fields
+            await axios.post('http://localhost:4000/api/store-course', {
+                course_id,
+                name,
+                account_id,
+            });
+
+            console.log(
+            `Stored course ${course_id} (${name}) for account ${account_id} in our DB.`
+            );
+        }
+        // You might then navigate to the next page, or show a success message
+        alert('Courses imported successfully!');
+        // e.g. navigate to a new route if desired
+        // navigate('/some-other-page');
+
+        } catch (err) {
+            console.error('Error importing selected courses:', err.response?.data || err.message);
+            setError('Error importing selected courses. Please try again.');
+        }
     };
 
     return (
@@ -61,14 +110,41 @@ export default function CourseSelectionPage() {
             </div>
             {/* Display error message if there's an issue */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            {/* Display each course in courses */}
-            <ul>
-                {courses.map((course) => (
-                    <li key={course.id}>
-                        <Link to={`/courses/${course.id}`}>{course.name}</Link>
-                    </li>
-                ))}
-            </ul>
+            {/* Show the courses in a table, each with a checkbox */}
+            <table style={{ borderCollapse: 'collapse', width: '80%', margin: '0 auto' }}>
+                <thead>
+                    <tr>
+                        <th style={tableHeaderStyle}>Select</th>
+                        <th style={tableHeaderStyle}>Course Name</th>
+                        <th style={tableHeaderStyle}>Details Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {courses.map((course) => (
+                        <tr key={course.id} style={{ borderBottom: '1px solid #ccc' }}>
+                        <td style={tableCellStyle}>
+                            <input
+                            type="checkbox"
+                            checked={selectedCourses.includes(course.id)}
+                            onChange={() => handleCheckboxChange(course.id)}
+                            />
+                        </td>
+                        <td style={tableCellStyle}>{course.name}</td>
+                        <td style={tableCellStyle}>
+                            {/* Example: Link to a course detail page in your application */}
+                            <Link to={`/courses/${course.id}`}>View Course</Link>
+                        </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {/* "Next" button at bottom right (simple inline style for demonstration) */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '1rem' }}>
+                <button onClick={handleNext} style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
+                    Next
+                </button>
+            </div>
         </div>
     );
 }

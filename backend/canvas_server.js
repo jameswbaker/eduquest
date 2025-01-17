@@ -26,6 +26,36 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
+app.get('/api/courses/course-details', async (req, res) => {
+  const { token, courseId } = req.query;
+  if (!token || !courseId) {
+    return res.status(400).json({
+      message: "Missing required query parameters: token or courseId",
+    });
+  }
+
+  try {
+    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
+    const response = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const { id, name, account_id } = response.data;
+    res.json({
+      course_id: id,
+      name,
+      account_id,
+    });
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching course details',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
 // Route to fetch students in a specific course
 app.get('/api/courses/:courseId/students', async (req, res) => {
   const { courseId } = req.params;

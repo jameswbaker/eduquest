@@ -28,8 +28,8 @@ export default function LogInPage() {
       if (response.ok) {
           const data = await response.json();
 
-          // redirect to home page
-          window.location.href = '/home';
+          // redirect to teacher dashboard page
+          window.location.href = '/teacher-dashboard';
 
           console.log(data.message); // Success message
           // Reset form

@@ -30,10 +30,11 @@ export default function SignUpPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data.message); // Success message
+                // console.log(data.message); // Success message
+                const { userId } = data;
 
                 // redirect to course selection page
-                window.location.href = '/select-course?token=' + canvasToken;
+                window.location.href = `/teacher-dashboard?token=${canvasToken}&userId=${userId}`;
 
                 // Reset form
                 setUsername('');

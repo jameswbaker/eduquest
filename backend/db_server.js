@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
 const cookieParser = require('cookie-parser');  // To parse cookies
 const cors = require('cors');
+const axios = require('axios');
 
 const app = express();
 app.use(cors({
@@ -51,18 +52,96 @@ app.get('/data', (req, res) => {
 app.post('/signup', (req, res) => {
     const { username, password, canvasToken } = req.body;
 
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Username and password are required' });
+    if (!username || !password || !canvasToken) {
+        return res.status(400).json({ message: 'Username, password, and canvas token are required' });
     }
 
-    const query = 'INSERT INTO Account_Info (username, password, canvas_token) VALUES (?, ?, ?)';
-    db.query(query, [username, password, canvasToken], (err, result) => {
+    try {
+      const canvasResponse = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
+        headers: { Authorization: `Bearer ${canvasToken}` },
+      });
+      const teacherCanvasId = canvasResponse.data.id;
+      console.log('Teacher Canvas User ID: ', teacherCanvasId);
+
+      const query = `
+        INSERT INTO Account_Info (id, username, password, canvas_token) 
+        VALUES (?, ?, ?, ?)
+      `;
+      db.query(query, [teacherCanvasId, username, password, canvasToken], async (err, result) => {
         if (err) {
-            console.error('Error inserting data:', err);
-            return res.status(500).json({ message: 'Database error' });
+          console.error('Error inserting into Account_Info:', err);
+          return res.status(500).json({ message: 'Database error' });
         }
-        res.status(201).json({ message: 'User created successfully' });
-    });
+  
+        // 3) Return the teacher’s Canvas ID (which is now our local PK)
+        // res.status(201).json({
+        //   message: 'User created successfully',
+        //   userId: teacherCanvasId, 
+        // });
+        try {
+          // 3) Fetch all courses from Canvas for this teacher
+          const coursesResponse = await axios.get(
+            'https://canvas.instructure.com/api/v1/users/self/courses',
+            {
+              headers: { Authorization: `Bearer ${canvasToken}` },
+            }
+          );
+
+          // 4) Insert each course in DB automatically
+          const courses = coursesResponse.data; // array of course objects
+          const insertCourseQuery = `
+            INSERT INTO Courses (id, name, teacher_id)
+            VALUES (?, ?, ?)
+          `;
+          for (const c of courses) {
+            const courseId = c.id;    // Canvas course ID
+            const courseName = c.name || 'Untitled';
+            
+            // Insert the course (if not already existing).
+            // Optionally handle duplicates with ON DUPLICATE KEY IGNORE/UPDATE
+            db.query(
+              insertCourseQuery,
+              [courseId, courseName, teacherCanvasId],
+              (courseErr) => {
+                if (courseErr) {
+                  // For example, you could ignore duplicates or log them
+                  console.error('Error inserting course:', courseErr);
+                }
+              }
+            );
+          }
+
+          // 5) All done. Return teacher’s Canvas ID (our local PK)
+          return res.status(201).json({
+            message: 'User created successfully, all courses imported!',
+            userId: teacherCanvasId,
+          });
+        } catch (courseErr) {
+          console.error('Error fetching courses from Canvas:', courseErr.response?.data || courseErr.message);
+          // We can still return a successful sign-up but mention we couldn't import
+          return res.status(201).json({
+            message: 'User created. Failed to fetch/import courses.',
+            userId: teacherCanvasId,
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching user from Canvas: ', error.response?.data || error.message);
+      return res.status(500).json({ message: 'Failed to fetch user info from Canvas' });
+    }
+
+    // const query = 'INSERT INTO Account_Info (username, password, canvas_token) VALUES (?, ?, ?)';
+    // db.query(query, [username, password, canvasToken], (err, result) => {
+    //     if (err) {
+    //         console.error('Error inserting data:', err);
+    //         return res.status(500).json({ message: 'Database error' });
+    //     }
+    //     const userId = result.insertId;
+    //     res.status(201).json({ 
+    //       message: 'User created successfully',
+    //       userId: userId,
+    //     });
+    // });
 });
 
 app.post('/login', (req, res) => {
@@ -107,4 +186,13 @@ app.post('/login', (req, res) => {
 const PORT = 5001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+app.post('/store-course', (req, res) => {
+  const {
+    course_id,
+    name,
+    canvas_account_id,
+    local_account_id,
+  } = req.body;
 });

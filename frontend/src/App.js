@@ -4,8 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from './pages/LandingPage';
 import SignUpPage from './pages/SignUpPage';
 import LogInPage from './pages/LogInPage';
-import HomePage from './pages/HomePage';
-import CourseSelectionPage from './pages/CourseSelectionPage';
+import TeacherDashboardPage from './pages/TeacherDashboardPage';
+import CourseSummaryPage from './pages/CourseSummaryPage';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -17,8 +17,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/login" element={<LogInPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/select-course" element={<CourseSelectionPage />} />
+            <Route path="/teacher-dashboard" element={<TeacherDashboardPage />} />
+            <Route path="/course-summary" element={<CourseSummaryPage />} />
           </Routes>
         </BrowserRouter>
       </header>

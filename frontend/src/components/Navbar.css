@@ -1,0 +1,99 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Navbar Container */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #333;
+    color: white;
+    font-family: Arial, sans-serif;
+  
+    position: fixed; /* Make the navbar fixed at the top */
+    top: 0; /* Align to the top of the screen */
+    left: 0;
+    width: 100%; /* Stretch across the screen */
+    z-index: 1000; /* Ensure it stays above other content */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
+  }
+  
+  /* Prevent Content from Hiding Behind Navbar */
+  body {
+    padding-top: 60px; /* Adjust this value to match navbar height */
+  }
+  
+  /* Logo */
+  .navbar .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f8f8f8;
+  }
+  
+  /* Navigation Links */
+  .navbar .nav-links {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+  }
+  
+  .navbar .nav-links li a {
+    text-decoration: none;
+    color: #f8f8f8;
+    padding: 0.5rem 0.75rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .navbar .nav-links li a:hover {
+    background-color: #555;
+    border-radius: 4px;
+    color: #ffd700;
+  }
+  
+  /* Mobile Menu Button (Hidden by Default) */
+  .mobile-menu-toggle {
+    display: none;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+  
+  /* Responsive Styling */
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      background-color: #333;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 1rem 0;
+    }
+  
+    .nav-links li {
+      margin: 0.5rem 0;
+    }
+  
+    .nav-links li a {
+      display: block;
+      width: 100%;
+    }
+  
+    .mobile-menu-toggle {
+      display: block;
+    }
+  
+    .nav-links.active {
+      display: flex;
+    }
+  }
+  

@@ -14,7 +14,7 @@ export default function TeacherDashboardPage() {
 
     // Retrieve the token from the query parameters
     const queryParamsAPIToken = new URLSearchParams(location.search).get('token');
-    const localAccountId = new URLSearchParams(location.search).get('accountId');
+    const teacherCanvasId = new URLSearchParams(location.search).get('userId');
   
     // Fetch courses from Canvas API
     const fetchCourses = async () => {

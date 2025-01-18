@@ -32,11 +32,10 @@ app.get('/api/users/user-details', async (req, res) => {
         'Authorization': `Bearer ${apiToken}`,
       },
     });
-    console.log(response.data);
     res.json(response.data); // Return the user data
   } catch (error) {
     res.status(error.response?.status || 500).json({
-      message: 'Error fetching courses',
+      message: 'Error fetching user details',
       details: error.response?.data || error.message,
     });
   }
@@ -45,10 +44,7 @@ app.get('/api/users/user-details', async (req, res) => {
 // Route to fetch courses from Canvas API
 app.get('/api/courses', async (req, res) => {
   try {
-    const apiToken = getTokenFromCookie(req);
-     // Get API token from query parameters
-    // console.log(apiToken);
-    // const apiToken = req.params.token;
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
     const response = await axios.get('https://canvas.instructure.com/api/v1/users/self/courses', {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
@@ -151,12 +147,14 @@ app.get('/protected-route', (req, res) => {
 // Helper function to extract token from cookies
 function getTokenFromCookie(req) {
   const token = req.cookies.auth_token;
-    const decoded = jwt.verify(token, JWT_SECRET);
+  console.log(token);
+  const decoded = jwt.verify(token, JWT_SECRET);
+  console.log(decoded);
 
-    // Access data from the decoded payload
-    const { username, userId, canvasToken } = decoded;
+  // Access data from the decoded payload
+  const { username, userId, canvasToken } = decoded;
 
-    return canvasToken;
+  return canvasToken;
 }
 
 app.listen(PORT, () => {

@@ -26,6 +26,7 @@ export default function SignUpPage() {
                     password,
                     canvasToken,
                 }),
+                credentials: 'include',
             });
 
             if (response.ok) {

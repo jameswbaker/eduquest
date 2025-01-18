@@ -77,71 +77,21 @@ app.post('/signup', async (req, res) => {
           console.error('Error inserting into Account_Info:', err);
           return res.status(500).json({ message: 'Database error' });
         }
-  
-        // 3) Return the teacher’s Canvas ID (which is now our local PK)
-        // res.status(201).json({
-        //   message: 'User created successfully',
-        //   userId: teacherCanvasId, 
-        // });
-        try {
-          // 3) Fetch all courses from Canvas for this teacher
-          const coursesResponse = await axios.get('http://localhost:4000/api/courses', {
-            params: {
-              token: canvasToken,
-            },
-          });
-          console.log(coursesResponse);
+      });
 
-          // 4) Insert each course in DB automatically
-          const courses = coursesResponse.data; // array of course objects
-          const insertCourseQuery = `
-            INSERT INTO Courses (course_id, name, teacher_id)
-            VALUES (?, ?, ?)
-          `;
-          for (const c of courses) {
-            const courseId = c.id;    // Canvas course ID
-            const courseName = c.name || 'Untitled';
-            
-            // Insert the course (if not already existing).
-            // Optionally handle duplicates with ON DUPLICATE KEY IGNORE/UPDATE
-            db.query(
-              insertCourseQuery,
-              [courseId, courseName, teacherCanvasId],
-              (courseErr) => {
-                if (courseErr) {
-                  // For example, you could ignore duplicates or log them
-                  console.error('Error inserting course:', courseErr);
-                }
-              }
-            );
-          }
+      // Set JWT token as an HTTP-only cookie
+      const token = jwt.sign({ username: username, userId: teacherCanvasId, canvasToken: canvasToken }, JWT_SECRET, { expiresIn: '1h' });
+      res.cookie('auth_token', token, {
+        httpOnly: false,
+        // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
+        secure: false,
+        sameSite: 'lax',  // Prevent CSRF
+        maxAge: 3600000,  // 1 hour
+      });
 
-          const token = jwt.sign({ username: username, userId: teacherCanvasId, canvasToken: canvasToken }, JWT_SECRET, { expiresIn: '1h' });
-
-          // Set JWT token as an HTTP-only cookie
-          res.cookie('auth_token', token, {
-            httpOnly: false,
-            // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
-            secure: false,
-            sameSite: 'lax',  // Prevent CSRF
-            maxAge: 3600000,  // 1 hour
-          });
-
-          console.log(token);
-
-          // 5) All done. Return teacher’s Canvas ID (our local PK)
-          return res.status(201).json({
-            message: 'User created successfully, all courses imported!',
-            userId: teacherCanvasId,
-          });
-        } catch (courseErr) {
-          console.error('Error fetching courses from Canvas:', courseErr.response?.data || courseErr.message);
-          // We can still return a successful sign-up but mention we couldn't import
-          return res.status(201).json({
-            message: 'User created. Failed to fetch/import courses.',
-            userId: teacherCanvasId,
-          });
-        }
+      return res.status(201).json({
+        message: 'User created successfully, all courses imported!',
+        userId: teacherCanvasId,
       });
     } catch (error) {
       console.error('Error fetching user from Canvas: ', error.response?.data || error.message);

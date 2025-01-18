@@ -82,6 +82,14 @@ function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            {/* TODO: double check this part */}
+            <input
+              type="test"
+              id="canvasToken"
+              placeholder="Canvas Token"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             
             <div className="role-selection">
               <label>

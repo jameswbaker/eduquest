@@ -7,6 +7,30 @@ const PORT = 4000;
 
 app.use(cors()); // Enable CORS for all routes
 
+app.get('/api/users/user-details', async (req, res) => {
+  console.log("GOT HERE");
+  const apiToken = req.query.token;
+  if (!apiToken) {
+    return res.status(400).json({
+      message: "Missing required query parameters: token",
+    });
+  }
+  try {
+    const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+      },
+    });
+    console.log(response.data);
+    res.json(response.data); // Return the user data
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching courses',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
 // Route to fetch courses from Canvas API
 app.get('/api/courses', async (req, res) => {
   const apiToken = req.query.token; // Get API token from query parameters

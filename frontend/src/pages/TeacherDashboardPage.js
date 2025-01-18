@@ -56,53 +56,53 @@ export default function TeacherDashboardPage() {
      * 2. For each course, calls a Canvas API (or your own backend) to get detailed info.
      * 3. Stores the relevant info in your database.
     */
-    const handleNext = async () => {
-        console.log('Selected course IDs:', selectedCourses);
+    // const handleNext = async () => {
+    //     console.log('Selected course IDs:', selectedCourses);
 
-        try {
-        // For each selected course, call Canvas API to get detailed info, then store in DB
-        for (const courseId of selectedCourses) {
-            // 1) Call your backend to fetch *detailed* info about this course from Canvas
-            //    This endpoint is hypothetical; adjust as needed.
-            //    e.g. GET http://localhost:4000/api/course-details?token=...&courseId=...
-            const detailResponse = await axios.get('http://localhost:4000/api/course-details', {
-                params: {
-                    token: queryParamsAPIToken,
-                    courseId,
-                },
-            });
+    //     try {
+    //     // For each selected course, call Canvas API to get detailed info, then store in DB
+    //     for (const courseId of selectedCourses) {
+    //         // 1) Call your backend to fetch *detailed* info about this course from Canvas
+    //         //    This endpoint is hypothetical; adjust as needed.
+    //         //    e.g. GET http://localhost:4000/api/course-details?token=...&courseId=...
+    //         const detailResponse = await axios.get('http://localhost:4000/api/course-details', {
+    //             params: {
+    //                 token: queryParamsAPIToken,
+    //                 courseId,
+    //             },
+    //         });
 
-            // Suppose detailResponse.data looks like:
-            // {
-            //   course_id: 12345,
-            //   name: "My Course",
-            //   account_id: 6789,
-            //   ...other fields...
-            // }
-            const { course_id, name, account_id: canvasAccountId } = detailResponse.data;
+    //         // Suppose detailResponse.data looks like:
+    //         // {
+    //         //   course_id: 12345,
+    //         //   name: "My Course",
+    //         //   account_id: 6789,
+    //         //   ...other fields...
+    //         // }
+    //         const { course_id, name, account_id: canvasAccountId } = detailResponse.data;
 
-            // 2) Now store this info in your own database
-            //    e.g. POST http://localhost:4000/api/store-course
-            //    sending the relevant fields
-            await axios.post('http://localhost:4000/api/store-course', {
-                course_id,
-                name,
-                canvas_account_id: canvasAccountId,
-                local_account_id: localAccountId,
-            });
+    //         // 2) Now store this info in your own database
+    //         //    e.g. POST http://localhost:4000/api/store-course
+    //         //    sending the relevant fields
+    //         await axios.post('http://localhost:4000/api/store-course', {
+    //             course_id,
+    //             name,
+    //             canvas_account_id: canvasAccountId,
+    //             local_account_id: localAccountId,
+    //         });
 
-            console.log(`Stored course ${course_id} (${name}) in DB for user ID: ${localAccountId}`);
-        }
-        // You might then navigate to the next page, or show a success message
-        alert('Courses imported successfully!');
-        // e.g. navigate to a new route if desired
-        // navigate('/some-other-page');
+    //         console.log(`Stored course ${course_id} (${name}) in DB for user ID: ${localAccountId}`);
+    //     }
+    //     // You might then navigate to the next page, or show a success message
+    //     alert('Courses imported successfully!');
+    //     // e.g. navigate to a new route if desired
+    //     // navigate('/some-other-page');
 
-        } catch (err) {
-            console.error('Error importing selected courses:', err.response?.data || err.message);
-            setError('Error importing selected courses. Please try again.');
-        }
-    };
+    //     } catch (err) {
+    //         console.error('Error importing selected courses:', err.response?.data || err.message);
+    //         setError('Error importing selected courses. Please try again.');
+    //     }
+    // };
 
     const handleCourseSelect = (courseId) => {
         setSelectedCourseId(courseId); // Save the selected course ID to state
@@ -170,11 +170,11 @@ export default function TeacherDashboardPage() {
             </div>
 
             {/* "Next" button at bottom right (simple inline style for demonstration) */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '1rem' }}>
+            {/* <div style={{ display: 'flex', justifyContent: 'flex-end', margin: '1rem' }}>
                 <button onClick={handleNext} style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
                     Next
                 </button>
-            </div>
+            </div> */}
         </div>
     );
 }

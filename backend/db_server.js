@@ -49,7 +49,7 @@ app.get('/data', (req, res) => {
 });
 
 // Route to handle signup
-app.post('/signup', (req, res) => {
+app.post('/signup', async (req, res) => {
     const { username, password, canvasToken } = req.body;
 
     if (!username || !password || !canvasToken) {
@@ -57,14 +57,17 @@ app.post('/signup', (req, res) => {
     }
 
     try {
-      const canvasResponse = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
-        headers: { Authorization: `Bearer ${canvasToken}` },
+      const userResponse = await axios.get('http://localhost:4000/api/users/user-details', {
+          params: {
+              token: canvasToken,
+          },
       });
-      const teacherCanvasId = canvasResponse.data.id;
+      console.log(userResponse);
+      const teacherCanvasId = userResponse.data.id;
       console.log('Teacher Canvas User ID: ', teacherCanvasId);
 
       const query = `
-        INSERT INTO Account_Info (id, username, password, canvas_token) 
+        INSERT INTO Account_Info (account_id, username, password, canvas_token) 
         VALUES (?, ?, ?, ?)
       `;
       db.query(query, [teacherCanvasId, username, password, canvasToken], async (err, result) => {
@@ -80,17 +83,17 @@ app.post('/signup', (req, res) => {
         // });
         try {
           // 3) Fetch all courses from Canvas for this teacher
-          const coursesResponse = await axios.get(
-            'https://canvas.instructure.com/api/v1/users/self/courses',
-            {
-              headers: { Authorization: `Bearer ${canvasToken}` },
-            }
-          );
+          const coursesResponse = await axios.get('http://localhost:4000/api/courses', {
+            params: {
+              token: canvasToken,
+            },
+          });
+          console.log(coursesResponse);
 
           // 4) Insert each course in DB automatically
           const courses = coursesResponse.data; // array of course objects
           const insertCourseQuery = `
-            INSERT INTO Courses (id, name, teacher_id)
+            INSERT INTO Courses (course_id, name, teacher_id)
             VALUES (?, ?, ?)
           `;
           for (const c of courses) {

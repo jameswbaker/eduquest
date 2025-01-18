@@ -1,0 +1,131 @@
+/* General styles */
+body {
+    margin: 0;
+    font-family: "Hanken Grotesk", sans-serif;
+  }
+  
+  .game-interface {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #d8f4e3;
+  }
+  
+  /* Navigation Bar */
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .back-button {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .nav-icons {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .nav-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+  
+  /* Main Content */
+  .game-container {
+    display: flex;
+    flex: 1;
+  }
+  
+  /* Side Panel */
+  .side-panel {
+    width: 20%;
+    background-color: #ffffff;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    border-right: 1px solid #ccc;
+  }
+  
+  .timer, .score, .questions {
+    text-align: center;
+    padding: 0.5rem;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    width: 100%;
+  }
+  
+  .timer span, .score span, .questions span {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .pause-btn, .submit-btn {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .pause-btn {
+    background-color: #e54b32;
+    color: white;
+  }
+  
+  .submit-btn {
+    background-color: #8fce5d;
+    color: white;
+  }
+  
+  /* Main Game Section */
+  .game-section {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .course-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    background-color: #6fae7b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+  }
+  
+  .game-question {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .game-block {
+    width: 80%;
+    height: 300px;
+    border: 2px solid #000;
+    background-color: white;
+    border-radius: 8px;
+  }
+  
+  

@@ -1,42 +1,66 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { styled } from '@mui/styles';
-import Button from '@mui/material/Button';
-import Image from '../img/my-image.jpg';
+import React, { useState } from 'react';
+import { Grid } from '@mui/material';
 import './Intro.css';
-
-const MyButton = styled(Button)({
-  background: 'linear-gradient(45deg, #02b5b5 30%, #87CEEB 90%)',
-  border: 0,
-  borderRadius: 3,
-  boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-  color: 'white',
-  height: 48,
-  padding: '0 30px',
-});
+import SearchBar from '../components/SearchBar';
+import CardComponent from '../components/Card';
 
 const IntroPage = () => {
+  const [searchValue, setSearchValue] = useState('');
+
+  const handleSearch = () => {
+    console.log(`Searching for: ${searchValue}`);
+    //...
+  };
+
   return (
-    <div className="intro-page">
-      <div className="intro-container">
-        <img src={Image} width='100' />
-        <h1>SafeStreetNYC</h1>
-        <p>Welcome to SafeStreetNYC! Click below to learn more about your area!</p>
-        <div className="buttons">
-          <Link to="/airbnb">
-            <MyButton>Explore Airbnb</MyButton>
-          </Link>
-          <Link to="/housing">
-            <MyButton>Explore Housing</MyButton>
-          </Link>
-          <Link to="/hospitals">
-            <MyButton>Explore Hospitals</MyButton>
-          </Link>
-          <Link to="/nearby">
-            <MyButton>Check Out Nearby Hospitals and Crimes</MyButton>
-          </Link>
+    <div className="intro-container">
+      <div className="yellow-container">
+        <h1>Ready to go on a quest today?</h1>
+        <p>Unlock Your Potential: Improve your reading with exciting games today!</p>
+        <img src="/image/coverPhoto.png" alt="Banner" className="header-image" />
+        <SearchBar />
+      </div>
+
+   
+      <div className="green-container">
+        {/* Continue Learning  */}
+        <div className="column">
+          <h2>Continue Learning </h2>
+          <Grid container spacing={2}>
+            <CardComponent title="Understanding Romantic Gothic" date="10 Nov" progress={75} backgroundColor="#E54B32"link="/startGame" />
+            <CardComponent title="Haiku 101" date="10 Nov" progress={80} backgroundColor="#5586E0" link="/startGame"/>
+            <CardComponent title="Problem-Solution Essay Writing" date="12 Dec" progress={65} backgroundColor="#5586E0"link="/startGame"  />
+            <CardComponent title="English Poetry" date="1 Mar" progress={5} backgroundColor="#E54B32" link="/startGame"/>
+            <CardComponent title="English Poetry" date="1 Mar" progress={20} backgroundColor="#5586E0" link="/startGame"/>
+
+          </Grid>
         </div>
-        <h4>© 2023 Nathan Chen, Abhinav Gopinath, Jiwoong Matt Park, Cindy Wei</h4>
+
+        {/* Coming Up */}
+        <div className="column">
+          <h2>Coming Up</h2>
+          <Grid container spacing={2}>
+            <CardComponent title="New Years Literature" date="1 Jan" progress={0} backgroundColor="#E54B32" link="/startGame"/>
+            <CardComponent title="Math 101" date="14 Feb" progress={50} backgroundColor="#5586E0"link="/startGame" />
+            <CardComponent title="English Poetry" date="1 Mar" progress={40} backgroundColor="#E54B32" link="/startGame"/>
+            <CardComponent title="Mandarin 101" date="1 Mar" progress={65} backgroundColor="#5586E0"link="/startGame" />
+
+          </Grid>
+        </div>
+
+        {/* Featured */}
+        <div className="column">
+          <h2>Featured</h2>
+          <Grid container spacing={2}>
+            <CardComponent title="American History" date="Ongoing" progress={90} backgroundColor="#E54B32" link="/startGame"/>
+            <CardComponent title="Thai History" date="Ongoing" progress={30} backgroundColor="#E54B32"link="/startGame" />
+            <CardComponent title="Taiwanese Food Influence on Books" date="Ongoing" progress={100} backgroundColor="#E54B32" link="/startGame"/>
+            <CardComponent title="Old English" date="1 Mar" progress={80} backgroundColor="#5586E0" link="/startGame" />
+            <CardComponent title="English Poetry" date="1 Mar" progress={90} backgroundColor="#E54B32" link="/startGame" />
+            <CardComponent title="World History" date="1 Mar" progress={10} backgroundColor="#5586E0"  link="/startGame" />
+
+          </Grid>
+        </div>
       </div>
     </div>
   );

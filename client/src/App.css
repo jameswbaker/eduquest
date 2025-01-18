@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Hammersmith+One&display=swap');
+
+body {
+  font-family: 'Hanken Grotesk', sans-serif;
+  margin: 0;
+  padding: 0;
+  /* background-color: #d9f1c7; */
+}
+
+p, button, label {
+    font-family: 'Hanken Grotesk', sans-serif;
+    margin: 0;
+    padding: 0;
+    /* background-color: #e0e8ff; */
+}
+  
+.profile-board-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+  
+header h1 {
+    font-family: 'Hammersmith One', sans-serif;
+    font-size: 32px;
+    /* text-align: center; */
+}

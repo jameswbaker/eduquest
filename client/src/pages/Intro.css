@@ -1,77 +1,110 @@
-.intro-page {
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
-}
-
-.intro-page {
-  animation-name: fadeIn;
-  animation-duration: 2s;
-  animation-fill-mode: both;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow-y: auto; 
 }
 
 .intro-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  height: 100%;
+}
+
+.yellow-container {
+  background-color: #F4D376; 
+  color: #000;
+  padding: 20px;
+  padding-top: 80px;
   text-align: center;
+  flex-shrink: 0;
 }
 
-.intro-container img {
-  width: 100%;
-  max-width: 300px;
-  margin-bottom: 30px;
+.yellow-container h1 {
+  margin: 10px 0;
+  font-size: 60px;
 }
 
-.intro-container h1 {
-  font-size: 50px;
-  margin-bottom: 10px;
-
-  font-family: 'Gill Sans', sans-serif;
-  font-weight: 700;
+.yellow-container p {
+  font-size: 25px;
+  margin-bottom: 20px;
 }
 
-.intro-container h4 {
-  font-size: 15px;
-  margin-bottom: 10px;
-
+.search-container input {
+  width: 60%;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
-.intro-container p {
-  font-size: 18px;
-  margin-bottom: 40px;
-}
-
-.buttons {
+.green-container {
+  background-color: #8FCE5D; 
+  color: black;
   display: flex;
+  flex-direction: column;
+  padding: 50px;
+  gap: 40px;
+  flex-grow: 1;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 30px; 
+  width: 100%;
+}
+
+.column h2 {
+  font-size: 30px;
+  margin: 0; 
+  padding: 0;
+}
+
+
+.card-container {
+  display: flex; 
+  gap: 10px; 
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.buttons button {
-  background-color: #333;
+.card {
+  background-color: #66BB6A;
+  border-radius: 10px;
+  width: 200px; 
+  aspect-ratio: 1; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card p {
+  font-size: 16px;
+  margin: 5px 0;
+  text-align: center;
+}
+
+.card button {
+  background-color: #1877f2;
   color: #fff;
-  padding: 10px 20px;
+  font-size: 16px;
+  padding: 10px;
   border: none;
-  border-radius: 4px;
-  margin-right: 10px;
-  margin-bottom: 10px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.buttons button:hover {
-  background-color: #555;
+.card button:hover {
+  background-color: #166fe5;
+}
+
+.header-image {
+  width: 100%; 
+  max-width: 800px;
+  height: auto;
+  margin: 20px auto;
+  display: block; 
+  border-radius: 10px;
 }

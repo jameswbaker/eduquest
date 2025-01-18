@@ -48,24 +48,30 @@ function Login() {
     }
   }
 
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   fetch(`http://${process.env.process.env.REACT_APP_SERVER_HOST}:${process.env.process.env.REACT_APP_SERVER_PORT}/authenticator`, {
+  //     headers: { 'Content-Type': 'application/json' },
+  //     method: 'POST',
+  //     body: JSON.stringify({ "email": email, "password": password }) // body data type must match "Content-Type" header
+  //   }).then(response => response.json())
+  //     .then(data => {
+  //       if (data.check) {
+  //         ReactSession.setStoreType('localStorage');
+  //         ReactSession.set('user', { name: data.name });
+  //         console.log(ReactSession.get('user'));
+  //         navigation('/intro')
+  //       } else {
+  //         alert('Login Failed');
+  //       }
+  //     })
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://${process.env.process.env.REACT_APP_SERVER_HOST}:${process.env.process.env.REACT_APP_SERVER_PORT}/authenticator`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({ "email": email, "password": password }) // body data type must match "Content-Type" header
-    }).then(response => response.json())
-      .then(data => {
-        if (data.check) {
-          ReactSession.setStoreType('localStorage');
-          ReactSession.set('user', { name: data.name });
-          console.log(ReactSession.get('user'));
-          navigation('/intro')
-        } else {
-          alert('Login Failed');
-        }
-      })
+    navigation('/intro');
   };
+  
 
   return (
 
@@ -96,8 +102,8 @@ function Login() {
       </form>
     </div>
     <div class="signup-prompt">
-      <h2>Don't have an account?</h2>
-      <NavLink to={`/renderSignup`} class="sign-up-button">Sign Up Here</NavLink>
+      <h2 className="donthaveanaccount">Don't have an account?</h2>
+      <NavLink to={`/signUp`} className="sign-up-button">Sign Up Here</NavLink>
     </div>
   </div>
 </div>

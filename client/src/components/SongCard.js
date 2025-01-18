@@ -1,58 +1,64 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, ButtonGroup, Link, Modal } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import React from 'react';
+import { Card, Typography, CircularProgress, Box } from '@mui/material';
 
-export default function SongCard({ id, handleClose }) {
-  const [data, setData] = useState({});
-  const [pageSize, setPageSize] = useState(10);
-  useEffect(() => {
-    fetch(`http://${process.env.REACT_APP_SERVER_HOST}:${process.env.REACT_APP_SERVER_PORT}/findSimilarity?Property=${id}`)
-      .then(res => res.json())
-      .then(airbnbs => {
-        setData(airbnbs)
-
-      })
-  }, []);
-
-
-  const columns = [
-    { field: 'Name', headerName: 'Name', width: 200 },
-    { field: 'Price', headerName: 'Price', width: 100 },
-    { field: 'Room_Type', headerName: 'Room Type', width: 200 },
-    { field: 'Avg_Neighborhood_Price', headerName: 'Average Neighborhood Price', width: 200 },
-    { field: 'Crime_Count', headerName: 'Crime Count', width: 100 },
-    { field: 'Hospital_Count', headerName: 'Hospital Count', width: 200 },
-
-
-  ];
-
+const CardComponent = ({ title, date, progress }) => {
   return (
-    <Modal
-      open={true}
-      onClose={handleClose}
-      style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+    <Card
+      sx={{
+        width: 200,   // Fixed width
+        height: 200,  // Fixed height
+        margin: '10px',
+        boxShadow: 3,
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '20px', // Rounded corners
+        border: '2px solid #E54B32', // Red border around the card
+      }}
     >
-      <Box
-        p={3}
-        style={{ background: 'white', borderRadius: '16px', border: '2px solid #000', width: 600 }}
-      >
-        <h2>Airbnbs with Simliar Prices</h2>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          pageSize={pageSize}
-          rowsPerPageOptions={[5, 10, 25]}
-          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-          autoHeight
-        />
-
-
-        <Button onClick={handleClose} style={{ left: '50%', transform: 'translateX(-50%)' }} >
-          Close
-        </Button>
+      {/* Upper Container with Red Background (2/3 of the height) */}
+      <Box sx={{ backgroundColor: '#E54B32', flex: 2, padding: '10px' }}>
+        <Typography variant="h6" component="div" color="white">
+          {title}
+        </Typography>
       </Box>
 
-    </Modal>
-  );
-}
+      {/* Bottom Container with White Background (1/3 of the height) */}
+      <Box sx={{ backgroundColor: 'white', flex: 1, padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Date Text */}
+        <Typography variant="body2" color="text.secondary">
+          {date}
+        </Typography>
+      </Box>
 
+      {/* Progress Circle (Positioned at the border between the two containers) */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '66%', // This places it at the border line between the red and white sections
+          right: -20, // Adjusts it to the right side of the divider (shift as needed)
+          padding: '10px',
+        }}
+      >
+        <CircularProgress variant="determinate" value={progress} size={40} thickness={4} />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="caption" component="div" color="text.secondary">
+            {`${Math.round(progress)}%`}
+          </Typography>
+        </Box>
+      </Box>
+    </Card>
+  );
+};
+
+export default CardComponent;

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import "./GameCreationPage.css";
 // import DropDown from "../components/DropDown";
-import DropDown from "./DropDown";
+// import DropDown from "./DropDown";
 
 const GameCreationPage = () => {
   const [gameName, setGameName] = useState("");

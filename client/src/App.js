@@ -17,6 +17,7 @@ import ProfilePage from './pages/Profile';
 import TeacherDashboardPage from './pages/TDashboard';
 import GamePage from './pages/GameInterface';
 import StartPage from './pages/StartPage';
+import GameCreationPage from './pages/GameCreationPage';
 
 import './App.css';
 
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/teacherDashboard" element={<TeacherDashboardPage />} />
           <Route path="/game" element={<GamePage />} />
           <Route path="/startGame" element={<StartPage />} />
+          <Route path="/createGame" element={<GameCreationPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

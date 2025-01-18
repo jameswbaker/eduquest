@@ -19,6 +19,8 @@ import GamePage from './pages/GameInterface';
 import StartPage from './pages/StartPage';
 import IntroSignInPage from './pages/IntroSignIn';
 import LinkCanvasPage from './pages/linkCanvas'
+import GameCreationPage from './pages/GameCreationPage';
+
 
 import './App.css';
 
@@ -79,6 +81,10 @@ function AppContent() {
         <Route path="/game" element={<GamePage />} />
         <Route path="/startGame" element={<StartPage />} />
         <Route path="/linkCanvas" element={<LinkCanvasPage />} />
+        <Route path="/createGame" element={<GameCreationPage />} />
+        <NavBar />
+        
+          
 
 
       </Routes>

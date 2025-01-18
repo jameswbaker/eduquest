@@ -8,16 +8,18 @@ const axios = require('axios');
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000',  // Frontend URL
+    origin: ['http://localhost:3000', 'http://localhost:4000'],  // Frontend URL
     methods: ['GET', 'POST'],        // Allow specific methods
     credentials: true, // Enable cookies
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 require('dotenv').config();
 
 // Secret key for JWT signing
-const JWT_SECRET = '123456789';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Configure your database connection
 const db = mysql.createConnection({
@@ -114,6 +116,19 @@ app.post('/signup', async (req, res) => {
             );
           }
 
+          const token = jwt.sign({ username: username, userId: teacherCanvasId, canvasToken: canvasToken }, JWT_SECRET, { expiresIn: '1h' });
+
+          // Set JWT token as an HTTP-only cookie
+          res.cookie('auth_token', token, {
+            httpOnly: false,
+            // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
+            secure: false,
+            sameSite: 'lax',  // Prevent CSRF
+            maxAge: 3600000,  // 1 hour
+          });
+
+          console.log(token);
+
           // 5) All done. Return teacher’s Canvas ID (our local PK)
           return res.status(201).json({
             message: 'User created successfully, all courses imported!',
@@ -169,15 +184,18 @@ app.post('/login', (req, res) => {
       // Compare entered password with the stored hashed password
       const user = results[0];
       if (password == user.password) {
-        const token = jwt.sign({ username: user.username, userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ username: user.username, userId: user.id, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
 
         // Set JWT token as an HTTP-only cookie
         res.cookie('auth_token', token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
-          sameSite: 'Strict',  // Prevent CSRF
+          httpOnly: false,
+          // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
+          secure: false,
+          sameSite: 'lax',  // Prevent CSRF
           maxAge: 3600000,  // 1 hour
         });
+
+        console.log(token);
 
         return res.json({ message: 'Login successful!' });
       } else {

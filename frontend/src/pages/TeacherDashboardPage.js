@@ -10,19 +10,25 @@ export default function TeacherDashboardPage() {
     const [error, setError] = useState('');          // Store error messages
     const [selectedCourses, setSelectedCourses] = useState([]); // Track selected courses
     const [selectedCourseId, setSelectedCourseId] = useState(null); // Track selected course ID
-    const location = useLocation();                  // Access the current location
+    // const location = useLocation();                  // Access the current location
 
     // Retrieve the token from the query parameters
-    const queryParamsAPIToken = new URLSearchParams(location.search).get('token');
-    const teacherCanvasId = new URLSearchParams(location.search).get('userId');
+    // const queryParamsAPIToken = new URLSearchParams(location.search).get('token');
+    // const teacherCanvasId = new URLSearchParams(location.search).get('userId');
   
     // Fetch courses from Canvas API
     const fetchCourses = async () => {
         setError('');  // Reset error state
         try {
-            console.log(queryParamsAPIToken);
+            // console.log(queryParamsAPIToken);
+            // const response = await axios.get('http://localhost:4000/api/courses', {
+            //     params: { token: queryParamsAPIToken }, // Pass the API token as a query parameter
+            // });
+            // const tokenResponse = await axios.get('http://localhost:4000/protected-route');
+            // console.log(tokenResponse);
+            // const apiToken = tokenResponse.data.canvasToken; // Get API token from query parameters
             const response = await axios.get('http://localhost:4000/api/courses', {
-                params: { token: queryParamsAPIToken }, // Pass the API token as a query parameter
+                withCredentials: true,
             });
             setCourses(response.data); // Store the fetched courses
         } catch (error) {
@@ -32,12 +38,8 @@ export default function TeacherDashboardPage() {
     };
 
     useEffect(() => {
-        if (queryParamsAPIToken) {
-            fetchCourses();  // Fetch courses when the token is available
-        } else {
-            setError('API token is missing in query parameters.');
-        }
-    }, [queryParamsAPIToken]);  // Re-run the effect if the token changes
+        fetchCourses();
+    }, []);  // Re-run the effect if the token changes
 
     // Handle checkbox changes
     const handleCheckboxChange = (courseId) => {

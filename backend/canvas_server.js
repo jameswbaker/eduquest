@@ -1,11 +1,22 @@
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = 4000;
 
-app.use(cors()); // Enable CORS for all routes
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5001'],  // Frontend URL
+  methods: ['GET', 'POST'],        // Allow specific methods
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
+})); // Enable CORS for all routes
+app.use(cookieParser());
+
+require('dotenv').config();
+const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret used for signing
 
 app.get('/api/users/user-details', async (req, res) => {
   console.log("GOT HERE");
@@ -33,9 +44,11 @@ app.get('/api/users/user-details', async (req, res) => {
 
 // Route to fetch courses from Canvas API
 app.get('/api/courses', async (req, res) => {
-  const apiToken = req.query.token; // Get API token from query parameters
-  console.log(apiToken);
   try {
+    const apiToken = getTokenFromCookie(req);
+     // Get API token from query parameters
+    // console.log(apiToken);
+    // const apiToken = req.params.token;
     const response = await axios.get('https://canvas.instructure.com/api/v1/users/self/courses', {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
@@ -109,6 +122,42 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
     });
   }
 });
+
+
+app.get('/protected-route', (req, res) => {
+  const token = req.cookies.auth_token;
+
+  const decoded = jwt.verify(token, JWT_SECRET);
+    console.log('Decoded payload:', decoded);
+
+    // Access data from the decoded payload
+    const { username, userId, canvasToken } = decoded;
+
+  if (!token) {
+    return res.status(401).send('Unauthorized: No token provided');
+  }
+
+  try {
+    // Verify and decode the token
+    
+
+    res.json({ message: `Hello, ${username}!`, userId, canvasToken });
+  } catch (err) {
+    console.error('Invalid token:', err.message);
+    res.status(401).send('Unauthorized: Invalid token');
+  }
+});
+
+// Helper function to extract token from cookies
+function getTokenFromCookie(req) {
+  const token = req.cookies.auth_token;
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Access data from the decoded payload
+    const { username, userId, canvasToken } = decoded;
+
+    return canvasToken;
+}
 
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);

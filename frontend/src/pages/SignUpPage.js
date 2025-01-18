@@ -34,7 +34,7 @@ export default function SignUpPage() {
                 const { userId } = data;
 
                 // redirect to course selection page
-                window.location.href = `/teacher-dashboard?token=${canvasToken}&userId=${userId}`;
+                window.location.href = '/teacher-dashboard';
 
                 // Reset form
                 setUsername('');

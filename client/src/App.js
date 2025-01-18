@@ -55,6 +55,8 @@ export const theme = createTheme({
   },
 });
 
+
+
 function AppContent() {
   const location = useLocation();
   const hiddenPaths = ["/signIn", "/signUp", "/"];
@@ -82,9 +84,6 @@ function AppContent() {
         <Route path="/startGame" element={<StartPage />} />
         <Route path="/linkCanvas" element={<LinkCanvasPage />} />
         <Route path="/createGame" element={<GameCreationPage />} />
-        <NavBar />
-        
-          
 
 
       </Routes>

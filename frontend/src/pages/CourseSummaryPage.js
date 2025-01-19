@@ -26,7 +26,6 @@ export default function CourseSummaryPage() {
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [courseName, setCourseName] = useState('');
     const [courseCode, setCourseCode] = useState('');
-    const [totalStudents, setTotalStudents] = useState('');
     const [assignments, setAssignments] = useState([]);
 
     // Fetch course details from Canvas API
@@ -38,7 +37,6 @@ export default function CourseSummaryPage() {
             });
             setCourseName(response.data.course_name);
             setCourseCode(response.data.course_code);
-            setTotalStudents(response.data.total_students);
             setAssignments(response.data.assignments);
         } catch (error) {
             console.error('Error fetching students:', error.response ? error.response.data : error.message);
@@ -75,7 +73,6 @@ export default function CourseSummaryPage() {
             <div>
                 <p>THIS IS THE TEACHER DASHBOARD PAGE</p>
                 <h4>{courseCode}: {courseName}, Course ID: {courseId}</h4>
-                <h6>Total Students: {totalStudents}</h6>
             </div>
             {/* Display error message if there's an issue */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -92,16 +89,16 @@ export default function CourseSummaryPage() {
                             {student.user.name}
                         </div>
                     ))}
-                    <h4> Assignments </h4>
+                    {/* <h4> Assignments </h4>
                     {assignments.map((assignment) => (
                         <div 
                             className="student_item" 
                             key={assignment.id} 
                         >
                             {assignment.name}
-                            {/* {assignment.rubric} */}
+                            * {assignment.rubric} *
                         </div>
-                    ))}
+                    ))} */}
                 </div>
                 <div className="summary_container" id="chart_container">
                     <h4>Ability Chart: Overall Class</h4>

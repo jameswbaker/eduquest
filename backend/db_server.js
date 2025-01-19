@@ -52,7 +52,16 @@ app.post('/signup', async (req, res) => {
               token: canvasToken,
           },
       });
-      console.log(userResponse);
+      // const userResponse = await axios.post('http://localhost:4000/api/users/user-details', {
+      //   query: `
+      //     query {
+      //       userDetails(token: "${canvasToken}") {
+      //         id
+      //       }
+      //     }
+      //   `
+      // });
+      // const teacherCanvasId = userResponse.data.data.userDetails.id;
       const teacherCanvasId = userResponse.data.id;
       console.log('Teacher Canvas User ID: ', teacherCanvasId);
 

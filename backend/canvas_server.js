@@ -3,6 +3,8 @@ const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
+const { graphqlHTTP } = require('express-graphql');
 
 const app = express();
 const PORT = 4000;
@@ -17,6 +19,19 @@ app.use(cookieParser());
 
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret used for signing
+
+// Helper function to extract token from cookies
+function getTokenFromCookie(req) {
+  const token = req.cookies.auth_token;
+  console.log(token);
+  const decoded = jwt.verify(token, JWT_SECRET);
+  console.log(decoded);
+
+  // Access data from the decoded payload
+  const { username, userId, canvasToken } = decoded;
+
+  return canvasToken;
+}
 
 app.get('/api/users/user-details', async (req, res) => {
   console.log("GOT HERE");
@@ -77,7 +92,7 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
     const course_name = courseResponse.data.name;
     const course_code = courseResponse.data.course_code;
     const account_id = courseResponse.data.account_id;
-    const total_students = courseResponse.data.total_students;
+    console.log(courseResponse.data);
 
     // Request for all assignments under a course
     const assignmentResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/assignments`, {
@@ -100,7 +115,6 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
       course_name,
       course_code,
       account_id,
-      total_students,
       assignments,
     });
   } catch (error) {
@@ -166,18 +180,70 @@ app.get('/protected-route', (req, res) => {
   }
 });
 
-// Helper function to extract token from cookies
-function getTokenFromCookie(req) {
-  const token = req.cookies.auth_token;
-  console.log(token);
-  const decoded = jwt.verify(token, JWT_SECRET);
-  console.log(decoded);
+// GraphQL Schema Setup
+const CourseType = new GraphQLObjectType({
+  name: 'Course',
+  fields: () => ({
+    id: { type: GraphQLInt },
+    name: { type: GraphQLString },
+    course_code: { type: GraphQLString },
+    account_id: { type: GraphQLInt },
+    total_students: { type: GraphQLInt }
+  })
+});
 
-  // Access data from the decoded payload
-  const { username, userId, canvasToken } = decoded;
+const RootQuery = new GraphQLObjectType({
+  name: 'RootQueryType',
+  fields: {
+    courseDetails: {
+      type: CourseType,
+      args: { courseId: { type: GraphQLInt } },
+      resolve: async (parent, args) => {
+        try {
+          const apiToken = getTokenFromCookie(req); // get token from browser cookie
+          const response = await axios.get(`https://canvas.instructure.com/api/v1/courses/${args.courseId}`, {
+            headers: { 'Authorization': `Bearer ${apiToken}` },
+          });
+          return response.data;
+        } catch (error) {
+          throw new Error('Error fetching course details');
+        }
+      }
+    },
+    userDetails: {
+      type: GraphQLString,
+      args: { token: { type: GraphQLString } },
+      resolve: async (parent, args) => {
+        try {
+          const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
+            headers: { 'Authorization': `Bearer ${args.token}` },
+          });
+          return response.data; // Return the user data
+        } catch (error) {
+          throw new Error('Error fetching user details');
+        }
+      }
+    }
+  }
+});
 
-  return canvasToken;
-}
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    // Add any mutation logic here if needed
+  }
+});
+
+const schema = new GraphQLSchema({
+  query: RootQuery,
+  mutation: Mutation
+});
+
+// GraphQL endpoint
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true,  // Enable GraphiQL interface for testing queries in the browser
+}));
 
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);

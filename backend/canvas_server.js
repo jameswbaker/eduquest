@@ -59,27 +59,49 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
-app.get('/api/courses/course-details', async (req, res) => {
-  const { token, courseId } = req.query;
-  if (!token || !courseId) {
+app.get('/api/courses/:courseId/course-details', async (req, res) => {
+  const { courseId } = req.params;
+  if (!courseId) {
     return res.status(400).json({
       message: "Missing required query parameters: token or courseId",
     });
   }
 
   try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
+
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-    const response = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
+    const courseResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}`, {
+      headers: { 'Authorization': `Bearer ${apiToken}`, },
+    });
+    const course_name = courseResponse.data.name;
+    const course_code = courseResponse.data.course_code;
+    const account_id = courseResponse.data.account_id;
+    const total_students = courseResponse.data.total_students;
+
+    // Request for all assignments under a course
+    const assignmentResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/assignments`, {
+      headers: { 'Authorization': `Bearer ${apiToken}`, },
+      params: {
+        include: ['rubric', 'score_statistics'], 
       },
     });
+    const assignments = assignmentResponse.data.map((assignment) => (
+      console.log("ASSIGNMENT RUBRIC:", assignment.rubric),
+      console.log("ASSIGNMENT SCORE_STATS:", assignment.score_statistics),
+      {
+      id: assignment.id,
+      name: assignment.name,
+      rubric: assignment.rubric,                // May only be present if Canvas provides it
+      score_statistics: assignment.score_statistics, // May only be present with include[]=score_statistics
+    }));
 
-    const { id, name, account_id } = response.data;
     res.json({
-      course_id: id,
-      name,
+      course_name,
+      course_code,
       account_id,
+      total_students,
+      assignments,
     });
   } catch (error) {
     res.status(error.response?.status || 500).json({

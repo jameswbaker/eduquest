@@ -13,8 +13,9 @@ import SignUpPage from './pages/SignUp';
 import LogoutPage from './pages/Logout';
 import IntroPage from './pages/Intro';
 import DashboardPage from './pages/Dashboard';
+import TeacherBoardPage from './pages/DashboardT';
 import ProfilePage from './pages/Profile';
-import TeacherDashboardPage from './pages/TDashboard';
+import DataDashboard from './pages/DataDashboard';
 import GamePage from './pages/GameInterface';
 import StartPage from './pages/StartPage';
 import IntroSignInPage from './pages/IntroSignIn';
@@ -77,9 +78,10 @@ function AppContent() {
         <Route path="/nearby" element={<NearbyPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/logout" element={<LogoutPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard/:studentId" element={<DashboardPage />} />
+        <Route path="/teacherBoard" element={<TeacherBoardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/teacherDashboard" element={<TeacherDashboardPage />} />
+        <Route path="/dataDashboard/:courseId" element={<DataDashboard />} />
         {/* <Route path="/game" element={<GamePage />} /> */}
         <Route path="/game/:gameName" element={<GamePage />} />
         <Route path="/startGame/:gameName" element={<StartPage />} />

@@ -39,11 +39,8 @@ const Profile = () => {
         {/* Profile Section */}
         <section className="profile-section">
           <div className="profile-card">
-            <img
-              className="profile-image"
-              src="https://via.placeholder.com/100"
-              alt="Profile"
-            />
+            {/* TODO: profile pic data has to be changed later */}
+            <img src="/image/loopy_profile.jpg" alt="Profile Pic" className="profile-image" />
             <h2>{firstName} {lastName}</h2>
             <p>{email}</p>
             <button className="edit-profile-btn">Edit Profile</button>

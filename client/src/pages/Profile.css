@@ -3,7 +3,7 @@ body {
   font-family: 'Hanken Grotesk', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
 }
 
 span {
@@ -20,7 +20,8 @@ p, button, label {
 
 .profile-board-container {
   padding: 20px; 
-  max-width: 1200px;
+  min-width: 100vh;
+  min-height: 100vh;
   margin: 0 auto;
   background-color: #AAC0E8;
 }
@@ -53,7 +54,7 @@ h2 {
   text-align: center;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   flex: 1;
-  border: 3px solid black
+  border: 3px solid black;
 }
 
 .profile-image {

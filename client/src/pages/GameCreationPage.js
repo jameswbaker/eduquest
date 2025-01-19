@@ -8,6 +8,9 @@ const GameCreationPage = () => {
   const [deadline, setDeadline] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
 
   const classes = ["English 1", "English Literature", "Math 101", "Science"];
@@ -40,14 +43,37 @@ const GameCreationPage = () => {
   };
 
   const handleGameCreation = () => {
+    if (!gameName) {
+      alert("Game name is required!");
+      return;
+    }
     alert(`Game "${gameName}" created!`);
     navigate(`/startGame/${gameName}`);
-    // navigate(`/game?name=${encodeURIComponent(gameName)}`);
   };
 
+  const toggleDropdown = () => {
+    console.log('clicked');
+    setDropdownOpen((prev) => !prev);
+    console.log('this is drop down: ', dropdownOpen);
+    console.log('classes: ', classes);
+  };
+
+  const handleClassSelection = (className) => {
+    setSelectedClasses((prev) =>
+      prev.includes(className)
+        ? prev.filter((cls) => cls !== className)
+        : [...prev, className]
+    );
+  };
+
+  const filteredClasses = classes.filter((cls) =>
+    cls.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
+    <div className="background">
     <div className="game-container">
-      <h1 className="game-header">Create a new game!</h1>
+      <h1 className="game-creation-title">Create a new game!</h1>
       <div className="content-section">
         <div className="upload-section">
           <div
@@ -55,13 +81,24 @@ const GameCreationPage = () => {
             onDragOver={handleDragOver}
             onDrop={handleDrop}
           >
-            <p>drag learning materials here</p>
+            <p>Drag learning materials here</p>
           </div>
-          <input type="file" id="fileUpload" multiple onChange={handleFileUpload} hidden />
-          <label htmlFor="fileUpload" className="choose-file-btn">choose file</label>
+          <input
+            type="file"
+            id="fileUpload"
+            multiple
+            onChange={handleFileUpload}
+            hidden
+          />
+          <label htmlFor="fileUpload" className="choose-file-btn">
+            Choose File
+          </label>
           {uploadProgress > 0 && uploadProgress < 100 && (
             <div className="progress-bar">
-              <div style={{ width: `${uploadProgress}%` }} className="progress"></div>
+              <div
+                style={{ width: `${uploadProgress}%` }}
+                className="progress"
+              ></div>
             </div>
           )}
           {uploadProgress === 100 && (
@@ -80,6 +117,36 @@ const GameCreationPage = () => {
             onChange={(e) => setGameName(e.target.value)}
             className="input-field"
           />
+          <div className="dropdown">
+            <button onClick={toggleDropdown} className="dropbtn">
+              Select Classes
+            </button>
+            {dropdownOpen && (
+              <div className="dropdown-content">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="dropdown-search"
+                />
+                {filteredClasses.length > 0 ? (
+                  filteredClasses.map((cls, index) => (
+                    <label key={index} className="dropdown-item">
+                      <input
+                        type="checkbox"
+                        checked={selectedClasses.includes(cls)}
+                        onChange={() => handleClassSelection(cls)}
+                      />
+                      {cls}
+                    </label>
+                  ))
+                ) : (
+                  <p>No classes found</p>
+                )}
+              </div>
+            )}
+          </div>
           <input
             type="date"
             value={deadline}
@@ -89,8 +156,9 @@ const GameCreationPage = () => {
         </div>
       </div>
       <button className="create-game-btn" onClick={handleGameCreation}>
-        create game!
+        Create Game!
       </button>
+    </div>
     </div>
   );
 };

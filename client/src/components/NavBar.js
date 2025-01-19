@@ -38,7 +38,8 @@ export default function NavBar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <NavText href="/intro" text="Eduquest" isMain />
-          <NavText href="/dashboard" text="Dashboard" />
+          {/* TODO: CHANGE THIS PORTION LATER */}
+          <NavText href="/teacherBoard" text="Dashboard" />
           <NavText href="/createGame" text="Gamify" />
           <NavText href="/profile" text="Profile" />
           <NavText href="/logout" text="Logout" />

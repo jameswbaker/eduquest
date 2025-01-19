@@ -1,27 +1,37 @@
 // App.jsx
 import React from "react";
-import "./Dashboard.css";
+import "./DashboardT.css";
 import { useNavigate } from 'react-router-dom';
 
-const Dashboard = () => {
+
+const DashboardT = () => {
+
+  const navigate = useNavigate();
+
+  // TODO: WILL HAV ETO FIX THIS LATER
+  const studentId = 0
+
+  const handleStudentView = () => {
+    const idToNavigate = studentId || 0;  // Default to 0 if studentId is not provided
+    navigate(`/dashboard/${idToNavigate}`);  // Navigate to the student dashboard with the dynamic or default studentId
+  };
+
   return (
-    <div className="dashboard-container">
+    <div className="t-dashboard-container">
       {/* Header */}
-      <header className="dashboard-header">
-        <h1>Chanya's Dashboard</h1>
-        <div className="header-icons">
-          <button className="icon-button">💬</button>
-          <button className="icon-button">🛒</button>
-          <button className="icon-button">⚪</button>
+      <header className="t-dashboard-header">
+        <h1>Teacher's Dashboard</h1>
+        <div className="t-header-icons">
+          <button className="t-icon-button" onClick={handleStudentView}>Student View</button>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="dashboard-main">
+      <div className="t-dashboard-main">
         {/* Courses Section */}
-        <div className="courses-section">
+        <div className="t-courses-section">
           <h2>Courses</h2>
-          <div className="courses-list">
+          <div className="t-courses-list">
             <CourseCard
               courseName="English 101"
               instructor="James Baker"
@@ -54,39 +64,6 @@ const Dashboard = () => {
             />
           </div>
         </div>
-
-        {/* To-Do List Section */}
-        <div className="todo-section">
-          <h2>To-do List</h2>
-          <div className="todo-list">
-            <ToDoCard
-              taskName="Understanding Romantic Gothic"
-              dueDate="Due Nov 10"
-              color="yellow"
-              border="black"
-            />
-            <ToDoCard
-              taskName="Haiku"
-              dueDate="No Due Date"
-              color="yellow" // in-progress
-              border="black"
-            />
-            <ToDoCard
-              taskName="Problem-Solution Essay Writing"
-              dueDate="Due Dec 12"
-              color="red" // red is for not done
-              border="black"
-            />
-            <ToDoCard
-              taskName="White Paper"
-              dueDate="Due Oct 12 Finished Oct 10"
-              color="green" // completed
-              border="black"
-              courseId="5"
-            />
-          </div>
-        </div>
-        
       </div>
     </div>
   );
@@ -101,7 +78,7 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   };
 
   return (
-    <div className={`course-card ${color}`} onClick={handleClick}>
+    <div className={`t-course-card ${color}`} onClick={handleClick}>
       <h3>{courseName}</h3>
       <p>{instructor}</p>
     </div>
@@ -117,4 +94,4 @@ const ToDoCard = ({ taskName, dueDate, color, border }) => (
   </div>
 );
 
-export default Dashboard;
+export default DashboardT;

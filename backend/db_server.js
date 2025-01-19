@@ -38,18 +38,6 @@ db.connect((err) => {
   console.log('Connected to RDS database.');
 });
 
-// Define an API route to fetch data
-app.get('/data', (req, res) => {
-  const query = 'SELECT * FROM your_table';
-  db.query(query, (err, results) => {
-    if (err) {
-      res.status(500).send(err);
-    } else {
-      res.json(results);
-    }
-  });
-});
-
 // Route to handle signup
 app.post('/signup', async (req, res) => {
     const { username, password, canvasToken } = req.body;
@@ -97,19 +85,6 @@ app.post('/signup', async (req, res) => {
       console.error('Error fetching user from Canvas: ', error.response?.data || error.message);
       return res.status(500).json({ message: 'Failed to fetch user info from Canvas' });
     }
-
-    // const query = 'INSERT INTO Account_Info (username, password, canvas_token) VALUES (?, ?, ?)';
-    // db.query(query, [username, password, canvasToken], (err, result) => {
-    //     if (err) {
-    //         console.error('Error inserting data:', err);
-    //         return res.status(500).json({ message: 'Database error' });
-    //     }
-    //     const userId = result.insertId;
-    //     res.status(201).json({ 
-    //       message: 'User created successfully',
-    //       userId: userId,
-    //     });
-    // });
 });
 
 app.post('/login', (req, res) => {
@@ -117,15 +92,10 @@ app.post('/login', (req, res) => {
   
     // Query the database to find the user by username
     db.query('SELECT * FROM Account_Info WHERE username = ?', [username], (err, results) => {
-
-        // console.log(err);
-        // console.log(results);
-
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }
-  
-    //   console.log(results.length);
+
       // If no user found, return an error
       if (results.length === 0) {
         return res.status(401).json({ message: 'Invalid credentials' });
@@ -144,8 +114,6 @@ app.post('/login', (req, res) => {
           sameSite: 'lax',  // Prevent CSRF
           maxAge: 3600000,  // 1 hour
         });
-
-        console.log(token);
 
         return res.json({ message: 'Login successful!' });
       } else {

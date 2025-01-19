@@ -92,9 +92,9 @@ app.get('/api/courses/course-details', async (req, res) => {
 // Route to fetch students in a specific course
 app.get('/api/courses/:courseId/students', async (req, res) => {
   const { courseId } = req.params;
-  const apiToken = req.query.token; // Get API token from query parameters
   
   try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
     const response = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/enrollments`, {
       headers: {

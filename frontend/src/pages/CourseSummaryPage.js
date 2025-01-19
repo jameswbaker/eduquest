@@ -1,17 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import axios from 'axios';
 
 export default function CourseSummaryPage() {
     const location = useLocation(); // Get the current location object
     const queryParams = new URLSearchParams(location.search); // Parse query parameters
     const courseId = queryParams.get('courseId'); // Retrieve the 'courseId' parameter
 
+    const [students, setStudents] = useState([]);     // Store student data
+    const [error, setError] = useState('');          // Store error messages
+    const [selectedStudentId, setSelectedStudentId] = useState('');
+  
+    // Fetch students from Canvas API
+    const fetchStudents = async () => {
+        setError('');  // Reset error state
+        try {
+            const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/students`, {
+                withCredentials: true,
+            });
+            setStudents(response.data); // Store the fetched students
+        } catch (error) {
+            console.error('Error fetching students:', error.response ? error.response.data : error.message);
+            setError('Error fetching students. Please check your token and permissions.');
+        }
+    };
+
+    useEffect(() => {
+        fetchStudents();
+    }, []);  // Re-run the effect if the token changes
+
+    const handleStudentSelect = (studentId) => {
+        setSelectedStudentId(studentId); // Save the selected student ID to state
+        window.location.href = `/course-student-summary?studentId=${studentId}`;
+    };
+
     return (
         <div>
             <Navbar />
-            <p>THIS IS THE COURSE SUMMARY PAGE</p>
-            <h1>Course Summary: {courseId}</h1>
+            <div>
+                <p>THIS IS THE TEACHER DASHBOARD PAGE</p>
+                <h1>Course Summary: {courseId}</h1>
+            </div>
+            {/* Display error message if there's an issue */}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            <div className="courses_container">
+                <h4> Students </h4>
+                {students.map((student) => (
+                    <div 
+                        className="student_item" 
+                        key={student.id} 
+                        onClick={() => handleStudentSelect(student.id)}
+                    >
+                        {student.name}
+                    </div>
+                ))}
+            </div>
 
             {/* Pull course information */}
             {/* Display blank ability chart */}

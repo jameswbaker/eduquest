@@ -1,8 +1,6 @@
-// GameCreationPage.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./GameCreationPage.css";
-// import DropDown from "../components/DropDown";
-// import DropDown from "./DropDown";
 
 const GameCreationPage = () => {
   const [gameName, setGameName] = useState("");
@@ -10,6 +8,7 @@ const GameCreationPage = () => {
   const [deadline, setDeadline] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const navigate = useNavigate();
 
   const classes = ["English 1", "English Literature", "Math 101", "Science"];
 
@@ -23,28 +22,18 @@ const GameCreationPage = () => {
     }, 1000);
   };
 
-  const handleClassSelection = (e) => {
-    const { value, checked } = e.target;
-    if (checked) {
-      setSelectedClasses([...selectedClasses, value]);
-    } else {
-      setSelectedClasses(selectedClasses.filter((cls) => cls !== value));
-    }
-  };
-
-  // handle drag drop
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
   };
-  
+
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     const files = Array.from(e.dataTransfer.files);
     setUploadedFiles([...uploadedFiles, ...files]);
     setUploadProgress(50);
-  
+
     setTimeout(() => {
       setUploadProgress(100);
     }, 1000);
@@ -52,6 +41,8 @@ const GameCreationPage = () => {
 
   const handleGameCreation = () => {
     alert(`Game "${gameName}" created!`);
+    navigate(`/startGame/${gameName}`);
+    // navigate(`/game?name=${encodeURIComponent(gameName)}`);
   };
 
   return (
@@ -89,24 +80,6 @@ const GameCreationPage = () => {
             onChange={(e) => setGameName(e.target.value)}
             className="input-field"
           />
-          <div className="dropdown">
-            <button className="dropdown-btn">Assign game to class</button>
-            {/* <DropDown classes={classes} /> */}
-{/*             
-            <div className="dropdown-content">
-              {classes.map((cls, index) => (
-                <label key={index}>
-                  <input
-                    type="checkbox"
-                    value={cls}
-                    onChange={handleClassSelection}
-                  />
-                  {cls}
-                </label>
-              ))}
-            </div> */}
-            
-          </div>
           <input
             type="date"
             value={deadline}

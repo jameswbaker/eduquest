@@ -80,8 +80,9 @@ function AppContent() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/teacherDashboard" element={<TeacherDashboardPage />} />
-        <Route path="/game" element={<GamePage />} />
-        <Route path="/startGame" element={<StartPage />} />
+        {/* <Route path="/game" element={<GamePage />} /> */}
+        <Route path="/game/:gameName" element={<GamePage />} />
+        <Route path="/startGame/:gameName" element={<StartPage />} />
         <Route path="/linkCanvas" element={<LinkCanvasPage />} />
         <Route path="/createGame" element={<GameCreationPage />} />
 

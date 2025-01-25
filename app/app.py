@@ -14,13 +14,16 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 @app.route('/generate-questions', methods=['POST'])
 def generate_questions_route():
     content = request.json.get('content', '')
-    print(content)
+    num_answers = request.json.get('num_answers', 4)
+    num_questions = request.json.get('num_questions', 25)
+    print(num_questions, num_answers)
+
     try:
         # Generate questions
         gpt_response = client.chat.completions.create(
             model="gpt-4o-2024-08-06",
             messages=[
-                {"role": "system", "content": "Generate 25 multiple choice questions based on the given content. For each question, provide 4 answer choices and indicate which one is correct."},
+                {"role": "system", "content": "Generate the specified number of multiple choice questions based on the given content. For each question, provide answer choices and indicate which one is correct. There must be exactly one correct answer per question. Questions you generate should progressively increase in difficulty."},
                 {"role": "user", "content": content}
             ],
             response_format={
@@ -55,14 +58,14 @@ def generate_questions_route():
                                                 },
                                                 "required": ["text", "isCorrect"]
                                             },
-                                            "minItems": 4,
-                                            "maxItems": 4
+                                            "minItems": num_answers,
+                                            "maxItems": num_answers
                                         }
                                     },
                                     "required": ["question", "answers"]
                                 },
-                                "minItems": 25,
-                                "maxItems": 25
+                                "minItems": num_questions,
+                                "maxItems": num_questions
                             }
                         },
                         "required": ["questions"]
@@ -76,8 +79,7 @@ def generate_questions_route():
             raise Exception("No response received from OpenAI API")
             
         questions = json.loads(gpt_response.choices[0].message.content)
-        print(questions)
-        print("are we good?")
+        print(len(questions['questions']), questions)
         return jsonify(questions)
 
     except json.JSONDecodeError as e:
@@ -87,9 +89,6 @@ def generate_questions_route():
         print(f"Error generating questions: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# if __name__ == '__main__':
-#     generate_and_save_game()
 
 if __name__ == '__main__':
-    print("what is going on?")
     app.run(debug=True)

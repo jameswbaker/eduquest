@@ -125,7 +125,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ content })
+                    body: JSON.stringify({ content, num_questions: 25, num_answers: 2 })
                 });
                 
                 const data = await response.json();
@@ -146,6 +146,6 @@
             }
         }
     </script>
-    <script src="game.js"></script>
+    <script src="new_flappy.js"></script>
 </body>
 </html>

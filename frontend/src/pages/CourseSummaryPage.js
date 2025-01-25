@@ -58,9 +58,158 @@ export default function CourseSummaryPage() {
         }
     };
 
+    async function fetchGraphQLCourseDetails(courseId) {
+        const query = `
+            query MyQuery {
+                courseDetails(courseId: ${courseId}) {
+                id
+                name
+                submissionsConnection {
+                    edges {
+                    node {
+                        _id
+                        assignmentId
+                        grade
+                        assignment {
+                        description
+                        name
+                        id
+                        pointsPossible
+                        scoreStatistic {
+                            mean
+                            count
+                            maximum
+                        }
+                        submissionsConnection {
+                            edges {
+                            node {
+                                id
+                                score
+                                rubricAssessmentsConnection {
+                                nodes {
+                                    _id
+                                    assessmentRatings {
+                                    description
+                                    points
+                                    criterion {
+                                        description
+                                        _id
+                                    }
+                                    }
+                                }
+                                }
+                                userId
+                            }
+                            }
+                        }
+                        rubric {
+                            criteria {
+                            points
+                            _id
+                            description
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+                }
+            }
+            `;
+
+        
+        try {
+          const response = await fetch('http://localhost:4000/graphql', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query }),
+            credentials: 'include',
+          });
+      
+          const result = await response.json();
+
+          if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+          } else {
+            console.log('Course details:', result.data.courseDetails);
+            return result.data.courseDetails;
+          }
+        } catch (error) {
+          console.error('Error fetching course details:', error);
+        }
+    };
+
+    async function example(courseId) {
+        const query = `
+            query courseDetails(courseId: ${courseId}) {
+                course(id: $courseId) {
+                    id
+                    _id
+                    name
+                }
+            }
+        `;
+
+        try {
+          const response = await axios.get(`http://localhost:4000/api/example/${courseId}`, {
+            withCredentials: true,
+          });
+      
+          const result = await response.json();
+
+          console.log("RESULT:", result);
+
+          if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+          } else {
+            console.log('Course details:', result.data.courseDetails);
+            return result.data.courseDetails;
+          }
+        } catch (error) {
+          console.error('Error fetching course details:', error);
+        }
+    };
+
+    async function example2(courseId) {
+        const query = `
+            query courseDetails(courseId: ${courseId}) {
+                course(id: $courseId) {
+                    id
+                    _id
+                    name
+                }
+            }
+        `;
+
+        try {
+          const response = await axios.get(`http://localhost:4000/api/example2/${courseId}`, {
+            withCredentials: true,
+          });
+      
+          const result = await response.json();
+
+          console.log("RESULT:", result);
+
+          if (result.errors) {
+            console.error('GraphQL errors:', result.errors);
+          } else {
+            console.log('Course details:', result.data.courseDetails);
+            return result.data.courseDetails;
+          }
+        } catch (error) {
+          console.error('Error fetching course details:', error);
+        }
+    };
+      
+
     useEffect(() => {
         fetchStudents();
         fetchCourseDetails();
+        fetchGraphQLCourseDetails(10436535);
+        // example(10436535);
+        example2(10436535);
     }, []);  // Re-run the effect if the token changes
 
     const handleStudentSelect = (studentId) => {

@@ -3,7 +3,16 @@ const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
+// const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
+const {
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLFloat,
+  GraphQLList,
+  GraphQLID,
+} = require('graphql');
 const { graphqlHTTP } = require('express-graphql');
 
 const app = express();
@@ -34,7 +43,7 @@ function getTokenFromCookie(req) {
 }
 
 app.get('/api/users/user-details', async (req, res) => {
-  console.log("GOT HERE");
+  // console.log("GOT HERE");
   const apiToken = req.query.token;
   if (!apiToken) {
     return res.status(400).json({
@@ -74,6 +83,165 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
+app.get('/api/example/:courseId', async (req, res) => {
+
+  const { courseId } = req.params;
+  if (!courseId) {
+    return res.status(400).json({
+      message: "Missing required query parameters: token or courseId",
+    });
+  }
+
+  const query = `
+    query courseDetails($courseId: ID!) {
+      course(id: $courseId) {
+        id
+        name
+      }
+    }
+  `;
+  const variables = { courseId };
+
+  try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
+
+    console.log("API TOKEN: ", apiToken);
+
+    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
+    const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
+      {
+        query,
+        variables
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data.data));
+    const course_id = graphqlResponse.data.data.course.id;
+    const name = graphqlResponse.data.data.course.name;
+    console.log("GQL id: " + course_id);
+    console.log("GQL name: " + name);
+
+    res.json({
+      course_id,
+      name
+    });
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching GQL course details',
+      details: error.response?.data || error.message,
+    });
+  }
+})
+
+app.get('/api/example2/:courseId', async (req, res) => {
+
+  const { courseId } = req.params;
+  if (!courseId) {
+    return res.status(400).json({
+      message: "Missing required query parameters: token or courseId",
+    });
+  }
+
+  const query = `
+    query courseDetails($courseId: ID!) {
+      course(id: $courseId) {
+        id
+                name
+                submissionsConnection {
+                    edges {
+                    node {
+                        _id
+                        assignmentId
+                        grade
+                        assignment {
+                        description
+                        name
+                        id
+                        pointsPossible
+                        scoreStatistic {
+                            mean
+                            count
+                            maximum
+                        }
+                        submissionsConnection {
+                            edges {
+                            node {
+                                id
+                                score
+                                rubricAssessmentsConnection {
+                                nodes {
+                                    _id
+                                    assessmentRatings {
+                                    description
+                                    points
+                                    criterion {
+                                        description
+                                        _id
+                                    }
+                                    }
+                                }
+                                }
+                                userId
+                            }
+                            }
+                        }
+                        rubric {
+                            criteria {
+                            points
+                            _id
+                            description
+                            }
+                        }
+                        }
+                    }
+                    }
+                }
+      }
+    }
+  `;
+  const variables = { courseId };
+
+  try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
+
+    console.log("API TOKEN: ", apiToken);
+
+    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
+    const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
+      {
+        query,
+        variables
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data));
+    const course_id = graphqlResponse.data.data.course.id;
+    const name = graphqlResponse.data.data.course.name;
+    console.log("GQL id: " + course_id);
+    console.log("GQL name: " + name);
+
+    res.json({
+      course_id,
+      name
+    });
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching GQL course details',
+      details: error.response?.data || error.message,
+    });
+  }
+})
+
 app.get('/api/courses/:courseId/course-details', async (req, res) => {
   const { courseId } = req.params;
   if (!courseId) {
@@ -92,7 +260,7 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
     const course_name = courseResponse.data.name;
     const course_code = courseResponse.data.course_code;
     const account_id = courseResponse.data.account_id;
-    console.log(courseResponse.data);
+    // console.log(courseResponse.data);
 
     // Request for all assignments under a course
     const assignmentResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/assignments`, {
@@ -102,8 +270,8 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
       },
     });
     const assignments = assignmentResponse.data.map((assignment) => (
-      console.log("ASSIGNMENT RUBRIC:", assignment.rubric),
-      console.log("ASSIGNMENT SCORE_STATS:", assignment.score_statistics),
+      // console.log("ASSIGNMENT RUBRIC:", assignment.rubric),
+      // console.log("ASSIGNMENT SCORE_STATS:", assignment.score_statistics),
       {
       id: assignment.id,
       name: assignment.name,
@@ -142,7 +310,7 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
     });
 
     // print out
-    console.log(response.data);
+    // console.log(response.data);
 
     // Return only the student data
     res.json(response.data); 
@@ -160,7 +328,7 @@ app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
 
   const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('Decoded payload:', decoded);
+    // console.log('Decoded payload:', decoded);
 
     // Access data from the decoded payload
     const { username, userId, canvasToken } = decoded;
@@ -170,80 +338,12 @@ app.get('/protected-route', (req, res) => {
   }
 
   try {
-    // Verify and decode the token
-    
-
     res.json({ message: `Hello, ${username}!`, userId, canvasToken });
   } catch (err) {
     console.error('Invalid token:', err.message);
     res.status(401).send('Unauthorized: Invalid token');
   }
 });
-
-// GraphQL Schema Setup
-const CourseType = new GraphQLObjectType({
-  name: 'Course',
-  fields: () => ({
-    id: { type: GraphQLInt },
-    name: { type: GraphQLString },
-    course_code: { type: GraphQLString },
-    account_id: { type: GraphQLInt },
-    total_students: { type: GraphQLInt }
-  })
-});
-
-const RootQuery = new GraphQLObjectType({
-  name: 'RootQueryType',
-  fields: {
-    courseDetails: {
-      type: CourseType,
-      args: { courseId: { type: GraphQLInt } },
-      resolve: async (parent, args) => {
-        try {
-          const apiToken = getTokenFromCookie(req); // get token from browser cookie
-          const response = await axios.get(`https://canvas.instructure.com/api/v1/courses/${args.courseId}`, {
-            headers: { 'Authorization': `Bearer ${apiToken}` },
-          });
-          return response.data;
-        } catch (error) {
-          throw new Error('Error fetching course details');
-        }
-      }
-    },
-    userDetails: {
-      type: GraphQLString,
-      args: { token: { type: GraphQLString } },
-      resolve: async (parent, args) => {
-        try {
-          const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
-            headers: { 'Authorization': `Bearer ${args.token}` },
-          });
-          return response.data; // Return the user data
-        } catch (error) {
-          throw new Error('Error fetching user details');
-        }
-      }
-    }
-  }
-});
-
-const Mutation = new GraphQLObjectType({
-  name: 'Mutation',
-  fields: {
-    // Add any mutation logic here if needed
-  }
-});
-
-const schema = new GraphQLSchema({
-  query: RootQuery,
-  mutation: Mutation
-});
-
-// GraphQL endpoint
-app.use('/graphql', graphqlHTTP({
-  schema: schema,
-  graphiql: true,  // Enable GraphiQL interface for testing queries in the browser
-}));
 
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);

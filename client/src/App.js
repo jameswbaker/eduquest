@@ -9,7 +9,7 @@ import AirbnbPage from './pages/Airbnb'
 import HousingPage from './pages/Housing'
 import HospitalPage from './pages/hospitals'
 import NearbyPage from './pages/Nearby_Hos_Crime'
-import SignUpPage from './pages/SignUp';
+import SignUpPage from './pages/Signup';
 import LogoutPage from './pages/Logout';
 import IntroPage from './pages/Intro';
 import DashboardPage from './pages/Dashboard';

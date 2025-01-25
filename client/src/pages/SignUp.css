@@ -57,9 +57,32 @@ body {
 }
 
 
+.signin-button {
+  font-family:'Hammersmith One', sans-serif;
+  background-color: #5586E0;
+  color: black;
+  text-decoration: none;
+  padding: 10px 30px;
+  border-radius: 15px;
+  font-size: 20px;
+  display: inline-block;
+  text-align: center;
+  border: 3px solid black;
+  margin-top: 20px;
+}
+
+.signin-button:hover {
+  background-color: #3157b7; 
+  transition: background-color 0.3s ease; 
+}
+
+.signin-button:focus {
+  outline: none; 
+}
 
 
 .login-button {
+  font-family:'Hammersmith One', sans-serif;
   background-color: #5586E0;
   color: black;
   text-decoration: none;

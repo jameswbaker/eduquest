@@ -165,18 +165,14 @@ const TDashboard = () => {
 
 const CourseCard = ({ studentName, grade, color }) => (
   <div className={`course-card ${color}`}>
-    <h3>{studentName}</h3>
-    <p className={`grade`}>Course Grade: {grade}</p>
+    <div className={`color-section ${color}`}></div>
+    <div className={`text-section ${color}`}>
+      <h3>{studentName}</h3>
+      <p>Course Grade: {grade}</p>
+    </div>
   </div>
 );
 
-const ToDoCard = ({ taskName, dueDate, color, border }) => (
-  <div
-    className={`todo-card ${color} ${border ? `border-${border}` : ""}`}
-  >
-    <h3>{taskName}</h3>
-    <p>{dueDate}</p>
-  </div>
-);
+
 
 export default TDashboard;

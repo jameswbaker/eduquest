@@ -1,9 +1,7 @@
 /* General Styling */
 body {
   font-family: 'Hanken Grotesk', sans-serif;
-  margin: 0;
-  padding: 0;
-  /* background-color: #ffffff; */
+  background-color: #AAC0E8 !important;
 }
 
 span {
@@ -19,12 +17,11 @@ p, button, label {
 }
 
 .profile-board-container {
-  padding: 20px; 
-  min-width: 100vh;
-  min-height: 100vh;
-  margin: 0 auto;
   background-color: #AAC0E8;
+
 }
+
+
 
 header h1 {
   font-family: 'Hammersmith One', sans-serif;
@@ -47,15 +44,26 @@ h2 {
 }
 
 /* Profile Section */
-.profile-section .profile-card {
+.profile-section{
+  background-color: transparent !important;
+  flex: none !important;/* Prevents it from expanding */
+  width: 280px !important;
+  
+}
+
+ .profile-card {
   background-color: white;
-  padding: 20px;
-  border-radius: 10px;
+  
+  padding: 20px !important;
+  border-radius: 25px !important;
   text-align: center;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   flex: 1;
   border: 3px solid black;
+  
 }
+
+
 
 .profile-image {
   width: 100px;
@@ -84,9 +92,12 @@ h2 {
 
 .goals-header {
   display: flex;
-  justify-content: space-between;
+  /*justify-content: space-between;*/
   align-items: center;
+  gap:20px;
+
 }
+
 
 .add-goals-btn {
   background-color: #f8d568;
@@ -129,19 +140,28 @@ h2 {
   font-weight: bold;
 }
 
-/* Summary Section */
-.summary-section {
+.summary-progress-container {
+  display: flex; /* Arrange summary and progress side by side */
+  gap: 20px;
+  align-items: flex-start; /* Align sections to the top */
   margin-top: 20px;
 }
 
-.summary-section h2 {
-  margin-bottom: 10px;
+.summary-section {
+  flex: 1; /* Allow flexibility */
 }
 
+.progress-section {
+  flex: 1; /* Equal width as the summary section */
+}
+
+
+
 .summary-cards {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Creates a 2-column grid */
   gap: 10px;
+  justify-content: center;
 }
 
 .summary-card {
@@ -150,8 +170,21 @@ h2 {
   border-radius: 10px;
   text-align: center;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-  flex: 1;
   border: 3px solid black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Specific styling for different cards */
+.summary-card:nth-child(1) { 
+  grid-row: span 2; /* Make the first card taller */
+}
+
+.summary-card:nth-child(4) { 
+  grid-column: span 2; /* Make the last card wider */
+  font-size: 24px; /* Increase font size for emphasis */
 }
 
 .summary-card p {
@@ -165,10 +198,8 @@ h2 {
   color: gray;
 }
 
+
 /* Progress Section */
-.progress-section {
-  margin-top: 20px;
-}
 
 .progress-section .progress-chart {
   background-color: white;
@@ -176,6 +207,7 @@ h2 {
   border-radius: 10px;
   text-align: center;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .chart-placeholder {

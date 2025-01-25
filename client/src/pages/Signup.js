@@ -115,7 +115,7 @@ function SignUp() {
             </div>
             
            {/*  <button type="submit">Sign Up</button> */}
-           <button className="start-button" onClick={handleSignUp}>
+           <button className="signin-button" onClick={handleSignUp}>
               Sign Up 
             </button>
 

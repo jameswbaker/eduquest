@@ -70,28 +70,23 @@ const DashboardT = () => {
 };
 
 const CourseCard = ({ courseName, instructor, color, courseId }) => {
-  const navigate = useNavigate();  // Hook to navigate programmatically
+  const navigate = useNavigate();
 
-  // Handler for clicking the card
   const handleClick = () => {
-    navigate(`/dataDashboard/${courseId}`);  // Navigate to the DataDashboard with the courseId
+    navigate(`/dataDashboard/${courseId}`);
   };
 
   return (
-    <div className={`t-course-card ${color}`} onClick={handleClick}>
-      <h3>{courseName}</h3>
-      <p>{instructor}</p>
+    <div className="t-course-card" onClick={handleClick}>
+      <div className={`t-color-section ${color}`}></div>
+      <div className={`t-text-section ${color}`}>
+        <h3>{courseName}</h3>
+        <p>{instructor}</p>
+      </div>
     </div>
   );
 };
 
-const ToDoCard = ({ taskName, dueDate, color, border }) => (
-  <div
-    className={`todo-card ${color} ${border ? `border-${border}` : ""}`}
-  >
-    <h3>{taskName}</h3>
-    <p>{dueDate}</p>
-  </div>
-);
+
 
 export default DashboardT;

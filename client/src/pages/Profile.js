@@ -49,12 +49,14 @@ const Profile = () => {
 
         {/* Goals Section */}
         <section className="goals-section">
-          <header className="goals-header">
-            <h2>Goals</h2>
-            <button className="add-goals-btn" onClick={() => setIsModalOpen(true)}>
-              Add New Goals
-            </button>
-          </header>
+        <header className="goals-header">
+        <h2>Goals</h2>
+        <button className="add-goals-btn" onClick={() => setIsModalOpen(true)}>
+          Add New Goals
+        </button>
+      </header>
+
+
           <div className="goals-list">
           {goals.map((goal, index) => (
               <div
@@ -129,38 +131,40 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Summary Section */}
-      <section className="summary-section">
-        <h2>Summary</h2>
-        <div className="summary-cards">
-          <div className="summary-card">
-            <p>50</p>
-            <span>Total Courses Enrolled</span>
+      <div className="summary-progress-container">
+        {/* Summary Section */}
+        <section className="summary-section">
+          <h2>Summary</h2>
+          <div className="summary-cards">
+            <div className="summary-card">
+              <p>50</p>
+              <span>Total Courses Enrolled</span>
+            </div>
+            <div className="summary-card">
+              <p>13</p>
+              <span>Courses Completed</span>
+            </div>
+            <div className="summary-card">
+              <p>37</p>
+              <span>Courses Ongoing</span>
+            </div>
+            <div className="summary-card">
+              <p>85%</p>
+              <span>Average Score</span>
+            </div>
           </div>
-          <div className="summary-card">
-            <p>13</p>
-            <span>Courses Completed</span>
-          </div>
-          <div className="summary-card">
-            <p>37</p>
-            <span>Courses Ongoing</span>
-          </div>
-          <div className="summary-card">
-            <p>85%</p>
-            <span>Average Score</span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Progress Chart */}
-      <section className="progress-section">
-        <h2>Progress of Courses</h2>
-        <div className="progress-chart">
-          <div className="chart-placeholder">
-            <p>Chart Here</p>
+        {/* Progress Section */}
+        <section className="progress-section">
+          <h2>Progress of Courses</h2>
+          <div className="progress-chart">
+            <div className="chart-placeholder">
+              <p>Chart Here</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 };

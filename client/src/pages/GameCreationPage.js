@@ -52,18 +52,17 @@ const GameCreationPage = () => {
   };
 
   const toggleDropdown = () => {
-    console.log('clicked');
     setDropdownOpen((prev) => !prev);
-    console.log('this is drop down: ', dropdownOpen);
-    console.log('classes: ', classes);
   };
 
   const handleClassSelection = (className) => {
-    setSelectedClasses((prev) =>
-      prev.includes(className)
-        ? prev.filter((cls) => cls !== className)
-        : [...prev, className]
-    );
+    if (!selectedClasses.includes(className)) {
+      setSelectedClasses([...selectedClasses, className]);
+    }
+  };
+
+  const handleRemoveClass = (className) => {
+    setSelectedClasses(selectedClasses.filter((cls) => cls !== className));
   };
 
   const filteredClasses = classes.filter((cls) =>
@@ -72,93 +71,117 @@ const GameCreationPage = () => {
 
   return (
     <div className="background">
-    <div className="game-container">
-      <h1 className="game-creation-title">Create a new game!</h1>
-      <div className="content-section">
-        <div className="upload-section">
-          <div
-            className="drag-drop-box"
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
-            <p>Drag learning materials here</p>
-          </div>
-          <input
-            type="file"
-            id="fileUpload"
-            multiple
-            onChange={handleFileUpload}
-            hidden
-          />
-          <label htmlFor="fileUpload" className="choose-file-btn">
-            Choose File
-          </label>
-          {uploadProgress > 0 && uploadProgress < 100 && (
-            <div className="progress-bar">
-              <div
-                style={{ width: `${uploadProgress}%` }}
-                className="progress"
-              ></div>
+      <div className="game-container">
+        <h1 className="game-creation-title">Create a new game!</h1>
+        <div className="content-section">
+          
+          {/* File Upload Section */}
+          <div className="upload-section">
+            <div
+              className="drag-drop-box"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              <p>Drag learning materials here</p>
             </div>
-          )}
-          {uploadProgress === 100 && (
-            <div className="uploaded-files">
-              {uploadedFiles.map((file, index) => (
-                <p key={index}>📄 {file.name}</p>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="input-section">
-          <input
-            type="text"
-            placeholder="Game name*"
-            value={gameName}
-            onChange={(e) => setGameName(e.target.value)}
-            className="input-field"
-          />
-          <div className="dropdown">
-            <button onClick={toggleDropdown} className="dropbtn">
-              Select Classes
-            </button>
-            {dropdownOpen && (
-              <div className="dropdown-content">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="dropdown-search"
-                />
-                {filteredClasses.length > 0 ? (
-                  filteredClasses.map((cls, index) => (
-                    <label key={index} className="dropdown-item">
-                      <input
-                        type="checkbox"
-                        checked={selectedClasses.includes(cls)}
-                        onChange={() => handleClassSelection(cls)}
-                      />
-                      {cls}
-                    </label>
-                  ))
-                ) : (
-                  <p>No classes found</p>
-                )}
+            <input
+              type="file"
+              id="fileUpload"
+              multiple
+              onChange={handleFileUpload}
+              hidden
+            />
+            <label htmlFor="fileUpload" className="choose-file-btn">
+              Choose File
+            </label>
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <div className="progress-bar">
+                <div
+                  style={{ width: `${uploadProgress}%` }}
+                  className="progress"
+                ></div>
+              </div>
+            )}
+            {uploadProgress === 100 && (
+              <div className="uploaded-files">
+                {uploadedFiles.map((file, index) => (
+                  <p key={index}>📄 {file.name}</p>
+                ))}
               </div>
             )}
           </div>
-          <input
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            className="input-field"
-          />
+
+          {/* Game & Class Selection Section */}
+          <div className="input-section">
+            <input
+              type="text"
+              placeholder="Game name*"
+              value={gameName}
+              onChange={(e) => setGameName(e.target.value)}
+              className="input-field"
+            />
+
+            <input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              className="input-field"
+            />
+
+            <div className="dropdown">
+              <button onClick={toggleDropdown} className="dropbtn">
+                Select Classes
+              </button>
+              {dropdownOpen && (
+                <div className="dropdown-content">
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="dropdown-search"
+                  />
+                  {filteredClasses.length > 0 ? (
+                    filteredClasses.map((cls, index) => (
+                      <div
+                        key={index}
+                        className="dropdown-item"
+                        onClick={() => handleClassSelection(cls)}
+                      >
+                        {cls}
+                      </div>
+                    ))
+                  ) : (
+                    <p>No classes found</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            
+
+       
+            <div className="selected-classes-container">
+              {selectedClasses.map((cls, index) => (
+                <div key={index} className="selected-class-box">
+                  <button
+                    className="remove-class-btn"
+                    onClick={() => handleRemoveClass(cls)}
+                  >
+                    ✖
+                  </button>
+                  {cls}
+                </div>
+              ))}
+            </div>
+
+            
+          </div>
         </div>
+        <button className="create-game-btn" onClick={handleGameCreation}>
+          Create Game!
+        </button>
       </div>
-      <button className="create-game-btn" onClick={handleGameCreation}>
-        Create Game!
-      </button>
-    </div>
     </div>
   );
 };

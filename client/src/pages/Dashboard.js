@@ -1,7 +1,6 @@
-// App.jsx
 import React from "react";
 import "./Dashboard.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -10,9 +9,9 @@ const Dashboard = () => {
       <header className="dashboard-header">
         <h1>Chanya's Dashboard</h1>
         <div className="header-icons">
-          <button className="icon-button">💬</button>
-          <button className="icon-button">🛒</button>
-          <button className="icon-button">⚪</button>
+          <span className="icon">💬</span>
+          <span className="icon">🛒</span>
+          <span className="icon">⚪</span>
         </div>
       </header>
 
@@ -68,53 +67,58 @@ const Dashboard = () => {
             <ToDoCard
               taskName="Haiku"
               dueDate="No Due Date"
-              color="yellow" // in-progress
+              color="yellow"
               border="black"
             />
             <ToDoCard
               taskName="Problem-Solution Essay Writing"
               dueDate="Due Dec 12"
-              color="red" // red is for not done
+              color="red"
               border="black"
             />
             <ToDoCard
               taskName="White Paper"
               dueDate="Due Oct 12 Finished Oct 10"
-              color="green" // completed
+              color="green"
               border="black"
               courseId="5"
             />
           </div>
         </div>
-        
       </div>
     </div>
   );
 };
 
 const CourseCard = ({ courseName, instructor, color, courseId }) => {
-  const navigate = useNavigate();  // Hook to navigate programmatically
+  const navigate = useNavigate();
 
-  // Handler for clicking the card
   const handleClick = () => {
-    navigate(`/dataDashboard/${courseId}`);  // Navigate to the DataDashboard with the courseId
+    navigate(`/dataDashboard/${courseId}`);
   };
 
   return (
     <div className={`course-card ${color}`} onClick={handleClick}>
-      <h3>{courseName}</h3>
-      <p>{instructor}</p>
+      <div className={`color-section ${color}`}></div>
+      <div className={`text-section ${color}`}>
+        <h3>{courseName}</h3>
+        <p>{instructor}</p>
+      </div>
     </div>
   );
 };
 
-const ToDoCard = ({ taskName, dueDate, color, border }) => (
-  <div
-    className={`todo-card ${color} ${border ? `border-${border}` : ""}`}
-  >
-    <h3>{taskName}</h3>
-    <p>{dueDate}</p>
+
+const ToDoCard = ({ taskName, dueDate, color }) => (
+  <div className={`course-card ${color}`}>
+    <div className={`todo-color-section ${color}`}></div>
+    <div className="todo-text-section">
+      <h3>{taskName}</h3>
+      <p>{dueDate}</p>
+    </div>
   </div>
 );
+
+
 
 export default Dashboard;

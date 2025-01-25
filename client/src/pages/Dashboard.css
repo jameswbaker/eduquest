@@ -1,172 +1,187 @@
- body {
-    background-color: #8FCE5D;
-  } 
-  
-  .dashboard-container {
-    padding: 20px;
-    min-height: 100vh;
-    border: 4px;
-    border: 4px solid black;
-    background-color: #8FCE5D;
-  }
-  
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .dashboard-header h1 {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .header-icons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .icon-button {
-    padding: 10px;
-    background-color: white;
-    border: none;
-    border-radius: 50%;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-  }
-  
-  /* Main Content Layout */
-  .dashboard-main {
-    display: flex;
-    gap: 20px;
-  }
-  
-  /* Courses Section */
-  .courses-section {
-    flex: 1;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    border: 4px solid black;
-  }
-  
-  .courses-section h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .courses-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .course-card {
-    padding-left: 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-    border: 3px solid black;
-  }
+/* Course Card Styling */
+.course-card {
+  display: flex;
+  align-items: stretch; 
+  width: 100%;
+  height: 120px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
 
-  .course-card h3 {
-    padding-top: 5px;
-    padding-bottom: 0px;
-  }
+  overflow: hidden;
+  box-sizing: border-box;
 
-  .course-card p {
-    padding-bottom: 15px;
-  }
+}
 
-  .course-card:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Course Colors */
-  .course-card.yellow {
-    background-color: #F2C100;
-  }
-  
-  .course-card.blue {
-    background-color: #5586E0;
-  }
-  
-  .course-card.red {
-    background-color: #E54B32;
-  }
-  
-  .course-card.pink {
-    background-color: #EA97B3;
-  }
-  
-  .course-card.green {
-    background-color: #8FCE5D;
-  }
+/* Left color section */
+.color-section {
+  flex-basis: 25%; 
+  min-width: 25%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
 
-  h3 {
-    font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 20%px;
-  }
+/* Text section with a lighter shade */
+.text-section {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
   
-  /* To-Do List Section */
-  .todo-section {
-    flex: 2;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    border: 4px solid black;
-  }
-  
-  .todo-section h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .todo-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .todo-card {
-    /* padding: 15px; */
-    padding-left: 15px;
-    border: 1px solid black;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .todo-card:hover {
-    transform: scale(1.05);
-  }
+  box-sizing: border-box;
+}
 
-  .todo-card h3 {
-    padding-top: 5px;
-  }
-  
-  .todo-card p {
-    padding-bottom: 15px;
-  }
-  
-  /* To-Do Colors */
-  .todo-card.yellow {
-    background-color: #F2C100;
-  }
-  
-  .todo-card.green {
-    background-color: #8FCE5D;
-  }
+/* Increased text size */
+.text-section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+  padding-left: 15px;
+}
 
-  .todo-card.red {
-    background-color: #E54B32;
-  }
-  
-  /* Optional Highlighting */
-  .border-black {
-    border: 3px solid black;
-  }
-  
+.text-section p {
+  font-size: 16px;
+  color: gray;
+  margin: 5px 0 0;
+  padding-left: 15px;
+}
+
+/* Course Colors */
+.color-section.yellow {
+  background-color: #F2C100;
+}
+
+.text-section.yellow {
+  background-color: #FBE79F; /* Lighter yellow */
+}
+
+.color-section.blue {
+  background-color: #5586E0;
+}
+
+.text-section.blue {
+  background-color: #A9C6F5; /* Lighter blue */
+}
+
+.color-section.red {
+  background-color: #E54B32;
+}
+
+.text-section.red {
+  background-color: #F6A79B; /* Lighter red */
+}
+
+.color-section.pink {
+  background-color: #EA97B3;
+}
+
+.text-section.pink {
+  background-color: #F7C3D1; /* Lighter pink */
+}
+
+.color-section.green {
+  background-color: #8FCE5D;
+}
+
+.text-section.green {
+  background-color: #C5E6A0; /* Lighter green */
+}
+
+/* To-Do Card (same as course card) */
+.todo-card {
+  display: flex;
+  align-items: stretch; /* Ensures sections stretch to fill height */
+  width: 100%;
+  height: 120px;
+  border-radius: 15px;
+  border: 3px solid black !important;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Left color section (strip) */
+.todo-color-section {
+  height: 100%;
+  flex-grow: 1; /* Ensures it expands fully */
+  border-right: 3px solid black;
+  box-sizing: border-box;
+}
+
+/* Text section */
+.todo-text-section {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+/* Increased text size */
+.todo-text-section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+  padding-left: 15px;
+}
+
+.todo-text-section p {
+  font-size: 16px;
+  color: gray;
+  margin: 5px 0 0;
+  padding-left: 15px;
+}
+
+/* To-Do Colors */
+.todo-color-section.yellow {
+  background-color: #F2C100;
+}
+
+.todo-text-section.yellow {
+  background-color: #FBE79F; /* Lighter yellow */
+}
+
+.todo-color-section.red {
+  background-color: #E54B32;
+}
+
+.todo-text-section.red {
+  background-color: #F6A79B; /* Lighter red */
+}
+
+.todo-color-section.green {
+  background-color: #8FCE5D;
+}
+
+.todo-text-section.green {
+  background-color: #C5E6A0; /* Lighter green */
+}
+
+/* Header Icons */
+.header-icons {
+  display: flex;
+  gap: 15px; /* Adds spacing between icons */
+}
+
+.icon {
+  font-size: 30px; 
+  cursor: pointer; 
+  transition: transform 0.2s ease-in-out;
+  user-select: none; 
+  padding: 10px;
+}
+
+.icon:hover {
+  transform: scale(1.2); 
+}
+

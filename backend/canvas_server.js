@@ -266,6 +266,7 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
       {
       id: assignment.id,
       name: assignment.name,
+      description: assignment.description,
       rubric: assignment.rubric,                // May only be present if Canvas provides it
       score_statistics: assignment.score_statistics, // May only be present with include[]=score_statistics
     }));

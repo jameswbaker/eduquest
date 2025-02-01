@@ -1,16 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import axios from 'axios';
-import RadarChart from '../components/RadarChart';
+import React, { useEffect } from 'react';
 import '../pages/CourseSummaryPage.css';
 import './StudentList.css'
 
 export default function StudentList({ students, handleStudentSelect, selectedStudent }) {
-
-    useEffect(() => {
-        console.log(selectedStudent);
-    }, [selectedStudent])
 
     return (
         <div className="summary_container" id="students_container">

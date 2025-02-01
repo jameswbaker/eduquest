@@ -1,0 +1,5 @@
+.assignment_item.selected {
+    display: flex;
+    flex-direction: column;
+    background-color: antiquewhite;
+}

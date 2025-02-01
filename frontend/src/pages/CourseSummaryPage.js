@@ -5,18 +5,7 @@ import axios from 'axios';
 import RadarChart from '../components/RadarChart';
 import './CourseSummaryPage.css';
 import StudentList from '../components/StudentList';
-import StudentView from '../components/StudentView';
-
-// const radarData = [92, 59, 90, 25, 56, 64, 40];
-// const radarLabels = [
-//     'Following instructions',
-//     'Teamwork',
-//     'Working independently',
-//     'Communication',
-//     'Time management',
-//     'Problem solving',
-//     'Learning new skills',
-// ];
+import AssignmentList from '../components/AssignmentList';
 
 export default function CourseSummaryPage() {
     const location = useLocation(); // Get the current location object
@@ -24,15 +13,16 @@ export default function CourseSummaryPage() {
     const courseId = queryParams.get('courseId'); // Retrieve the 'courseId' parameter
 
     const [students, setStudents] = useState([]);     // Store student data
+    const [assignments, setAssignments] = useState([]);
     const [error, setError] = useState('');          // Store error messages
-    const [selectedStudentId, setSelectedStudentId] = useState('');
     const [courseName, setCourseName] = useState('');
     const [courseCode, setCourseCode] = useState('');
-    const [assignments, setAssignments] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState('');
+    const [selectedAssignment, setSelectedAssignment] = useState('');
     const [radarLabels, setRadarLabels] = useState([]);
     const [radarData, setRadarData] = useState([]);
     const [processedData, setProcessedData] = useState('');
+    const [assignmentAverages, setAssignmentAverages] = useState([]);
 
     // Fetch course details from Canvas API
     const fetchCourseDetails = async () => {
@@ -54,7 +44,6 @@ export default function CourseSummaryPage() {
     const fetchStudents = async () => {
         setError('');  // Reset error state
         try {
-            console.log("HI");
             const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/students`, {
                 withCredentials: true,
             });
@@ -63,120 +52,6 @@ export default function CourseSummaryPage() {
         } catch (error) {
             console.error('Error fetching students:', error.response ? error.response.data : error.message);
             setError('Error fetching students. Please check your token and permissions.');
-        }
-    };
-
-    async function fetchGraphQLCourseDetails(courseId) {
-        const query = `
-            query MyQuery {
-                courseDetails(courseId: ${courseId}) {
-                id
-                name
-                submissionsConnection {
-                    edges {
-                    node {
-                        _id
-                        assignmentId
-                        grade
-                        assignment {
-                        description
-                        name
-                        id
-                        pointsPossible
-                        scoreStatistic {
-                            mean
-                            count
-                            maximum
-                        }
-                        submissionsConnection {
-                            edges {
-                            node {
-                                id
-                                score
-                                rubricAssessmentsConnection {
-                                nodes {
-                                    _id
-                                    assessmentRatings {
-                                    description
-                                    points
-                                    criterion {
-                                        description
-                                        _id
-                                    }
-                                    }
-                                }
-                                }
-                                userId
-                            }
-                            }
-                        }
-                        rubric {
-                            criteria {
-                            points
-                            _id
-                            description
-                            }
-                        }
-                        }
-                    }
-                    }
-                }
-                }
-            }
-            `;
-
-        
-        try {
-          const response = await fetch('http://localhost:4000/graphql', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query }),
-            credentials: 'include',
-          });
-      
-          const result = await response.json();
-
-          if (result.errors) {
-            console.error('GraphQL errors:', result.errors);
-          } else {
-            console.log('Course details:', result.data.courseDetails);
-            return result.data.courseDetails;
-          }
-        } catch (error) {
-          console.error('Error fetching course details:', error);
-        }
-    };
-
-    async function example(courseId) {
-        const query = `
-            query courseDetails(courseId: ${courseId}) {
-                course(id: $courseId) {
-                    id
-                    _id
-                    name
-                }
-            }
-        `;
-
-        try {
-          const response = await axios.get(`http://localhost:4000/api/example/${courseId}`, {
-            withCredentials: true,
-          });
-      
-          const result = await response.json();
-
-          console.log("RESULT:", result);
-
-          if (result.errors) {
-            console.error('GraphQL errors:', result.errors);
-          } else {
-            console.log('Course details:', result.data.courseDetails);
-            return result.data.courseDetails;
-          }
-        } catch (error) {
-          console.error('Error fetching course details:', error);
         }
     };
 
@@ -191,10 +66,12 @@ export default function CourseSummaryPage() {
 
           // Build our aggregator for all users
           const aggregatedData = aggregateAllRubricData(course);
-          console.log('Aggregated rubric data:', aggregatedData);
-
-          // Store it in React state
+          console.log('Aggregated rubric data by student:', aggregatedData);
           setProcessedData(aggregatedData);
+
+          const assignmentData = computeAveragePercentageByAssignment(course);
+          console.log('Aggregated rubric data by assignment:', assignmentData);
+          setAssignmentAverages(assignmentData);
         } catch (error) {
           console.error('Error fetching course details:', error);
         }
@@ -297,104 +174,168 @@ export default function CourseSummaryPage() {
       return aggregator;
     }
 
-    function computeRubricPercentage(course) {
-        const result = [];
+    function computeClassAverages(aggregator) {
+        const classMap = {};
+        // 1) Identify all unique criteria across *all* users
+        const allCritIds = new Set();
+        Object.keys(aggregator).forEach((userId) => {
+            Object.keys(aggregator[userId]).forEach((critId) => {
+                allCritIds.add(critId);
+            });
+        });
 
-        // 1) Go through each submission in submissionsConnection
+        // 2) For each criterion, sum across all users that have data
+        allCritIds.forEach((critId) => {
+            let totalEarned = 0;
+            let totalPossible = 0;
+            let description = null;
+        
+            Object.keys(aggregator).forEach((userId) => {
+              const entry = aggregator[userId][critId];
+              if (entry) {
+                totalEarned += entry.totalEarned;
+                totalPossible += entry.totalPossible;
+                if (!description) {
+                  description = entry.description; 
+                }
+              }
+            });
+        
+            let percentage = 0;
+            if (totalPossible > 0) {
+              percentage = (totalEarned / totalPossible) * 100;
+            }
+        
+            classMap[critId] = {
+              description: description || "Unknown Criterion",
+              totalEarned,
+              totalPossible,
+              percentage,
+            };
+        });
+    
+        return classMap;
+    }
+
+    function computeAveragePercentageByAssignment(course) {
+        const aggregator = {};
+
+        // Go through each "submission edge" at the course level
         const submissionsEdges = course?.submissionsConnection?.edges || [];
         submissionsEdges.forEach((submissionEdge) => {
             const submissionNode = submissionEdge.node;
-            // The assignment object
             const assignment = submissionNode.assignment;
             if (!assignment) return;
-        
+
+            const assignmentId = submissionNode.assignmentId;       // Canvas's assignment ID (GraphQL)
             const assignmentName = assignment.name;
             const rubric = assignment.rubric;
             if (!rubric?.criteria) return;
-        
-            // 2) Access submissions within this assignment
-            const assignmentSubmissions = assignment?.submissionsConnection?.edges || [];
-            
-            // Potentially multiple submissions for multiple users,
-            // but in your example there's likely just one user.
-            assignmentSubmissions.forEach((submissionForUserEdge) => {
-              const submissionForUser = submissionForUserEdge.node;
-              if (!submissionForUser) return;
-        
-              // 3) The array of rubric assessments (the scoring breakdown)
-              const rubricAssessments = submissionForUser?.rubricAssessmentsConnection?.nodes || [];
-        
-              rubricAssessments.forEach((assessment) => {
-                const assessmentRatings = assessment.assessmentRatings || [];
-        
-                // Create a map of criterionId -> pointsEarned
-                const ratingMap = {};
-                assessmentRatings.forEach((rating) => {
-                  const criterionId = rating.criterion?._id;
-                  if (!criterionId) return;
-                  ratingMap[criterionId] = rating.points;
-                });
-        
-                // 4) Now compute (points earned / points possible) for each criterion
-                const criteriaScores = rubric.criteria.map((crit) => {
-                  const maxPoints = crit.points;
-                  const earnedPoints = ratingMap[crit._id] ?? 0;
-                  
-                  let percentage = null;
-                  if (maxPoints > 0) {
-                    percentage = (earnedPoints / maxPoints) * 100;
-                  }
-                  // If maxPoints is 0, we might say "N/A" or 0, or skip it
-        
-                  return {
-                    criterionId: crit._id,
-                    criterionDescription: crit.description,
-                    pointsEarned: earnedPoints,
-                    pointsPossible: maxPoints,
-                    percentage,
-                  };
-                });
-        
-                // You might structure your result how you like. For example:
-                const item = {
-                  assignmentName,
-                  userId: submissionForUser.userId, // or any user info you have
-                  totalScore: submissionForUser.score, // total score
-                  criteriaScores,
+
+            // Make sure aggregator has an entry for this assignment
+            if (!aggregator[assignmentId]) {
+                aggregator[assignmentId] = {
+                    assignmentName,
+                    criteriaMap: {}, // Keyed by criterionId
                 };
-        
-                result.push(item);
-              });
+            }
+
+            // Now go through the assignment's own submissions
+            const assignmentSubmissions = assignment?.submissionsConnection?.edges || [];
+            assignmentSubmissions.forEach((subEdge) => {
+                const submissionForUser = subEdge.node;
+                if (!submissionForUser) return;
+
+                // Each submission has 0+ rubric assessments
+                const rubricAssessments = submissionForUser?.rubricAssessmentsConnection?.nodes || [];
+                rubricAssessments.forEach((assessment) => {
+                    const assessmentRatings = assessment.assessmentRatings || [];
+
+                    // Map of criterionId -> pointsEarned (just for this single assessment)
+                    const ratingMap = {};
+                    assessmentRatings.forEach((rating) => {
+                        const critId = rating.criterion?._id;
+                        const critDesc = rating.criterion?.description;
+                        if (!critId) return;
+                        ratingMap[critId] = {
+                            pointsEarned: rating.points,
+                            description: critDesc,
+                        };
+                    });
+
+                    // For each criterion in the rubric, see if the submission had a rating
+                    rubric.criteria.forEach((crit) => {
+                        const critId = crit._id;
+                        const critMax = crit.points || 0;
+                        const critDesc = crit.description;
+
+                        // If no rating found for this criterion, assume 0 earned
+                        const ratingInfo = ratingMap[critId];
+                        const earned = ratingInfo?.pointsEarned ?? 0;
+                        const usedDesc = ratingInfo?.description || critDesc;
+
+                        // Add or init aggregator for this criterion
+                        if (!aggregator[assignmentId].criteriaMap[critId]) {
+                            aggregator[assignmentId].criteriaMap[critId] = {
+                            description: usedDesc,
+                            sumEarned: 0,
+                            sumPossible: 0,
+                            };
+                        }
+
+                        aggregator[assignmentId].criteriaMap[critId].sumEarned += earned;
+                        aggregator[assignmentId].criteriaMap[critId].sumPossible += critMax;
+                    });
+                });
             });
         });
-        return result;
+
+        // Now compute "average" (sumEarned / sumPossible * 100) for each assignment + criterion
+        Object.keys(aggregator).forEach((assignmentId) => {
+            const criteriaScores = aggregator[assignmentId].criteriaMap || {};
+    
+            Object.keys(criteriaScores).forEach((critId) => {
+                const { sumEarned, sumPossible } = criteriaScores[critId];
+                let averagePercentage = 0;
+                if (sumPossible > 0) {
+                    averagePercentage = (sumEarned / sumPossible) * 100;
+                }
+                criteriaScores[critId].averagePercentage = averagePercentage;
+            });
+        });
+    
+        // Return an object indexed by assignmentId
+        return aggregator;
     }
-      
 
     useEffect(() => {
         fetchStudents();
         fetchCourseDetails();
-        fetchGraphQLCourseDetails(10436535);
-        // example(10436535);
-        // example2(10436535);
-        example2(10436535);
-    }, []);
+        example2(courseId);
+    }, [courseId]);
 
     useEffect(() => {
-        loadRadarData(selectedStudent);
-        console.log(selectedStudent);
+        loadRadarDataByStudent(selectedStudent);
     }, [processedData, selectedStudent]);
 
-    const loadRadarData = async (selectedStudent) => {
+    useEffect(() => {
+        loadRadarDataByAssignment(selectedAssignment);
+    }, [processedData, selectedAssignment]);
+
+    const loadRadarDataByStudent = async (selectedStudent) => {
         if (!selectedStudent) {
-            // if no selected student, do nothing for now
-            // TODO: aggregate
+            const classAverages = computeClassAverages(processedData);
+            const entries = Object.values(classAverages);
+            entries.sort((a, b) => a.description.localeCompare(b.description));
+
+            const chartLabels = entries.map((e) => e.description);
+            const chartData = entries.map((e) => e.percentage);
+            setRadarLabels(chartLabels);
+            setRadarData(chartData);
             return;
         }
 
         if (!processedData || processedData.length === 0) return;
-        console.log("WE HAVE processedData");
-
         const userId = selectedStudent.user.id;
         const userCriteriaMap = processedData[userId];
         if (!userCriteriaMap) {
@@ -407,17 +348,11 @@ export default function CourseSummaryPage() {
         // userCriteriaMap is an object of { [critId]: { description, totalEarned, totalPossible, percentage } }
         // Convert it to arrays for the chart
         const entries = Object.values(userCriteriaMap); 
+        entries.sort((a, b) => a.description.localeCompare(b.description));
 
-        // For demonstration, just use the first item
-        // const item = processedData[0];
-        // console.log(item);
         // Convert criteriaScores into chart arrays
         const chartLabels = entries.map((e) => e.description);
         const chartData = entries.map((e) => e.percentage);
-
-        console.log("Chart Labels: " + chartLabels);
-        console.log("Chart Data: " + chartData);
-
         setRadarLabels(chartLabels);
         setRadarData(chartData);
     }
@@ -426,13 +361,55 @@ export default function CourseSummaryPage() {
         // Check if the clicked student is already selected
         if (selectedStudent?.user?.id === student.user.id) {
             // Deselect the student if it's already selected
-            setSelectedStudentId('');
             setSelectedStudent('');
         } else {
             // Otherwise, select the student
-            setSelectedStudentId(student.user.id); // Save the selected student ID to state
             setSelectedStudent(student);
             console.log("STUDENT SELECTED: ", student.user.name);
+        }
+    };
+
+    const loadRadarDataByAssignment = (selectedAssignment) => {
+        if (!assignmentAverages || assignmentAverages.length === 0) {
+            setRadarLabels([]);
+            setRadarData([]);
+            return;
+        }
+        
+        // No assignment selected => show entire class average across all assignments
+        if (!selectedAssignment) {
+            const classAverages = computeClassAverages(processedData);
+            const entries = Object.values(classAverages);
+            entries.sort((a, b) => a.description.localeCompare(b.description));
+
+            const chartLabels = entries.map((e) => e.description);
+            const chartData = entries.map((e) => e.percentage);
+            setRadarLabels(chartLabels);
+            setRadarData(chartData);
+            return;
+        }
+
+        // Assignment selected => show only those rubric items under this assignment
+        const assignmentAvg = assignmentAverages[selectedAssignment.id];
+        const criteriaScores = Object.values(assignmentAvg.criteriaMap);
+        criteriaScores.sort((a, b) => a.description.localeCompare(b.description));
+
+        const labels = criteriaScores.map((c) => c.description);
+        const data = criteriaScores.map((c) => c.averagePercentage);
+
+        setRadarLabels(labels);
+        setRadarData(data);
+    };
+
+    const handleAssignmentSelect = (assignment) => {
+        // Check if the clicked assignment is already selected
+        if (selectedAssignment?.id === assignment.id) {
+            // Deselect the assignment if it's already selected
+            setSelectedAssignment('');
+        } else {
+            // Otherwise, select the assignment
+            setSelectedAssignment(assignment);
+            console.log("ASSIGNMENT SELECTED: ", assignment.name);
         }
     };
 
@@ -446,22 +423,35 @@ export default function CourseSummaryPage() {
             {/* Display error message if there's an issue */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
+            {/* This is the view by students */}
             <div className="chart_container">
-                {/* render this if there is no selected student */}
-                <StudentList students={students} handleStudentSelect={handleStudentSelect}  selectedStudent={selectedStudent}/>
-                {/* render this if there is a selected student */}
+                <StudentList students={students} handleStudentSelect={handleStudentSelect} selectedStudent={selectedStudent}/>
                 
                 <div className="summary_container" id="chart_container">
-                    <h4>Ability Chart</h4>
-                    <RadarChart dataset={radarData} labels={radarLabels} dataset_label={selectedStudent ? selectedStudent.user.name + "'s Ability" : ""}/>
+                    <h4>Student Ability Chart</h4>
+                    <RadarChart 
+                        dataset={radarData} 
+                        labels={radarLabels} 
+                        dataset_label={selectedStudent ? selectedStudent.user.name + "'s Ability" : "Class Average Ability"}
+                    />
                     {/* History chart */}
                 </div>
             </div>
-            
 
-            {/* Pull course information */}
-            {/* Display blank ability chart */}
-            {/* Consider making a separate component for the ability chart */}
+            {/* This is the view by assignments */}
+            <div className="chart_container">
+                <AssignmentList assignments={assignments} handleAssignmentSelect={handleAssignmentSelect} selectedAssignment={selectedAssignment}/>
+                
+                <div className="summary_container" id="chart_container">
+                    <h4>Assignment Ability Chart</h4>
+                    <RadarChart 
+                        dataset={radarData} 
+                        labels={radarLabels} 
+                        dataset_label={selectedAssignment ? `${selectedAssignment.name} Performance` : "Assignments Overview"}
+                    />
+                    {/* History chart */}
+                </div>
+            </div>
 
             {/*
             FOR THE UI PEEPS:

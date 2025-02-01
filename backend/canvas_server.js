@@ -123,8 +123,8 @@ app.get('/api/example/:courseId', async (req, res) => {
     console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data.data));
     const course_id = graphqlResponse.data.data.course.id;
     const name = graphqlResponse.data.data.course.name;
-    console.log("GQL id: " + course_id);
-    console.log("GQL name: " + name);
+    // console.log("GQL id: " + course_id);
+    // console.log("GQL name: " + name);
 
     res.json({
       course_id,
@@ -151,56 +151,51 @@ app.get('/api/example2/:courseId', async (req, res) => {
     query courseDetails($courseId: ID!) {
       course(id: $courseId) {
         id
+        name
+        submissionsConnection {
+          edges {
+            node {
+              _id
+              assignmentId
+              grade
+              assignment {
+                description
                 name
+                id
+                pointsPossible
                 submissionsConnection {
-                    edges {
+                  edges {
                     node {
-                        _id
-                        assignmentId
-                        grade
-                        assignment {
-                        description
-                        name
-                        id
-                        pointsPossible
-                        scoreStatistic {
-                            mean
-                            count
-                            maximum
-                        }
-                        submissionsConnection {
-                            edges {
-                            node {
-                                id
-                                score
-                                rubricAssessmentsConnection {
-                                nodes {
-                                    _id
-                                    assessmentRatings {
-                                    description
-                                    points
-                                    criterion {
-                                        description
-                                        _id
-                                    }
-                                    }
-                                }
-                                }
-                                userId
-                            }
-                            }
-                        }
-                        rubric {
-                            criteria {
-                            points
-                            _id
+                      id
+                      score
+                      rubricAssessmentsConnection {
+                        nodes {
+                          _id
+                          assessmentRatings {
                             description
+                            points
+                            criterion {
+                              description
+                              _id
                             }
+                          }
                         }
-                        }
+                      }
+                      userId
                     }
-                    }
+                  }
                 }
+                rubric {
+                  criteria {
+                    points
+                    _id
+                    description
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   `;
@@ -224,16 +219,12 @@ app.get('/api/example2/:courseId', async (req, res) => {
         }
       }
     );
-    console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data));
-    const course_id = graphqlResponse.data.data.course.id;
-    const name = graphqlResponse.data.data.course.name;
-    console.log("GQL id: " + course_id);
-    console.log("GQL name: " + name);
+    console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data.data));
+    // The entire "course" object from GraphQL:
+    const course = graphqlResponse.data.data.course;
 
-    res.json({
-      course_id,
-      name
-    });
+    // Just return it as JSON to the frontend:
+    res.json(course);
   } catch (error) {
     res.status(error.response?.status || 500).json({
       message: 'Error fetching GQL course details',
@@ -309,8 +300,10 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
       },
     });
 
+    
+
     // print out
-    // console.log(response.data);
+    console.log(response.data);
 
     // Return only the student data
     res.json(response.data); 

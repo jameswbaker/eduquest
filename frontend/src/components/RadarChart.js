@@ -6,13 +6,13 @@ import './RadarChart.css';
 // Register required Chart.js components
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-const RadarChart = ({ dataset, labels }) => {
+const RadarChart = ({ dataset, labels, dataset_label }) => {
     
     const data = {
         labels: labels,
         datasets: [
             {
-                label: 'Student Ability',
+                label: dataset_label,
                 data: dataset,
                 fill: true,
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',

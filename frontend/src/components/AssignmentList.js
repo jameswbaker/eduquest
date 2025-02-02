@@ -16,7 +16,7 @@ export default function AssignmentList({ assignments, handleAssignmentSelect, se
                     <p>{assignment.name}</p>
                     {selectedAssignment?.id === assignment.id && (
                         <div className="assignment_details">
-                            <p style={{ fontSize: "15px" }}>Description: {assignment.description || "N/A"}</p>
+                            <p style={{ fontSize: "15px" }}>ID: {assignment.id}</p>
                         </div>
                     )}
                 </div>

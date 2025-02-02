@@ -19,8 +19,10 @@ export default function CourseSummaryPage() {
     const [courseCode, setCourseCode] = useState('');
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedAssignment, setSelectedAssignment] = useState('');
-    const [radarLabels, setRadarLabels] = useState([]);
-    const [radarData, setRadarData] = useState([]);
+    const [studentViewRadarLabels, setStudentViewRadarLabels] = useState([]);
+    const [studentViewRadarData, setStudentViewRadarData] = useState([]);
+    const [assignmentViewRadarLabels, setAssignmentViewRadarLabels] = useState([]);
+    const [assignmentViewRadarData, setAssignmentViewRadarData] = useState([]);
     const [processedData, setProcessedData] = useState('');
     const [assignmentAverages, setAssignmentAverages] = useState([]);
 
@@ -55,9 +57,9 @@ export default function CourseSummaryPage() {
         }
     };
 
-    async function example2(courseId) {
+    async function aggregateCourseDetails(courseId) {
         try {
-          const response = await axios.get(`http://localhost:4000/api/example2/${courseId}`, {
+          const response = await axios.get(`http://localhost:4000/api/course-details-agg/${courseId}`, {
             withCredentials: true,
           });
       
@@ -311,7 +313,7 @@ export default function CourseSummaryPage() {
     useEffect(() => {
         fetchStudents();
         fetchCourseDetails();
-        example2(courseId);
+        aggregateCourseDetails(courseId);
     }, [courseId]);
 
     useEffect(() => {
@@ -330,8 +332,8 @@ export default function CourseSummaryPage() {
 
             const chartLabels = entries.map((e) => e.description);
             const chartData = entries.map((e) => e.percentage);
-            setRadarLabels(chartLabels);
-            setRadarData(chartData);
+            setStudentViewRadarLabels(chartLabels);
+            setStudentViewRadarData(chartData);
             return;
         }
 
@@ -340,8 +342,8 @@ export default function CourseSummaryPage() {
         const userCriteriaMap = processedData[userId];
         if (!userCriteriaMap) {
           // Means this user has no rubric data
-          setRadarLabels([]);
-          setRadarData([]);
+          setStudentViewRadarLabels([]);
+          setStudentViewRadarData([]);
           return;
         }
       
@@ -353,8 +355,8 @@ export default function CourseSummaryPage() {
         // Convert criteriaScores into chart arrays
         const chartLabels = entries.map((e) => e.description);
         const chartData = entries.map((e) => e.percentage);
-        setRadarLabels(chartLabels);
-        setRadarData(chartData);
+        setStudentViewRadarLabels(chartLabels);
+        setStudentViewRadarData(chartData);
     }
 
     const handleStudentSelect = (student) => {
@@ -371,8 +373,8 @@ export default function CourseSummaryPage() {
 
     const loadRadarDataByAssignment = (selectedAssignment) => {
         if (!assignmentAverages || assignmentAverages.length === 0) {
-            setRadarLabels([]);
-            setRadarData([]);
+            setAssignmentViewRadarLabels([]);
+            setAssignmentViewRadarData([]);
             return;
         }
         
@@ -384,8 +386,8 @@ export default function CourseSummaryPage() {
 
             const chartLabels = entries.map((e) => e.description);
             const chartData = entries.map((e) => e.percentage);
-            setRadarLabels(chartLabels);
-            setRadarData(chartData);
+            setAssignmentViewRadarLabels(chartLabels);
+            setAssignmentViewRadarData(chartData);
             return;
         }
 
@@ -397,8 +399,8 @@ export default function CourseSummaryPage() {
         const labels = criteriaScores.map((c) => c.description);
         const data = criteriaScores.map((c) => c.averagePercentage);
 
-        setRadarLabels(labels);
-        setRadarData(data);
+        setAssignmentViewRadarLabels(labels);
+        setAssignmentViewRadarData(data);
     };
 
     const handleAssignmentSelect = (assignment) => {
@@ -430,8 +432,8 @@ export default function CourseSummaryPage() {
                 <div className="summary_container" id="chart_container">
                     <h4>Student Ability Chart</h4>
                     <RadarChart 
-                        dataset={radarData} 
-                        labels={radarLabels} 
+                        dataset={studentViewRadarData} 
+                        labels={studentViewRadarLabels} 
                         dataset_label={selectedStudent ? selectedStudent.user.name + "'s Ability" : "Class Average Ability"}
                     />
                     {/* History chart */}
@@ -445,8 +447,8 @@ export default function CourseSummaryPage() {
                 <div className="summary_container" id="chart_container">
                     <h4>Assignment Ability Chart</h4>
                     <RadarChart 
-                        dataset={radarData} 
-                        labels={radarLabels} 
+                        dataset={assignmentViewRadarData} 
+                        labels={assignmentViewRadarLabels} 
                         dataset_label={selectedAssignment ? `${selectedAssignment.name} Performance` : "Assignments Overview"}
                     />
                     {/* History chart */}
@@ -468,7 +470,7 @@ export default function CourseSummaryPage() {
             Teacher Dashboard page:
             - After you sign up / login, the navbar should update so that the sign up/ sign in buttons 
             are replaced with the log out button, and the profile button
-            - When you click on a course, you should have the ability to go back
+            - When you click on a course, you should have the ability to go back (or select a different course on the side)
 
             Overall:
             - Make things pretty

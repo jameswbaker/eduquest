@@ -3,17 +3,6 @@ const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-// const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
-const {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLInt,
-  GraphQLFloat,
-  GraphQLList,
-  GraphQLID,
-} = require('graphql');
-const { graphqlHTTP } = require('express-graphql');
 
 const app = express();
 const PORT = 4000;
@@ -138,7 +127,7 @@ app.get('/api/example/:courseId', async (req, res) => {
   }
 })
 
-app.get('/api/example2/:courseId', async (req, res) => {
+app.get('/api/course-details-agg/:courseId', async (req, res) => {
 
   const { courseId } = req.params;
   if (!courseId) {

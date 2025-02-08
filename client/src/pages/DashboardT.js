@@ -3,7 +3,6 @@ import React from "react";
 import "./DashboardT.css";
 import { useNavigate } from 'react-router-dom';
 
-
 const DashboardT = () => {
 
   const navigate = useNavigate();

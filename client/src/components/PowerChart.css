@@ -1,0 +1,65 @@
+/* .chart-container {
+    width: 100%;
+    max-width: 900px;
+    min-height: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border: 3px solid black;
+  }
+  
+  .chart-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .canvas-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .chart-container canvas {
+    max-width: 100%;
+    height: auto;
+  }
+   */
+
+.chart-container {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border: 3px solid black;
+  overflow: auto;  /* Allows scrolling */
+}
+
+.chart-container h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.canvas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  width: 500px; /* Increase width for a larger chart */
+  height: 300px; /* Increase height for a larger chart */
+}
+
+.chart-container canvas {
+  width: 500px !important;  /* Forces larger canvas size */
+  height: 400px !important;  /* Forces larger canvas size */
+}

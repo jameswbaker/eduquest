@@ -3,6 +3,8 @@ import React, {useState} from "react";
 import "./DataDashboard.css";
 // import TChart from "../components/TChart.js";
 // import "../components/TChart.css"
+import PowerChart from "../components/PowerChart";
+
 
 const TDashboard = () => {
   const [courseName, setCoursename] = useState('English 101'); // to change
@@ -96,6 +98,9 @@ const TDashboard = () => {
             <header className="charts-header">
               <h2>Summary</h2>
             </header>
+            <div className="t-powerchart-section">
+              <PowerChart />
+            </div>
           </section>
 
           <section className="charts-section">

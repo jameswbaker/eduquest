@@ -44,6 +44,12 @@
     cursor: pointer;
     color: black
   }
+
+  .icon-button:hover {
+    background-color:#165ad7;
+    color: white;
+    font-weight: 600;
+  }
   
   /* Main Content Layout */
   .dashboard-main {
@@ -268,6 +274,11 @@ h2 {
   font-weight: bold;
   cursor: pointer;
   color: black;
+}
+
+.add-charts-btn:hover {
+  color: white;
+  font-weight: 600;
 }
 
 

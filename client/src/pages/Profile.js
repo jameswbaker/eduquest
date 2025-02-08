@@ -157,7 +157,7 @@ const Profile = () => {
 
         {/* Progress Section */}
         <section className="progress-section">
-          <h2>Progress of Courses</h2>
+          <h2>Progress of Course</h2>
           <div className="progress-chart">
             <div className="chart-placeholder">
               <p>Chart Here</p>

@@ -7,7 +7,7 @@ import './CourseSummaryPage.css';
 import StudentList from '../components/StudentList';
 import AssignmentList from '../components/AssignmentList';
 
-export default function CourseSummaryPage() {
+export default function CourseSummaryStudentPage(studentInput) {
     const location = useLocation(); // Get the current location object
     const queryParams = new URLSearchParams(location.search); // Parse query parameters
     const courseId = queryParams.get('courseId'); // Retrieve the 'courseId' parameter
@@ -88,9 +88,9 @@ export default function CourseSummaryPage() {
         }
     };
 
-    async function aggregateCourseDetails(courseId) {
+    async function example2(courseId) {
         try {
-          const response = await axios.get(`http://localhost:4000/api/course-details-agg/${courseId}`, {
+          const response = await axios.get(`http://localhost:4000/api/example2/${courseId}`, {
             withCredentials: true,
           });
       
@@ -344,7 +344,7 @@ export default function CourseSummaryPage() {
     useEffect(() => {
         fetchStudents();
         fetchCourseDetails();
-        aggregateCourseDetails(courseId);
+        example2(courseId);
     }, [courseId]);
 
     useEffect(() => {
@@ -475,7 +475,7 @@ export default function CourseSummaryPage() {
         <div>
             <Navbar />
             <div>
-                <p>THIS IS THE TEACHER DASHBOARD PAGE</p>
+                <p>THIS IS THE STUDENT DASHBOARD PAGE</p>
                 <h4>{courseCode}: {courseName}, Course ID: {courseId}</h4>
             </div>
             {/* Display error message if there's an issue */}
@@ -498,10 +498,9 @@ export default function CourseSummaryPage() {
                 {/* This is the view by students */}
                 <div className="content_container">
                     <div className="chart_container">
-                        <StudentList students={students} handleStudentSelect={handleStudentSelect} selectedStudent={selectedStudent}/>
                         
                         <div className="summary_container" id="chart_container">
-                            <h4>Student Ability Chart</h4>
+                            <h4>{}'s Ability Chart</h4>
                             <RadarChart 
                                 dataset={studentRadarData} 
                                 labels={studentRadarLabels} 
@@ -543,7 +542,7 @@ export default function CourseSummaryPage() {
             Teacher Dashboard page:
             - After you sign up / login, the navbar should update so that the sign up/ sign in buttons 
             are replaced with the log out button, and the profile button
-            - When you click on a course, you should have the ability to go back (or select a different course on the side)
+            - When you click on a course, you should have the ability to go back
 
             Overall:
             - Make things pretty

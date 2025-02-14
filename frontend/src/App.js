@@ -7,6 +7,8 @@ import LogInPage from './pages/LogInPage';
 import TeacherDashboardPage from './pages/TeacherDashboardPage';
 import CourseSummaryPage from './pages/CourseSummaryPage';
 import Navbar from './components/Navbar';
+import StudentDashboardPage from './pages/StudentDashboardPage';
+import CourseSummaryStudentPage from './pages/CourseSummaryStudentPage';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
             <Route path="/login" element={<LogInPage />} />
             <Route path="/teacher-dashboard" element={<TeacherDashboardPage />} />
             <Route path="/course-summary" element={<CourseSummaryPage />} />
+            <Route path="/student-dashboard" element={<StudentDashboardPage />} />
+            <Route path="/course-summary-student" element={<CourseSummaryStudentPage />} />
           </Routes>
         </BrowserRouter>
       </header>

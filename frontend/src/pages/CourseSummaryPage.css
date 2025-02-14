@@ -29,6 +29,52 @@
     justify-content: center;
 }
 
+/* Main layout: Flexbox with two columns */
+.dashboard_layout {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Left Column - Rubric Items */
+.rubric_column {
+    width: 250px; /* Adjust width as needed */
+    min-width: 200px;
+    border-right: 2px solid #e0e0e0; /* Separates rubric from main content */
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Right Content - Students & Assignments */
+.content_container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.rubric-item {
+    cursor: pointer;
+    margin: 3px;
+    display: inline-block;
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.rubric-item:hover {
+    background-color: #f0f0f0;
+}
+
+.rubric-item.selected {
+    background-color: #4CAF50; /* Green highlight */
+    color: white;
+}
+
 .student_item {
     display: flex;
     flex-direction: row;

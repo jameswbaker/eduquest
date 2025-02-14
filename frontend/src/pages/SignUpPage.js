@@ -31,11 +31,29 @@ export default function SignUpPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                // console.log(data.message); // Success message
+
                 const { userId } = data;
 
-                // redirect to course selection page
-                window.location.href = '/teacher-dashboard';
+                const response_enrollment = await fetch('http://localhost:4000/api/get-role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId,
+                    }),
+                    credentials: 'include'
+                })
+                const res_enroll_data = await response_enrollment.json();
+                console.log("RESPONSE_ENROLLMENT: ", res_enroll_data);
+            
+                const isTeacher = res_enroll_data.role === "StudentEnrollment" ? false : true;
+                if (isTeacher) {
+                    // redirect to teacher dashboard page
+                    window.location.href = '/teacher-dashboard';
+                } else {
+                    window.location.href = '/student-dashboard';
+                }
 
                 // Reset form
                 setUsername('');

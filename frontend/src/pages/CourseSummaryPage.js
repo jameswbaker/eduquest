@@ -19,10 +19,14 @@ export default function CourseSummaryPage() {
     const [courseCode, setCourseCode] = useState('');
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedAssignment, setSelectedAssignment] = useState('');
-    const [radarLabels, setRadarLabels] = useState([]);
-    const [radarData, setRadarData] = useState([]);
+    const [studentRadarLabels, setStudentRadarLabels] = useState([]);
+    const [studentRadarData, setStudentRadarData] = useState([]);
+    const [assignmentRadarLabels, setAssignmentRadarLabels] = useState([]);
+    const [assignmentRadarData, setAssignmentRadarData] = useState([]);
     const [processedData, setProcessedData] = useState('');
     const [assignmentAverages, setAssignmentAverages] = useState([]);
+    const [rubricItems, setRubricItems] = useState([]);
+    const [selectedRubricItems, setSelectedRubricItems] = useState(new Set());
 
     // Fetch course details from Canvas API
     const fetchCourseDetails = async () => {
@@ -34,11 +38,40 @@ export default function CourseSummaryPage() {
             setCourseName(response.data.course_name);
             setCourseCode(response.data.course_code);
             setAssignments(response.data.assignments);
+            extractRubricItems(response.data.assignments);
         } catch (error) {
             console.error('Error fetching students:', error.response ? error.response.data : error.message);
             setError('Error fetching students. Please check your token and permissions.');
         }
     };
+
+    const extractRubricItems = (assignments) => {
+        const uniqueRubrics = new Set();
+        assignments.forEach((assignment) => {
+            assignment.rubric?.forEach((criterion) => {
+                uniqueRubrics.add(criterion.description);
+            });
+        });
+        setRubricItems([...uniqueRubrics]);
+    };
+
+    const toggleRubricItem = (item) => {
+        setSelectedRubricItems((prev) => {
+            const newSelection = new Set(prev);
+            if (newSelection.has(item)) {
+                newSelection.delete(item);
+            } else {
+                newSelection.add(item);
+            }
+            return new Set(newSelection);
+        });
+    };
+
+    const filterSelectedRubricItems = (entries) => {
+        return entries.filter((entry) => {
+            return selectedRubricItems.has(entry.description);
+        });
+    }
   
     // Fetch students from Canvas API
     const fetchStudents = async () => {
@@ -315,23 +348,40 @@ export default function CourseSummaryPage() {
     }, [courseId]);
 
     useEffect(() => {
-        loadRadarDataByStudent(selectedStudent);
-    }, [processedData, selectedStudent]);
+        if (selectedRubricItems.size > 0) {
+            loadRadarDataByStudent(selectedStudent);
+            loadRadarDataByAssignment(selectedAssignment);
+        } else {
+            setStudentRadarLabels([]);
+            setStudentRadarData([]);
+            setAssignmentRadarLabels([]);
+            setAssignmentRadarData([]);
+        }
+    }, [processedData, selectedStudent, selectedAssignment, selectedRubricItems]);
 
-    useEffect(() => {
-        loadRadarDataByAssignment(selectedAssignment);
-    }, [processedData, selectedAssignment]);
+    // useEffect(() => {
+    //     loadRadarDataByStudent(selectedStudent);
+    // }, [processedData, selectedStudent, selectedRubricItems]);
+
+    // useEffect(() => {
+    //     loadRadarDataByAssignment(selectedAssignment);
+    // }, [processedData, selectedAssignment, selectedRubricItems]);
 
     const loadRadarDataByStudent = async (selectedStudent) => {
+        console.log(selectedRubricItems);
+        
         if (!selectedStudent) {
             const classAverages = computeClassAverages(processedData);
             const entries = Object.values(classAverages);
-            entries.sort((a, b) => a.description.localeCompare(b.description));
+            const filteredEntries = filterSelectedRubricItems(entries);
+            filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
 
-            const chartLabels = entries.map((e) => e.description);
-            const chartData = entries.map((e) => e.percentage);
-            setRadarLabels(chartLabels);
-            setRadarData(chartData);
+            const chartLabels = filteredEntries.map((e) => e.description);
+            const chartData = filteredEntries.map((e) => e.percentage);
+            console.log("Chart labels: ", chartLabels);
+            console.log("Chart data: ", chartData);
+            setStudentRadarLabels(chartLabels);
+            setStudentRadarData(chartData);
             return;
         }
 
@@ -340,21 +390,24 @@ export default function CourseSummaryPage() {
         const userCriteriaMap = processedData[userId];
         if (!userCriteriaMap) {
           // Means this user has no rubric data
-          setRadarLabels([]);
-          setRadarData([]);
+          setStudentRadarLabels([]);
+          setStudentRadarData([]);
           return;
         }
       
         // userCriteriaMap is an object of { [critId]: { description, totalEarned, totalPossible, percentage } }
         // Convert it to arrays for the chart
         const entries = Object.values(userCriteriaMap); 
-        entries.sort((a, b) => a.description.localeCompare(b.description));
+        const filteredEntries = filterSelectedRubricItems(entries);
+        filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
 
         // Convert criteriaScores into chart arrays
-        const chartLabels = entries.map((e) => e.description);
-        const chartData = entries.map((e) => e.percentage);
-        setRadarLabels(chartLabels);
-        setRadarData(chartData);
+        const chartLabels = filteredEntries.map((e) => e.description);
+        const chartData = filteredEntries.map((e) => e.percentage);
+        console.log("Chart labels: ", chartLabels);
+        console.log("Chart data: ", chartData);
+        setStudentRadarLabels(chartLabels);
+        setStudentRadarData(chartData);
     }
 
     const handleStudentSelect = (student) => {
@@ -371,8 +424,8 @@ export default function CourseSummaryPage() {
 
     const loadRadarDataByAssignment = (selectedAssignment) => {
         if (!assignmentAverages || assignmentAverages.length === 0) {
-            setRadarLabels([]);
-            setRadarData([]);
+            setAssignmentRadarLabels([]);
+            setAssignmentRadarData([]);
             return;
         }
         
@@ -380,25 +433,30 @@ export default function CourseSummaryPage() {
         if (!selectedAssignment) {
             const classAverages = computeClassAverages(processedData);
             const entries = Object.values(classAverages);
-            entries.sort((a, b) => a.description.localeCompare(b.description));
+            const filteredEntries = filterSelectedRubricItems(entries);
+            filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
 
-            const chartLabels = entries.map((e) => e.description);
-            const chartData = entries.map((e) => e.percentage);
-            setRadarLabels(chartLabels);
-            setRadarData(chartData);
+            const chartLabels = filteredEntries.map((e) => e.description);
+            const chartData = filteredEntries.map((e) => e.percentage);
+            console.log("Chart labels: ", chartLabels);
+            console.log("Chart data: ", chartData);
+            setAssignmentRadarLabels(chartLabels);
+            setAssignmentRadarData(chartData);
             return;
         }
 
         // Assignment selected => show only those rubric items under this assignment
         const assignmentAvg = assignmentAverages[selectedAssignment.id];
         const criteriaScores = Object.values(assignmentAvg.criteriaMap);
-        criteriaScores.sort((a, b) => a.description.localeCompare(b.description));
+        const filteredCriteria = filterSelectedRubricItems(criteriaScores);
+        filteredCriteria.sort((a, b) => a.description.localeCompare(b.description));
 
-        const labels = criteriaScores.map((c) => c.description);
-        const data = criteriaScores.map((c) => c.averagePercentage);
-
-        setRadarLabels(labels);
-        setRadarData(data);
+        const labels = filteredCriteria.map((c) => c.description);
+        const data = filteredCriteria.map((c) => c.averagePercentage);
+        console.log("Chart labels: ", labels);
+        console.log("Chart data: ", data);
+        setAssignmentRadarLabels(labels);
+        setAssignmentRadarData(data);
     };
 
     const handleAssignmentSelect = (assignment) => {
@@ -423,33 +481,50 @@ export default function CourseSummaryPage() {
             {/* Display error message if there's an issue */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {/* This is the view by students */}
-            <div className="chart_container">
-                <StudentList students={students} handleStudentSelect={handleStudentSelect} selectedStudent={selectedStudent}/>
-                
-                <div className="summary_container" id="chart_container">
-                    <h4>Student Ability Chart</h4>
-                    <RadarChart 
-                        dataset={radarData} 
-                        labels={radarLabels} 
-                        dataset_label={selectedStudent ? selectedStudent.user.name + "'s Ability" : "Class Average Ability"}
-                    />
-                    {/* History chart */}
+            <div className="dashboard_layout">
+                <div className="rubric_column">
+                    <h4>Rubric Items</h4>
+                    {rubricItems.map((item) => (
+                        <div
+                            key={item}
+                            className={`rubric-item ${selectedRubricItems.has(item) ? 'selected' : ''}`}
+                            onClick={() => toggleRubricItem(item)}
+                        >
+                            {item}
+                        </div>
+                    ))}
                 </div>
-            </div>
 
-            {/* This is the view by assignments */}
-            <div className="chart_container">
-                <AssignmentList assignments={assignments} handleAssignmentSelect={handleAssignmentSelect} selectedAssignment={selectedAssignment}/>
-                
-                <div className="summary_container" id="chart_container">
-                    <h4>Assignment Ability Chart</h4>
-                    <RadarChart 
-                        dataset={radarData} 
-                        labels={radarLabels} 
-                        dataset_label={selectedAssignment ? `${selectedAssignment.name} Performance` : "Assignments Overview"}
-                    />
-                    {/* History chart */}
+                {/* This is the view by students */}
+                <div className="content_container">
+                    <div className="chart_container">
+                        <StudentList students={students} handleStudentSelect={handleStudentSelect} selectedStudent={selectedStudent}/>
+                        
+                        <div className="summary_container" id="chart_container">
+                            <h4>Student Ability Chart</h4>
+                            <RadarChart 
+                                dataset={studentRadarData} 
+                                labels={studentRadarLabels} 
+                                dataset_label={selectedStudent ? selectedStudent.user.name + "'s Ability" : "Class Average Ability"}
+                            />
+                            {/* History chart */}
+                        </div>
+                    </div>
+
+                    {/* This is the view by assignments */}
+                    <div className="chart_container">
+                        <AssignmentList assignments={assignments} handleAssignmentSelect={handleAssignmentSelect} selectedAssignment={selectedAssignment}/>
+                        
+                        <div className="summary_container" id="chart_container">
+                            <h4>Assignment Ability Chart</h4>
+                            <RadarChart 
+                                dataset={assignmentRadarData} 
+                                labels={assignmentRadarLabels} 
+                                dataset_label={selectedAssignment ? `${selectedAssignment.name} Performance` : "Assignments Overview"}
+                            />
+                            {/* History chart */}
+                        </div>
+                    </div>
                 </div>
             </div>
 

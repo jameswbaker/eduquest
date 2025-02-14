@@ -12,6 +12,8 @@ export default function LogInPage() {
     console.log('Username:', username);
     console.log('Password:', password);
 
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
     try {
       const response = await fetch('http://localhost:5001/login', {
           method: 'POST',
@@ -28,8 +30,29 @@ export default function LogInPage() {
       if (response.ok) {
           const data = await response.json();
 
-          // redirect to teacher dashboard page
-          window.location.href = '/teacher-dashboard';
+          const { userId } = data;
+
+          console.log("userId in frontend: ", userId);
+
+          const response_enrollment = await fetch('http://localhost:4000/api/get-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId,
+            }),
+            credentials: 'include'
+          });
+          const res_enroll_data = await response_enrollment.json();
+          // console.log("RESPONSE_ENROLLMENT: ", res_enroll_data[0]);
+          const isTeacher = res_enroll_data[0].role == "StudentEnrollment" ? false : true;
+          if (isTeacher) {
+              // redirect to teacher dashboard page
+              window.location.href = '/teacher-dashboard';
+          } else {
+              window.location.href = '/student-dashboard';
+          }
 
           console.log(data.message); // Success message
           // Reset form

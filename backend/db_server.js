@@ -96,11 +96,11 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
   
     // Query the database to find the user by username
-    db.query('SELECT * FROM Account_Info WHERE username = ?', [username], (err, results) => {
+    db.query('SELECT * FROM Account_Info WHERE username = ?', [username], async (err, results) => {
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }
@@ -109,6 +109,7 @@ app.post('/login', (req, res) => {
       if (results.length === 0) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
+      
   
       // Compare entered password with the stored hashed password
       const user = results[0];
@@ -124,7 +125,27 @@ app.post('/login', (req, res) => {
           maxAge: 3600000,  // 1 hour
         });
 
-        return res.json({ message: 'Login successful!' });
+        try {
+
+          const userResponse = await axios.get('http://localhost:4000/api/users/user-details', {
+              params: {
+                  token: user.canvas_token,
+              },
+          });
+          const teacherCanvasId = userResponse.data.id;
+          
+          const userId = teacherCanvasId;
+
+          console.log("HELLO");
+
+          return res.json({ 
+            userId: userId,
+            message: 'Login successful!', 
+            });
+        } catch (error) {
+          console.log(error);
+        }
+        
       } else {
         return res.status(401).json({ message: 'Invalid credentials' });
       }

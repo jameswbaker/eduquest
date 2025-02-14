@@ -25,6 +25,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
 })); // Enable CORS for all routes
 app.use(cookieParser());
+app.use(express.json());
 
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret used for signing
@@ -312,6 +313,33 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
     // Return detailed error message
     res.status(error.response?.status || 500).json({
       message: 'Error fetching students',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
+app.post('/api/get-role', async (req, res) => {
+  try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
+    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
+
+    console.log("RESPONSE_ENROLLMENT: ", req.body);
+
+    const { userId } = req.body;
+
+    const response = await axios.get(`https://canvas.instructure.com/api/v1/users/${userId}/enrollments`, {
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+      },
+    });
+
+    console.log("RESPONSE_ENROLLMENT: ", response.data);
+
+    res.json(response.data);
+  } catch (error) {
+    // Return detailed error message
+    res.status(error.response?.status || 500).json({
+      message: 'Error getting role',
       details: error.response?.data || error.message,
     });
   }

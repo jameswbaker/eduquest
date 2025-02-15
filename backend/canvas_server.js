@@ -3,18 +3,6 @@ const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-// const { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLInt } = require('graphql');
-const {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLInt,
-  GraphQLFloat,
-  GraphQLList,
-  GraphQLID,
-} = require('graphql');
-const { graphqlHTTP } = require('express-graphql');
-
 const app = express();
 const PORT = 4000;
 
@@ -25,6 +13,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
 })); // Enable CORS for all routes
 app.use(cookieParser());
+app.use(express.json());
 
 require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret used for signing
@@ -32,9 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret use
 // Helper function to extract token from cookies
 function getTokenFromCookie(req) {
   const token = req.cookies.auth_token;
-  console.log(token);
   const decoded = jwt.verify(token, JWT_SECRET);
-  console.log(decoded);
 
   // Access data from the decoded payload
   const { username, userId, canvasToken } = decoded;
@@ -43,7 +30,6 @@ function getTokenFromCookie(req) {
 }
 
 app.get('/api/users/user-details', async (req, res) => {
-  // console.log("GOT HERE");
   const apiToken = req.query.token;
   if (!apiToken) {
     return res.status(400).json({
@@ -83,62 +69,7 @@ app.get('/api/courses', async (req, res) => {
   }
 });
 
-app.get('/api/example/:courseId', async (req, res) => {
-
-  const { courseId } = req.params;
-  if (!courseId) {
-    return res.status(400).json({
-      message: "Missing required query parameters: token or courseId",
-    });
-  }
-
-  const query = `
-    query courseDetails($courseId: ID!) {
-      course(id: $courseId) {
-        id
-        name
-      }
-    }
-  `;
-  const variables = { courseId };
-
-  try {
-    const apiToken = getTokenFromCookie(req); // get token from browser cookie
-
-    console.log("API TOKEN: ", apiToken);
-
-    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-    const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
-      {
-        query,
-        variables
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data.data));
-    const course_id = graphqlResponse.data.data.course.id;
-    const name = graphqlResponse.data.data.course.name;
-    // console.log("GQL id: " + course_id);
-    // console.log("GQL name: " + name);
-
-    res.json({
-      course_id,
-      name
-    });
-  } catch (error) {
-    res.status(error.response?.status || 500).json({
-      message: 'Error fetching GQL course details',
-      details: error.response?.data || error.message,
-    });
-  }
-})
-
-app.get('/api/example2/:courseId', async (req, res) => {
+app.get('/api/course-details-agg/:courseId', async (req, res) => {
 
   const { courseId } = req.params;
   if (!courseId) {
@@ -162,7 +93,6 @@ app.get('/api/example2/:courseId', async (req, res) => {
                 description
                 name
                 id
-                dueAt
                 pointsPossible
                 submissionsConnection {
                   edges {
@@ -205,8 +135,6 @@ app.get('/api/example2/:courseId', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
 
-    console.log("API TOKEN: ", apiToken);
-
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
     const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
       {
@@ -220,7 +148,6 @@ app.get('/api/example2/:courseId', async (req, res) => {
         }
       }
     );
-    console.log("Result of GQL is: " + JSON.stringify(graphqlResponse.data.data));
     // The entire "course" object from GraphQL:
     const course = graphqlResponse.data.data.course;
 
@@ -252,7 +179,6 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
     const course_name = courseResponse.data.name;
     const course_code = courseResponse.data.course_code;
     const account_id = courseResponse.data.account_id;
-    // console.log(courseResponse.data);
 
     // Request for all assignments under a course
     const assignmentResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/assignments`, {
@@ -261,10 +187,7 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
         include: ['rubric', 'score_statistics'], 
       },
     });
-    const assignments = assignmentResponse.data.map((assignment) => (
-      // console.log("ASSIGNMENT RUBRIC:", assignment.rubric),
-      // console.log("ASSIGNMENT SCORE_STATS:", assignment.score_statistics),
-      {
+    const assignments = assignmentResponse.data.map((assignment) => ({
       id: assignment.id,
       name: assignment.name,
       description: assignment.description,
@@ -302,11 +225,6 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
       },
     });
 
-    
-
-    // print out
-    console.log(response.data);
-
     // Return only the student data
     res.json(response.data); 
   } catch (error) {
@@ -318,22 +236,40 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
   }
 });
 
+app.post('/api/get-role', async (req, res) => {
+  try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
+    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
+
+    const { userId } = req.body;
+    const response = await axios.get(`https://canvas.instructure.com/api/v1/users/${userId}/enrollments`, {
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+      },
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    // Return detailed error message
+    res.status(error.response?.status || 500).json({
+      message: 'Error getting role',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
 
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
-
   const decoded = jwt.verify(token, JWT_SECRET);
-    // console.log('Decoded payload:', decoded);
-
-    // Access data from the decoded payload
-    const { username, userId, canvasToken } = decoded;
+  const { username, userId, canvasToken } = decoded;
 
   if (!token) {
     return res.status(401).send('Unauthorized: No token provided');
   }
 
   try {
-    res.json({ message: `Hello, ${username}!`, userId, canvasToken });
+    res.json({ username, userId, canvasToken });
   } catch (err) {
     console.error('Invalid token:', err.message);
     res.status(401).send('Unauthorized: Invalid token');

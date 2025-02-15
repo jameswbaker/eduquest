@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turrets Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        #question {
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #gameCanvas {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        #inputContainer {
+            margin: 40px;
+            padding: 40px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: block;
+            max-width: 800px;
+            width: 90%;
+        }
+        
+        #inputContainer h2 {
+            color: #1976D2;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 250px;
+            margin: 10px 0 25px 0;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+        }
+        
+        button {
+            padding: 15px 30px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        button:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div id="inputContainer">
+        <h2>Welcome to the Turrets Game!</h2>
+        <textarea id="readingMaterial" placeholder="Paste your reading material here to generate interactive questions..."></textarea>
+        <button onclick="submitReading()">Start Your Adventure!</button>
+    </div>
+    <div id="question" style="display:none;"></div>
+    <canvas id="gameCanvas" style="display:none;"></canvas>
+
+    <script>
+        // Set canvas size based on window size
+        function resizeCanvas() {
+            const canvas = document.getElementById('gameCanvas');
+            canvas.width = Math.min(800, window.innerWidth - 40);
+            canvas.height = Math.min(600, window.innerHeight - 120);
+        }
+        
+        // Initial resize
+        resizeCanvas();
+
+        // Resize canvas when window is resized
+        window.addEventListener('resize', resizeCanvas);
+
+        async function submitReading() {
+            const content = document.getElementById('readingMaterial').value;
+            try {
+                const response = await fetch('http://127.0.0.1:5000/generate-questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content, num_questions: 25, num_answers: 2 })
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Hide input container and show game elements
+                document.getElementById('inputContainer').style.display = 'none';
+                document.getElementById('gameCanvas').style.display = 'block';
+                document.getElementById('question').style.display = 'block';
+                
+                const game = new Game();
+                game.startGame(data.questions);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating questions. Please try again.');
+            }
+        }
+    </script>
+    <script src="turrets.js"></script>
+</body>
+</html> 

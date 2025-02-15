@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spelling Game</title>
+    <title>Flappy Game</title>
     <style>
         body {
             margin: 0;
@@ -15,7 +15,7 @@
             background-color: #f0f0f0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         #question {
             font-size: 24px;
             margin: 20px 0;
@@ -24,31 +24,31 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
+        
         #gameCanvas {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
-
+        
         #inputContainer {
             margin: 40px;
             padding: 40px;
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: none;
+            display: block;
             max-width: 800px;
             width: 90%;
         }
-
+        
         #inputContainer h2 {
             color: #1976D2;
             text-align: center;
             margin-bottom: 30px;
             font-size: 32px;
         }
-
+        
         textarea {
             width: 100%;
             min-height: 250px;
@@ -61,13 +61,13 @@
             resize: vertical;
             transition: border-color 0.3s ease;
         }
-
+        
         textarea:focus {
             outline: none;
             border-color: #2196F3;
             box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
         }
-
+        
         button {
             padding: 15px 30px;
             background-color: #2196F3;
@@ -81,13 +81,13 @@
             display: block;
             margin: 0 auto;
         }
-
+        
         button:hover {
             background-color: #1976D2;
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
         }
-
+        
         button:active {
             transform: translateY(0);
         }
@@ -95,22 +95,21 @@
 </head>
 <body>
     <div id="inputContainer">
-        <h2>Welcome to the Learning Game!</h2>
+        <h2>Welcome to the Flappy Game!</h2>
         <textarea id="readingMaterial" placeholder="Paste your reading material here to generate interactive questions..."></textarea>
         <button onclick="submitReading()">Start Your Adventure!</button>
     </div>
-    <div id="question"></div>
-    <canvas id="gameCanvas"></canvas>
+    <div id="question" style="display:none;"></div>
+    <canvas id="gameCanvas" style="display:none;"></canvas>
 
     <script>
         // Set canvas size based on window size
         function resizeCanvas() {
             const canvas = document.getElementById('gameCanvas');
-            // Make canvas slightly smaller than window to prevent scrollbars
             canvas.width = Math.min(800, window.innerWidth - 40);
             canvas.height = Math.min(600, window.innerHeight - 120);
         }
-
+        
         // Initial resize
         resizeCanvas();
 
@@ -148,4 +147,4 @@
     </script>
     <script src="flappy.js"></script>
 </body>
-</html>
+</html> 

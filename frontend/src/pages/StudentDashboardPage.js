@@ -8,11 +8,11 @@ import './StudentDashboardPage.css';
 export default function StudentDashboardPage() {
     const [courses, setCourses] = useState([]); // Store courses data
     const [error, setError] = useState(''); // Store error messages
+    const [username, setUsername] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
     const [assignments, setAssignments] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [courseCode, setCourseCode] = useState('');
-    const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedAssignment, setSelectedAssignment] = useState('');
     const [assignmentRadarLabels, setAssignmentRadarLabels] = useState([]);
     const [assignmentRadarData, setAssignmentRadarData] = useState([]);
@@ -20,6 +20,19 @@ export default function StudentDashboardPage() {
     const [assignmentAverages, setAssignmentAverages] = useState([]);
     const [rubricItems, setRubricItems] = useState([]);
     const [selectedRubricItems, setSelectedRubricItems] = useState(new Set());
+
+    // Fetch student information
+    const fetchStudentInfo = async() => {
+        try {
+            const response = await axios.get('http://localhost:4000/protected-route', {
+                withCredentials: true,
+            });
+            setUsername(response.data.username);
+        } catch (error) {
+            console.error('Error fetching student:', error.response ? error.response.data : error.message);
+            setError('Error fetching student. Please check your token and permissions.');
+        }
+    }
 
     // Fetch courses from Canvas API (REST)
     const fetchCourses = async () => {
@@ -37,18 +50,62 @@ export default function StudentDashboardPage() {
 
     // Run the GraphQL query when the component mounts
     useEffect(() => {
+        fetchStudentInfo();
         fetchCourses();
     }, []); // Re-run the effect if the token changes
 
-    const fetchStudentData = async () => {
-        try {
-            const response = await axios.get('http://localhost:4000/protected-route', { withCredentials: true });
-            const userId = response.data.userId;
-            setSelectedStudent(userId);
-        } catch (error) {
-            console.error("Error fetching logged-in student ID: ", error);
+    // Fetch course details from Canvas API
+    const fetchCourseDetails = async () => {
+        setError('');
+        if (selectedCourse) {
+            try {
+                const response = await axios.get(`http://localhost:4000/api/courses/${selectedCourse.id}/course-details`, {
+                    withCredentials: true,
+                });
+                setCourseName(response.data.course_name);
+                setCourseCode(response.data.course_code);
+                setAssignments(response.data.assignments);
+                extractRubricItems(response.data.assignments);
+            } catch (error) {
+                console.error('Error fetching students:', error.response ? error.response.data : error.message);
+                setError('Error fetching students. Please check your token and permissions.');
+            }
         }
     };
+
+    function toggleSelectedCourse(course) {
+        if (selectedCourse?.id === course.id) {
+            setSelectedCourse(''); // Deselect if it's already selected
+            setAssignments([]); // Clear assignments
+            setRubricItems([]); // Clear rubric items
+            setAssignmentRadarData([]); // Clear chart data
+        } else {
+            setSelectedCourse(course);
+        }
+    }
+
+    async function aggregateCourseDetails(courseId) {
+        try {
+          const response = await axios.get(`http://localhost:4000/api/course-details-agg/${courseId}`, {
+            withCredentials: true,
+          });
+      
+          const course = response.data;
+          // Build our aggregator for all users
+          const aggregatedData = aggregateAllRubricData(course);
+          setProcessedData(aggregatedData);
+
+          const assignmentData = computeAveragePercentageByAssignment(course);
+          setAssignmentAverages(assignmentData);
+        } catch (error) {
+          console.error('Error fetching course details:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCourseDetails();
+        aggregateCourseDetails(selectedCourse.id);
+    }, [selectedCourse]);
 
     const extractRubricItems = (assignments) => {
         const uniqueRubrics = new Set();
@@ -58,23 +115,6 @@ export default function StudentDashboardPage() {
             });
         });
         setRubricItems([...uniqueRubrics]);
-    };
-
-    // Fetch course details from Canvas API
-    const fetchCourseDetails = async () => {
-        setError('');
-        try {
-            const response = await axios.get(`http://localhost:4000/api/courses/${selectedCourse.id}/course-details`, {
-                withCredentials: true,
-            });
-            setCourseName(response.data.course_name);
-            setCourseCode(response.data.course_code);
-            setAssignments(response.data.assignments);
-            extractRubricItems(response.data.assignments);
-        } catch (error) {
-            console.error('Error fetching students:', error.response ? error.response.data : error.message);
-            setError('Error fetching students. Please check your token and permissions.');
-        }
     };
 
     const toggleRubricItem = (item) => {
@@ -316,30 +356,6 @@ export default function StudentDashboardPage() {
         return aggregator;
     }
 
-    async function aggregateCourseDetails(courseId) {
-        try {
-          const response = await axios.get(`http://localhost:4000/api/course-details-agg/${courseId}`, {
-            withCredentials: true,
-          });
-      
-          const course = response.data;
-          // Build our aggregator for all users
-          const aggregatedData = aggregateAllRubricData(course);
-          setProcessedData(aggregatedData);
-
-          const assignmentData = computeAveragePercentageByAssignment(course);
-          setAssignmentAverages(assignmentData);
-        } catch (error) {
-          console.error('Error fetching course details:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchStudentData();
-        fetchCourseDetails();
-        aggregateCourseDetails(selectedCourse.id);
-    }, [selectedCourse]);
-
     useEffect(() => {
         if (selectedRubricItems.size > 0) {
             loadRadarDataByAssignment(selectedAssignment);
@@ -347,7 +363,7 @@ export default function StudentDashboardPage() {
             setAssignmentRadarLabels([]);
             setAssignmentRadarData([]);
         }
-    }, [processedData, selectedStudent, selectedAssignment, selectedRubricItems]);
+    }, [processedData, selectedAssignment, selectedRubricItems]);
 
     const loadRadarDataByAssignment = (selectedAssignment) => {
         if (!assignmentAverages || assignmentAverages.length === 0) {
@@ -396,6 +412,9 @@ export default function StudentDashboardPage() {
     return (
         <div>
             <Navbar />
+            <div> 
+                <h4>Welcome {username} to Your Student Dashboard</h4>
+            </div>
             {/* Display error message if there's an issue */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
@@ -407,7 +426,7 @@ export default function StudentDashboardPage() {
                         <div
                             key={course.id}
                             className={`student-course-item ${selectedCourse?.id === course.id ? 'selected' : ''}`}
-                            onClick={() => setSelectedCourse(course)}
+                            onClick={() => toggleSelectedCourse(course)}
                         >
                             {course.name}
                         </div>

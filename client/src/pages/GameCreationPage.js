@@ -1,8 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
 import "./GameCreationPage.css";
 
 const GameCreationPage = () => {
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const user = ReactSession.get('user');
+    console.log("User is:", user);
+    if (!user) {
+      alert("Please log in first");
+      navigate('/'); 
+    }
+  }, [navigate]);
   const [gameName, setGameName] = useState("");
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [deadline, setDeadline] = useState("");
@@ -11,7 +23,6 @@ const GameCreationPage = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const navigate = useNavigate();
 
   const classes = ["English 1", "English Literature", "Math 101", "Science"];
 

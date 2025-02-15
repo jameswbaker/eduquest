@@ -1,10 +1,22 @@
 // App.jsx
-import React, {useState} from "react";
-import "./DataDashboard.css";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";import "./DataDashboard.css";
 // import TChart from "../components/TChart.js";
 // import "../components/TChart.css"
 
 const TDashboard = () => {
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const user = ReactSession.get('user');
+    console.log("User is:", user);
+    if (!user) {
+      alert("Please log in first");
+      navigate('/'); 
+    }
+  }, [navigate]);
   const [courseName, setCoursename] = useState('English 101'); // to change
   const [studentList, setStudents] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false);

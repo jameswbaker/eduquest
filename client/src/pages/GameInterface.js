@@ -1,8 +1,22 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
 import "./GameInterface.css";
 import { useParams } from "react-router-dom";
 
 const GameInterface = () => {
+    
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+      const user = ReactSession.get('user');
+      console.log("User is:", user);
+      if (!user) {
+        alert("Please log in first");
+        navigate('/'); 
+      }
+    }, [navigate]);
     
     // const [gameName, setGameName] = useState('Word Mastery Challenge')
     const { gameName } = useParams();

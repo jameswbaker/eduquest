@@ -13,17 +13,15 @@ const DashboardT = () => {
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
 
-  // 1. Check user session
   useEffect(() => {
     const user = ReactSession.get('user');
     console.log("User is:", user);
     if (!user) {
       alert("Please log in first");
-      navigate('/'); // or navigate('/signIn') if that's your login route
+      navigate('/');
     }
   }, [navigate]);
 
-  // 2. Fetch courses from API on mount
   useEffect(() => {
     fetchCourses();
   }, []);

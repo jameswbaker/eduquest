@@ -132,6 +132,10 @@
     background-color: #8FCE5D;
   }
 
+  .course-card.selected {
+    background-color: brightness(120%);
+  }
+
   h3 {
     font-family: 'Hanken Grotesk', sans-serif;
     font-size: 20%px;

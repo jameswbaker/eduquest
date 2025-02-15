@@ -55,12 +55,32 @@ export function useCourseSummary(courseId) {
     };
 
     const toggleRubricItem = (item) => {
-        setSelectedRubricItems(prev => {
+        setSelectedRubricItems((prev) => {
             const newSelection = new Set(prev);
-            newSelection.has(item) ? newSelection.delete(item) : newSelection.add(item);
-            return newSelection;
+            if (newSelection.has(item)) {
+                newSelection.delete(item);
+            } else {
+                newSelection.add(item);
+            }
+            return new Set(newSelection);
         });
     };
 
-    return { students, assignments, courseName, courseCode, rubricItems, selectedRubricItems, toggleRubricItem, error };
+    return { 
+                students, 
+                assignments, 
+                courseName, 
+                courseCode, 
+                rubricItems, 
+                selectedRubricItems, 
+                toggleRubricItem, 
+                error, 
+                setError,
+                setCourseName,
+                setCourseCode,
+                setAssignments,
+                setRubricItems,
+                fetchStudents,
+                setSelectedRubricItems
+                 };
 }

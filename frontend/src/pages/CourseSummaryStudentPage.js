@@ -4,7 +4,6 @@ import Navbar from '../components/Navbar';
 import axios from 'axios';
 import RadarChart from '../components/RadarChart';
 import './CourseSummaryPage.css';
-import StudentList from '../components/StudentList';
 import AssignmentList from '../components/AssignmentList';
 
 export default function CourseSummaryStudentPage(studentInput) {
@@ -12,15 +11,12 @@ export default function CourseSummaryStudentPage(studentInput) {
     const queryParams = new URLSearchParams(location.search); // Parse query parameters
     const courseId = queryParams.get('courseId'); // Retrieve the 'courseId' parameter
 
-    const [students, setStudents] = useState([]);     // Store student data
     const [assignments, setAssignments] = useState([]);
     const [error, setError] = useState('');          // Store error messages
     const [courseName, setCourseName] = useState('');
     const [courseCode, setCourseCode] = useState('');
     const [selectedStudent, setSelectedStudent] = useState('');
     const [selectedAssignment, setSelectedAssignment] = useState('');
-    const [studentRadarLabels, setStudentRadarLabels] = useState([]);
-    const [studentRadarData, setStudentRadarData] = useState([]);
     const [assignmentRadarLabels, setAssignmentRadarLabels] = useState([]);
     const [assignmentRadarData, setAssignmentRadarData] = useState([]);
     const [processedData, setProcessedData] = useState('');
@@ -42,6 +38,16 @@ export default function CourseSummaryStudentPage(studentInput) {
         } catch (error) {
             console.error('Error fetching students:', error.response ? error.response.data : error.message);
             setError('Error fetching students. Please check your token and permissions.');
+        }
+    };
+
+    const fetchStudentData = async () => {
+        try {
+            const response = await axios.get('http://localhost:4000/protected-route', { withCredentials: true });
+            const userId = response.data.userId;
+            setSelectedStudent(userId);
+        } catch (error) {
+            console.error("Error fetching logged-in student ID: ", error);
         }
     };
 
@@ -71,39 +77,20 @@ export default function CourseSummaryStudentPage(studentInput) {
         return entries.filter((entry) => {
             return selectedRubricItems.has(entry.description);
         });
-    }
-  
-    // Fetch students from Canvas API
-    const fetchStudents = async () => {
-        setError('');  // Reset error state
-        try {
-            const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/students`, {
-                withCredentials: true,
-            });
-            console.log(response.data);
-            setStudents(response.data); // Store the fetched students
-        } catch (error) {
-            console.error('Error fetching students:', error.response ? error.response.data : error.message);
-            setError('Error fetching students. Please check your token and permissions.');
-        }
     };
 
-    async function example2(courseId) {
+    async function aggregateCourseDetails(courseId) {
         try {
-          const response = await axios.get(`http://localhost:4000/api/example2/${courseId}`, {
+          const response = await axios.get(`http://localhost:4000/api/course-details-agg/${courseId}`, {
             withCredentials: true,
           });
       
           const course = response.data;
-          console.log('Raw course data:', course);
-
           // Build our aggregator for all users
           const aggregatedData = aggregateAllRubricData(course);
-          console.log('Aggregated rubric data by student:', aggregatedData);
           setProcessedData(aggregatedData);
 
           const assignmentData = computeAveragePercentageByAssignment(course);
-          console.log('Aggregated rubric data by assignment:', assignmentData);
           setAssignmentAverages(assignmentData);
         } catch (error) {
           console.error('Error fetching course details:', error);
@@ -111,16 +98,6 @@ export default function CourseSummaryStudentPage(studentInput) {
     };
 
     function aggregateAllRubricData(course) {
-      // This will hold data in the shape:
-      // {
-      //   [userId]: {
-      //     [criterionId]: {
-      //       description: string,
-      //       totalEarned: number,
-      //       totalPossible: number
-      //     }
-      //   }
-      // }
       const aggregator = {};
     
       const submissionsEdges = course?.submissionsConnection?.edges || [];
@@ -342,85 +319,19 @@ export default function CourseSummaryStudentPage(studentInput) {
     }
 
     useEffect(() => {
-        fetchStudents();
+        fetchStudentData();
         fetchCourseDetails();
-        example2(courseId);
+        aggregateCourseDetails(courseId);
     }, [courseId]);
 
     useEffect(() => {
         if (selectedRubricItems.size > 0) {
-            loadRadarDataByStudent(selectedStudent);
             loadRadarDataByAssignment(selectedAssignment);
         } else {
-            setStudentRadarLabels([]);
-            setStudentRadarData([]);
             setAssignmentRadarLabels([]);
             setAssignmentRadarData([]);
         }
     }, [processedData, selectedStudent, selectedAssignment, selectedRubricItems]);
-
-    // useEffect(() => {
-    //     loadRadarDataByStudent(selectedStudent);
-    // }, [processedData, selectedStudent, selectedRubricItems]);
-
-    // useEffect(() => {
-    //     loadRadarDataByAssignment(selectedAssignment);
-    // }, [processedData, selectedAssignment, selectedRubricItems]);
-
-    const loadRadarDataByStudent = async (selectedStudent) => {
-        console.log(selectedRubricItems);
-        
-        if (!selectedStudent) {
-            const classAverages = computeClassAverages(processedData);
-            const entries = Object.values(classAverages);
-            const filteredEntries = filterSelectedRubricItems(entries);
-            filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
-
-            const chartLabels = filteredEntries.map((e) => e.description);
-            const chartData = filteredEntries.map((e) => e.percentage);
-            console.log("Chart labels: ", chartLabels);
-            console.log("Chart data: ", chartData);
-            setStudentRadarLabels(chartLabels);
-            setStudentRadarData(chartData);
-            return;
-        }
-
-        if (!processedData || processedData.length === 0) return;
-        const userId = selectedStudent.user.id;
-        const userCriteriaMap = processedData[userId];
-        if (!userCriteriaMap) {
-          // Means this user has no rubric data
-          setStudentRadarLabels([]);
-          setStudentRadarData([]);
-          return;
-        }
-      
-        // userCriteriaMap is an object of { [critId]: { description, totalEarned, totalPossible, percentage } }
-        // Convert it to arrays for the chart
-        const entries = Object.values(userCriteriaMap); 
-        const filteredEntries = filterSelectedRubricItems(entries);
-        filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
-
-        // Convert criteriaScores into chart arrays
-        const chartLabels = filteredEntries.map((e) => e.description);
-        const chartData = filteredEntries.map((e) => e.percentage);
-        console.log("Chart labels: ", chartLabels);
-        console.log("Chart data: ", chartData);
-        setStudentRadarLabels(chartLabels);
-        setStudentRadarData(chartData);
-    }
-
-    const handleStudentSelect = (student) => {
-        // Check if the clicked student is already selected
-        if (selectedStudent?.user?.id === student.user.id) {
-            // Deselect the student if it's already selected
-            setSelectedStudent('');
-        } else {
-            // Otherwise, select the student
-            setSelectedStudent(student);
-            console.log("STUDENT SELECTED: ", student.user.name);
-        }
-    };
 
     const loadRadarDataByAssignment = (selectedAssignment) => {
         if (!assignmentAverages || assignmentAverages.length === 0) {
@@ -438,8 +349,6 @@ export default function CourseSummaryStudentPage(studentInput) {
 
             const chartLabels = filteredEntries.map((e) => e.description);
             const chartData = filteredEntries.map((e) => e.percentage);
-            console.log("Chart labels: ", chartLabels);
-            console.log("Chart data: ", chartData);
             setAssignmentRadarLabels(chartLabels);
             setAssignmentRadarData(chartData);
             return;
@@ -453,8 +362,6 @@ export default function CourseSummaryStudentPage(studentInput) {
 
         const labels = filteredCriteria.map((c) => c.description);
         const data = filteredCriteria.map((c) => c.averagePercentage);
-        console.log("Chart labels: ", labels);
-        console.log("Chart data: ", data);
         setAssignmentRadarLabels(labels);
         setAssignmentRadarData(data);
     };
@@ -467,13 +374,20 @@ export default function CourseSummaryStudentPage(studentInput) {
         } else {
             // Otherwise, select the assignment
             setSelectedAssignment(assignment);
-            console.log("ASSIGNMENT SELECTED: ", assignment.name);
         }
     };
 
     return (
         <div>
             <Navbar />
+
+            <button 
+                className="back-button"
+                onClick={() => {window.location.href = `/student-dashboard`}}    
+            >
+                Back to Dashboard
+            </button>
+
             <div>
                 <p>THIS IS THE STUDENT DASHBOARD PAGE</p>
                 <h4>{courseCode}: {courseName}, Course ID: {courseId}</h4>
@@ -497,19 +411,6 @@ export default function CourseSummaryStudentPage(studentInput) {
 
                 {/* This is the view by students */}
                 <div className="content_container">
-                    <div className="chart_container">
-                        
-                        <div className="summary_container" id="chart_container">
-                            <h4>{}'s Ability Chart</h4>
-                            <RadarChart 
-                                dataset={studentRadarData} 
-                                labels={studentRadarLabels} 
-                                dataset_label={selectedStudent ? selectedStudent.user.name + "'s Ability" : "Class Average Ability"}
-                            />
-                            {/* History chart */}
-                        </div>
-                    </div>
-
                     {/* This is the view by assignments */}
                     <div className="chart_container">
                         <AssignmentList assignments={assignments} handleAssignmentSelect={handleAssignmentSelect} selectedAssignment={selectedAssignment}/>

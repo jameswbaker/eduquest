@@ -1,5 +1,25 @@
+#assignments_container {
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    text-align: center;
+}
+
+/* Assignment Items - Ensure they fit properly */
+.assignment_item {
+    padding: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+    margin: 5px 0;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+}
+
 .assignment_item.selected {
-    display: flex;
-    flex-direction: column;
     background-color: antiquewhite;
+    font-weight: bold;
 }

@@ -291,11 +291,6 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
       },
     });
 
-    
-
-    // print out
-    console.log(response.data);
-
     // Return only the student data
     res.json(response.data); 
   } catch (error) {
@@ -312,17 +307,12 @@ app.post('/api/get-role', async (req, res) => {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
 
-    console.log("RESPONSE_ENROLLMENT: ", req.body);
-
     const { userId } = req.body;
-
     const response = await axios.get(`https://canvas.instructure.com/api/v1/users/${userId}/enrollments`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
     });
-
-    console.log("RESPONSE_ENROLLMENT: ", response.data);
 
     res.json(response.data);
   } catch (error) {
@@ -337,12 +327,8 @@ app.post('/api/get-role', async (req, res) => {
 
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
-
   const decoded = jwt.verify(token, JWT_SECRET);
-    // console.log('Decoded payload:', decoded);
-
-    // Access data from the decoded payload
-    const { username, userId, canvasToken } = decoded;
+  const { username, userId, canvasToken } = decoded;
 
   if (!token) {
     return res.status(401).send('Unauthorized: No token provided');

@@ -41,7 +41,7 @@ const RadarChart = ({ dataset, labels, dataset_label }) => {
     };
 
     return (
-        <div className="chart-container">
+        <div className="radar-chart-container">
             <Radar data={data} options={options} />
         </div>
     );

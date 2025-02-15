@@ -1,0 +1,133 @@
+/* General Layout */
+.dashboard-sections {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: flex-start;
+    margin-top: 20px;
+    width: 150%;
+}
+
+.dashboard-content {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+/* Courses List */
+.courses-column {
+    width: 20%;
+    background: #f8f9fa;
+    padding: 20px;
+    border-right: 2px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.student-course-item {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    margin: 6px 0;
+    text-align: center;
+    background-color: white;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+}
+
+.student-course-item:hover {
+    background-color: #e0e0e0;
+}
+
+.student-course-item.selected {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Titles & Sections */
+.page-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Rubric Items */
+.rubric-column {
+    width: 25%;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.rubric-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.rubric-item {
+    padding: 8px 12px;
+    border: 1px solid black;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+    text-align: center;
+}
+
+.rubric-item:hover {
+    background-color: #f0f0f0;
+}
+
+.rubric-item.selected {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Assignments + Chart */
+.chart-container {
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: row; 
+    gap: 25px;
+    align-items: flex-start; 
+    width: 20%;
+}
+
+.assignment-list-container {
+    width: 20%;
+    min-width: 225px;
+    max-width: 275px;
+}
+
+.ability-container {
+    padding: 8px 12px;
+    background: #fff;
+}
+
+/* No Course Selected */
+.no-course-selected {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    font-size: 18px;
+    font-weight: bold;
+    color: gray;
+}

@@ -114,29 +114,22 @@ app.post('/login', async (req, res) => {
       // Compare entered password with the stored hashed password
       const user = results[0];
       if (password == user.password) {
-        const token = jwt.sign({ username: user.username, userId: user.id, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
-
-        // Set JWT token as an HTTP-only cookie
-        res.cookie('auth_token', token, {
-          httpOnly: false,
-          // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
-          secure: false,
-          sameSite: 'lax',  // Prevent CSRF
-          maxAge: 3600000,  // 1 hour
-        });
-
         try {
-
           const userResponse = await axios.get('http://localhost:4000/api/users/user-details', {
-              params: {
-                  token: user.canvas_token,
-              },
+              params: { token: user.canvas_token, },
           });
-          const teacherCanvasId = userResponse.data.id;
-          
-          const userId = teacherCanvasId;
+          const userId = userResponse.data.id;
 
-          console.log("HELLO");
+          // Set up cookie
+          const token = jwt.sign({ username: user.username, userId: userId, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
+          console.log("User ID is ", userId);
+          // Set JWT token as an HTTP-only cookie
+          res.cookie('auth_token', token, {
+            httpOnly: false,
+            secure: false,
+            sameSite: 'lax',  // Prevent CSRF
+            maxAge: 3600000,  // 1 hour
+          });
 
           return res.json({ 
             userId: userId,

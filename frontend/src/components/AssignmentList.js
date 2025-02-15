@@ -5,7 +5,7 @@ import './AssignmentList.css';
 export default function AssignmentList({ assignments, handleAssignmentSelect, selectedAssignment }) {
 
     return (
-        <div className="summary_container" id="assignments_container">
+        <div className="assignments_container">
             <h4> Assignments </h4>
             {assignments.map((assignment, index) => (
                 <div

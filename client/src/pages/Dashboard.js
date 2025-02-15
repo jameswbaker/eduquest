@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { ReactSession } from "react-client-session";
 import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const user = ReactSession.get('user');
+    console.log("User is:", user);
+    if (!user) {
+      alert("Please log in first");
+      navigate('/'); 
+    }
+  }, [navigate]);
   return (
     <div className="dashboard-container">
       {/* Header */}

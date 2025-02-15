@@ -1,10 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
 import { Grid } from '@mui/material';
 import './Intro.css';
 import SearchBar from '../components/SearchBar';
 import CardComponent from '../components/Card';
 
 const IntroPage = () => {
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const user = ReactSession.get('user');
+    console.log("User is:", user);
+    if (!user) {
+      alert("Please log in first");
+      navigate('/'); 
+    }
+  }, [navigate]);
   const [searchValue, setSearchValue] = useState('');
 
   const handleSearch = () => {

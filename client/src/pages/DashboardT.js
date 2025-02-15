@@ -1,66 +1,111 @@
-// App.jsx
-import React from "react";
-import "./DashboardT.css";
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
+import axios from "axios"; // Same as in TeacherDashboardPage
+import "./Dashboard.css";
 
-
-const DashboardT = () => {
-
+const Dashboard = () => {
   const navigate = useNavigate();
 
-  // TODO: WILL HAV ETO FIX THIS LATER
-  const studentId = 0
 
-  const handleStudentView = () => {
-    const idToNavigate = studentId || 0;  // Default to 0 if studentId is not provided
-    navigate(`/dashboard/${idToNavigate}`);  // Navigate to the student dashboard with the dynamic or default studentId
+  useEffect(() => {
+    const user = ReactSession.get('user');
+    console.log("User is:", user);
+    if (!user) {
+      alert("Please log in first");
+      navigate('/'); 
+    }
+  }, [navigate]);
+  const [courses, setCourses] = useState([]);
+  const [error, setError] = useState("");
+
+  // Fetch courses from Canvas API (REST) on component mount
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    setError(""); // reset error before fetching
+    try {
+      const response = await axios.get("http://localhost:4000/api/courses", {
+        withCredentials: true,
+      });
+      setCourses(response.data); // store the fetched courses
+    } catch (error) {
+      console.error(
+        "Error fetching courses:",
+        error.response ? error.response.data : error.message
+      );
+      setError("Error fetching courses. Please check your token and permissions.");
+    }
   };
 
+  // Color cycle array
+  const colorOrder = ["yellow", "blue", "red", "pink", "green"];
+
   return (
-    <div className="t-dashboard-container">
+    <div className="dashboard-container">
       {/* Header */}
-      <header className="t-dashboard-header">
-        <h1>Teacher's Dashboard</h1>
-        <div className="t-header-icons">
-          <button className="t-icon-button" onClick={handleStudentView}>Student View</button>
+      <header className="dashboard-header">
+        <h1>Chanya's Dashboard</h1>
+        <div className="header-icons">
+          <span className="icon">💬</span>
+          <span className="icon">🛒</span>
+          <span className="icon">⚪</span>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="t-dashboard-main">
+      <div className="dashboard-main">
         {/* Courses Section */}
-        <div className="t-courses-section">
+        <div className="courses-section">
           <h2>Courses</h2>
-          <div className="t-courses-list">
-            <CourseCard
-              courseName="English 101"
-              instructor="James Baker"
+          {/* Show error (if any) */}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          <div className="courses-list">
+            {/* Dynamically render courses */}
+            {courses.map((course, index) => {
+              // pick color based on index modulo the length of colorOrder
+              const color = colorOrder[index % colorOrder.length];
+
+              return (
+                <CourseCard
+                  key={course.id}
+                  courseName={course.name}
+                  // If you have an instructor field from your API, replace "Unknown Instructor" with it
+                  instructor="Unknown Instructor"
+                  color={color}
+                  courseId={course.id}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* To-Do List Section (example static content) */}
+        <div className="todo-section">
+          <h2>To-do List</h2>
+          <div className="todo-list">
+            <ToDoCard
+              taskName="Understanding Romantic Gothic"
+              dueDate="Due Nov 10"
               color="yellow"
-              courseId="1"
             />
-            <CourseCard
-              courseName="Poetry"
-              instructor="Chanya Thanglerdsumpan"
-              color="blue"
-              courseId="2"
+            <ToDoCard
+              taskName="Haiku"
+              dueDate="No Due Date"
+              color="yellow"
             />
-            <CourseCard
-              courseName="Spelling"
-              instructor="Vivi Li"
+            <ToDoCard
+              taskName="Problem-Solution Essay Writing"
+              dueDate="Due Dec 12"
               color="red"
-              courseId="3"
             />
-            <CourseCard
-              courseName="Intersection of Art & English"
-              instructor="Cindy Wei"
-              color="pink"
-              courseId="4"
-            />
-            <CourseCard
-              courseName="Grammar"
-              instructor="Avi"
+            <ToDoCard
+              taskName="White Paper"
+              dueDate="Due Oct 12 Finished Oct 10"
               color="green"
-              courseId="5"
             />
           </div>
         </div>
@@ -73,13 +118,14 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
+    // Example: navigate to a data dashboard page
     navigate(`/dataDashboard/${courseId}`);
   };
 
   return (
-    <div className="t-course-card" onClick={handleClick}>
-      <div className={`t-color-section ${color}`}></div>
-      <div className={`t-text-section ${color}`}>
+    <div className={`course-card ${color}`} onClick={handleClick}>
+      <div className={`color-section ${color}`}></div>
+      <div className={`text-section ${color}`}>
         <h3>{courseName}</h3>
         <p>{instructor}</p>
       </div>
@@ -87,6 +133,14 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   );
 };
 
+const ToDoCard = ({ taskName, dueDate, color }) => (
+  <div className={`course-card ${color}`}>
+    <div className={`todo-color-section ${color}`}></div>
+    <div className="todo-text-section">
+      <h3>{taskName}</h3>
+      <p>{dueDate}</p>
+    </div>
+  </div>
+);
 
-
-export default DashboardT;
+export default Dashboard;

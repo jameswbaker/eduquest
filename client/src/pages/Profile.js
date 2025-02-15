@@ -1,7 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReactSession } from "react-client-session";
 import "./Profile.css";
 
 const Profile = () => {
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const user = ReactSession.get('user');
+    console.log("User is:", user);
+    if (!user) {
+      navigate('/'); 
+      alert("Please log in first");
+    }
+  }, [navigate]);
 
   const [firstName, setFirstname] = useState('Grace');
   const [lastName, setLastname] = useState('Thang');

@@ -1,14 +1,10 @@
 import { BrowserRouter, Routes, Route,useLocation } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material'
-import { teal, amber} from '@mui/material/colors'
 import { createTheme } from "@mui/material/styles";
 
 import NavBar from './components/NavBar';
 import LoginPage from './pages/Login';
-import AirbnbPage from './pages/Airbnb'
-import HousingPage from './pages/Housing'
-import HospitalPage from './pages/hospitals'
-import NearbyPage from './pages/Nearby_Hos_Crime'
+
 import SignUpPage from './pages/Signup';
 import LogoutPage from './pages/Logout';
 import IntroPage from './pages/Intro';
@@ -70,26 +66,25 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<IntroSignInPage />} />
         <Route path="/signIn" element={<LoginPage />} />
-        <Route path="/intro" element={<IntroPage />} />
-        <Route path="/introSignIn" element={<IntroSignInPage />} />
-        <Route path="/airbnb" element={<AirbnbPage />} />
-        <Route path="/housing" element={<HousingPage />} />
-        <Route path="/hospitals" element={<HospitalPage />} />
-        <Route path="/nearby" element={<NearbyPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/logout" element={<LogoutPage />} />
-        <Route path="/dashboard/:studentId" element={<DashboardPage />} />
-        <Route path="/teacherBoard" element={<TeacherBoardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/dataDashboard/:courseId" element={<DataDashboard />} />
-        {/* <Route path="/game" element={<GamePage />} /> */}
-        <Route path="/game/:gameName" element={<GamePage />} />
-        <Route path="/startGame/:gameName" element={<StartPage />} />
-        <Route path="/linkCanvas" element={<LinkCanvasPage />} />
-        <Route path="/createGame" element={<GameCreationPage />} />
-
-
+        <Route path="/introSignIn" element={<IntroSignInPage />} />
+      
+          <Route path="/intro" element={<IntroPage />} />
+       
+          <Route path="/logout" element={<LogoutPage />} />
+          <Route path="/dashboard/:studentId" element={<DashboardPage />} />
+          <Route path="/teacherBoard" element={<TeacherBoardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/dataDashboard/:courseId" element={<DataDashboard />} />
+          {/* <Route path="/game" element={<GamePage />} /> */}
+          <Route path="/game/:gameName" element={<GamePage />} />
+          <Route path="/startGame/:gameName" element={<StartPage />} />
+          <Route path="/linkCanvas" element={<LinkCanvasPage />} />
+          <Route path="/createGame" element={<GameCreationPage />} />
+     
+        <Route path="*" element={<div>Page Not Found</div>} />
       </Routes>
+  
     </>
   );
 }

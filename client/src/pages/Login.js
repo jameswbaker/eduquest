@@ -1,120 +1,94 @@
-import React, { useState, Component } from 'react';
-import FacebookLogin from 'react-facebook-login';
-import GoogleLogin from 'react-google-login';
-import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom"
-import { ReactSession } from 'react-client-session';
-
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { ReactSession } from 'react-client-session'; // <-- Import ReactSession
 import './Login.css';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigate();
+  const navigate = useNavigate();
 
-
-
-  const responseFacebook = (response) => {
-    fetch(`http://${process.env.process.env.REACT_APP_SERVER_HOST}:${process.env.process.env.REACT_APP_SERVER_PORT}/externalAuthenticator`, {
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-      body: JSON.stringify({ "email": response.email, "username": response.userID, "password": response.accessToken })
-    }).then(response => response.json())
-      .then(data => {
-        if (data.check) {
-          ReactSession.setStoreType('localStorage');
-          ReactSession.set('user', { name: data.name });
-          console.log(ReactSession.get('user'));
-          navigation('/intro')
-        } else {
-          alert('Login Failed');
-        }
-      })
-  };
-
-  const responseGoogle = (response) => {
-    if (response.error == "popup_closed_by_user") {
-      fetch(`http://${process.env.process.env.REACT_APP_SERVER_HOST}:${process.env.process.env.REACT_APP_SERVER_PORT}/verify`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.check) {
-            ReactSession.setStoreType('localStorage');
-            ReactSession.set('user', { name: data.name });
-            navigation('/intro')
-          } else {
-            alert('Login Failed');
-          }
-        })
-    }
-  }
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   fetch(`http://${process.env.process.env.REACT_APP_SERVER_HOST}:${process.env.process.env.REACT_APP_SERVER_PORT}/authenticator`, {
-  //     headers: { 'Content-Type': 'application/json' },
-  //     method: 'POST',
-  //     body: JSON.stringify({ "email": email, "password": password }) // body data type must match "Content-Type" header
-  //   }).then(response => response.json())
-  //     .then(data => {
-  //       if (data.check) {
-  //         ReactSession.setStoreType('localStorage');
-  //         ReactSession.set('user', { name: data.name });
-  //         console.log(ReactSession.get('user'));
-  //         navigation('/intro')
-  //       } else {
-  //         alert('Login Failed');
-  //       }
-  //     })
-  // };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigation('/intro');
+    console.log('Username:', username);
+    console.log('Password:', password);
+
+    try {
+      const response = await fetch('http://localhost:5001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include', // Include cookies if needed
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login Success:', data.message);
+
+        // 1. Store user info in session so other pages know you're logged in
+        //    If your backend returns something like data.user, you can store that.
+        //    Otherwise, at least store the username:
+        ReactSession.set('user', { username });
+
+        // 2. Navigate to your landing page (or any other route you want)
+        navigate('/intro');
+
+        // 3. Reset fields
+        setUsername('');
+        setPassword('');
+      } else {
+        const errorData = await response.json();
+        console.error('Error:', errorData.message);
+        alert(`Login Failed: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert(`Login Failed: ${error.message}`);
+    }
   };
-  
 
   return (
+    <div className="login-container">
+      <div className="login-wrapper">
+        {/* Traditional login form */}
+        <div className="login-form">
+          <h1>Sign In</h1>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              id="username"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
 
-<div class="login-container">
-  <div class="login-wrapper">
-    <div class="login-form">
-      <h1>Sign In</h1>
-      <form onSubmit={handleSubmit}>
-        <input 
-          type="text" 
-          id="email" 
-          placeholder="Email Address" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-        />
-  
-        <input 
-          type="password" 
-          id="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-        />
-  
-        <a href="#" class="forgot-password">Forgot Password?</a>
-  
-        <button type="submit">Sign In</button>
-      </form>
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <a href="#" className="forgot-password">
+              Forgot Password?
+            </a>
+            <button type="submit">Sign In</button>
+          </form>
+        </div>
+
+        {/* Sign-up prompt */}
+        <div className="signup-prompt">
+          <h2 className="donthaveanaccount">Don't have an account?</h2>
+          <NavLink to="/signUp" className="sign-up-button">
+            Sign Up Here
+          </NavLink>
+        </div>
+      </div>
     </div>
-    <div class="signup-prompt">
-      <h2 className="donthaveanaccount">Don't have an account?</h2>
-      <NavLink to={`/signUp`} className="sign-up-button">Sign Up Here</NavLink>
-    </div>
-  </div>
-</div>
-
-  
- 
-
-
-
   );
-
 }
 
 export default Login;

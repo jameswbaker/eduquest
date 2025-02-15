@@ -1,20 +1,18 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { ReactSession } from 'react-client-session';
 
-export default function SongsPage() {
-    const navigation = useNavigate();
+export default function Logout() {
+  const navigate = useNavigate();
 
-    function logout() {
-        ReactSession.remove('user');
-        const isLoggedIn = ReactSession.get('user');
-        navigation('/')
-    }
-    useEffect(() => {
+  useEffect(() => {
+    ReactSession.remove('user');
 
-        logout();
-    });
+    const isLoggedIn = ReactSession.get('user');
+    console.log("User after removal:", isLoggedIn);
 
+    navigate('/');
+  }, [navigate]);
 
-
+  return null;
 }

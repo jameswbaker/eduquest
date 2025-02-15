@@ -1,10 +1,14 @@
+const OpenAI = require("openai");
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-const app = express();
+
 const PORT = 4000;
+
+const openai = new OpenAI();
+const app = express();
 
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5001'],  // Frontend URL
@@ -258,7 +262,101 @@ app.post('/api/get-role', async (req, res) => {
   }
 });
 
+app.post('/generate-questions', async (req, res) => {
+  const { content, num_answers = 4, num_questions = 25 } = req.body;
+  console.log("num_questions:", num_questions, "num_answers:", num_answers);
+  try {
+    const response = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-2024-08-06",
+      messages: [
+        {
+          role: "system",
+          content: `Generate exactly ${num_questions} multiple choice questions based on the provided content. Each question should have exactly ${num_answers} answer options with exactly one correct answer. The questions should progressively increase in difficulty.`
+        },
+        { role: "user", content: content }
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: "QuestionResponse",
+          description: `A set of ${num_questions} multiple choice questions, each with ${num_answers} possible answers`,
+          schema: {
+            type: "object",
+            description: "Container for questions array",
+            properties: {
+              questions: {
+                type: "array", 
+                description: `Array of exactly ${num_questions} multiple choice questions`,
+                items: {
+                  type: "object",
+                  description: "A single multiple choice question",
+                  properties: {
+                    question: { 
+                      type: "string",
+                      description: "The question text"
+                    },
+                    answers: {
+                      type: "array",
+                      description: `Array of exactly ${num_answers} possible answers, with exactly one correct answer`,
+                      items: {
+                        type: "object",
+                        description: "A possible answer",
+                        properties: {
+                          text: { 
+                            type: "string",
+                            description: "The answer text"
+                          },
+                          isCorrect: { 
+                            type: "boolean",
+                            description: "Whether this is the correct answer"
+                          }
+                        },
+                        required: ["text", "isCorrect"],
+                        additionalProperties: false
+                      }
+                    }
+                  },
+                  required: ["question", "answers"],
+                  additionalProperties: false
+                }
+              }
+            },
+            required: ["questions"],
+            additionalProperties: false
+          },
+          strict: true
+        }
+      }
+    });
+    
+    const questions = response.choices[0].message.parsed;
+    
+    // Validate number of questions and answers
+    if (questions.questions.length !== num_questions) {
+      throw new Error(`Expected ${num_questions} questions but got ${questions.questions.length}`);
+    }
+     
+    for (let i = 0; i < questions.questions.length; i++) {
+      if (questions.questions[i].answers.length !== num_answers) {
+        throw new Error(`Question ${i + 1} has ${questions.questions[i].answers.length} answers instead of ${num_answers}`);
+      }
+      
+      // Validate exactly one correct answer per question
+      const correctAnswers = questions.questions[i].answers.filter(a => a.isCorrect).length;
+      if (correctAnswers !== 1) {
+        throw new Error(`Question ${i + 1} has ${correctAnswers} correct answers instead of 1`);
+      }
+    }
 
+    console.log("Generated questions count:", questions.questions.length);
+    res.json(questions);
+  } catch (error) {
+    console.error("Error generating questions:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Existing protected route
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
   const decoded = jwt.verify(token, JWT_SECRET);

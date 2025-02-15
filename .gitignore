@@ -1,9 +1,7 @@
-**/venv/
-**/.venv/
-**/env/
-**/.env/
-**/*.pyc
-**/__pycache__/
-**/.Python
-**/.env
-**/node_modules/
+venv/
+.env/
+env/
+.pyc
+__pycache__/
+.Python
+node_modules/

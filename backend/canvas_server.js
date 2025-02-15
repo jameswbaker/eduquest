@@ -162,6 +162,7 @@ app.get('/api/example2/:courseId', async (req, res) => {
                 description
                 name
                 id
+                dueAt
                 pointsPossible
                 submissionsConnection {
                   edges {

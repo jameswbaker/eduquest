@@ -4,15 +4,18 @@ import { useParams } from 'react-router-dom';
 import RadarChart from '../components/RadarChart';
 import { useCourseSummary } from '../hooks/useCourseSummary';
 import { aggregateAllRubricData } from '../utils/courseSummaryUtils';
+import RubricList from "../components/RubricList"; // Import modal component
+import RubricCard from '../components/RubricCard';
+import StudentCard from '../components/StudentCard';
+import AssignmentCard from '../components/AssignmentCard';
 
 const TDashboard = () => {
-  // CHANGED FROM USELOCATION TO USEPARAMS
   const { courseId } = useParams();
   console.log('courseId ', courseId);
 
-  // const location = useLocation();
-  // const queryParams = new URLSearchParams(location.search);
-  // const courseId = queryParams.get('courseId');
+  const [rubricOpen, setRubricOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('students'); // Default to 'students'
+
 
   const { 
     students, 
@@ -26,6 +29,9 @@ const TDashboard = () => {
   } = useCourseSummary(courseId);
 
   console.log('this is students ', students);
+  console.log('this is rubric items ', rubricItems);
+  console.log('this is assignments ', assignments);
+
 
   const [analyticsData, setAnalyticsData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,9 +59,19 @@ const TDashboard = () => {
       <header className="dashboard-header">
         <h1>{courseName || "Loading..."}</h1>
         <div className="teacher-navbar">
-          <button className="icon-button">Assignment</button>
-          <button className="icon-button">Student</button>
-          <button className="icon-button">Bucket</button>
+          <button 
+              className={`icon-button ${selectedTab === 'students' ? 'active' : ''}`} 
+              onClick={() => setSelectedTab('students')}
+            >
+              Students
+            </button>
+            <button 
+              className={`icon-button ${selectedTab === 'assignments' ? 'active' : ''}`} 
+              onClick={() => setSelectedTab('assignments')}
+            >
+              Assignments
+          </button>
+          {/* <button className="icon-button" onClick={() => setRubricOpen(true)}>Bucket</button> */}
         </div>
       </header>
 
@@ -63,10 +79,28 @@ const TDashboard = () => {
       <div className="dashboard-main">
         {/* Student List */}
         <div className="courses-section">
-          <h2>Student List</h2>
+          <h2>{selectedTab === 'students' ? "Student List" : "Assignment List"}</h2>
           <div className="courses-list">
-            {students.map((student, index) => (
-              <CourseCard key={index} studentName={student.name} grade={student.grade} color="blue" />
+            {selectedTab === 'students' ? (
+              // Render Student List
+              students.map((student, index) => (
+                <StudentCard key={index} studentName={student.user.name} grade={student.grades.current_score} color="blue" />
+              ))
+            ) : (
+              // TODO: assignment card HAS NO due date for now. wait for backend
+              assignments.map((assignment, index) => (
+                <AssignmentCard key={index} assignmentName={assignment.name} dueDate={assignment.dueAt} color="green" />
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="courses-section">
+          <h2>Rubric Items</h2>
+          <div className="courses-list">
+            {rubricItems.map((item, index) => (
+              // TODO: edit the style for this
+              <RubricCard key={index} rubricName={item} color="blue" />
             ))}
           </div>
         </div>
@@ -80,79 +114,24 @@ const TDashboard = () => {
             {analyticsData ? <RadarChart data={analyticsData} /> : <p>Loading analytics...</p>}
           </section>
 
-          <section className="charts-section">
+          {/* <section className="charts-section">
             <header className="charts-header">
               <h2>History</h2>
             </header>
-          </section>
+          </section> */}
         </div>
 
-        {/* Generate Analytics Modal */}
         <div>
-          <button className="add-charts-btn" onClick={() => setIsModalOpen(true)}>
-            Generate new analytics
-          </button>
-
-          {isModalOpen && (
-            <div className="modal-overlay">
-              <div className="modal">
-                <h2>Generate New Analytics</h2>
-                <form className="goal-form">
-                  <label>
-                    Rubric Items to Include:
-                    <input
-                      type="text"
-                      name="rubricItems"
-                      value={formData.rubricItems}
-                      onChange={handleInputChange}
-                    />
-                  </label>
-                  <label>
-                    Students to Include:
-                    <input
-                      type="text"
-                      name="students"
-                      value={formData.students}
-                      onChange={handleInputChange}
-                    />
-                  </label>
-                  <label>
-                    Time Range:
-                    <input
-                      type="date"
-                      name="timeRange"
-                      value={formData.timeRange}
-                      onChange={handleInputChange}
-                    />
-                  </label>
-                </form>
-                <div className="modal-actions">
-                  <button className="modal-btn save-btn" onClick={() => setIsModalOpen(false)}>
-                    Generate
-                  </button>
-                  <button className="modal-btn cancel-btn" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          <RubricList 
+          isOpen={rubricOpen} 
+          onClose={() => setRubricOpen(false)} 
+          rubricItems={rubricItems} 
+          />
         </div>
 
       </div>
     </div>
   );
 };
-
-// Course Card Component
-const CourseCard = ({ studentName, grade, color }) => (
-  <div className={`course-card ${color}`}>
-    <div className={`color-section ${color}`}></div>
-    <div className={`text-section ${color}`}>
-      <h3>{studentName}</h3>
-      <p>Course Grade: {grade}</p>
-    </div>
-  </div>
-);
 
 export default TDashboard;

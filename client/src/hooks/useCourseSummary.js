@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export function useCourseSummary(courseId) {
+
+    console.log('entered use course summary');
+
     const [students, setStudents] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [error, setError] = useState('');
@@ -12,14 +15,17 @@ export function useCourseSummary(courseId) {
 
     useEffect(() => {
         if (courseId) {
+            console.log('a')
             fetchCourseDetails();
             fetchStudents();
         }
     }, [courseId]);
 
     const fetchCourseDetails = async () => {
+        console.log('fetch course');
         try {
             const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/course-details`, { withCredentials: true });
+            console.log('fetching course details: ', response);
             setCourseName(response.data.course_name);
             setCourseCode(response.data.course_code);
             setAssignments(response.data.assignments);
@@ -30,8 +36,10 @@ export function useCourseSummary(courseId) {
     };
 
     const fetchStudents = async () => {
+        console.log('fetch students');
         try {
             const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/students`, { withCredentials: true });
+            console.log('fetching student details: ', response);
             setStudents(response.data);
         } catch (err) {
             setError('Error fetching students.');

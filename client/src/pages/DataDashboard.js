@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "./DataDashboard.css";
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import RadarChart from '../components/RadarChart';
 import { useCourseSummary } from '../hooks/useCourseSummary';
 import { aggregateAllRubricData } from '../utils/courseSummaryUtils';
@@ -8,6 +8,7 @@ import { aggregateAllRubricData } from '../utils/courseSummaryUtils';
 const TDashboard = () => {
   // CHANGED FROM USELOCATION TO USEPARAMS
   const { courseId } = useParams();
+  console.log('courseId ', courseId);
 
   // const location = useLocation();
   // const queryParams = new URLSearchParams(location.search);
@@ -23,6 +24,8 @@ const TDashboard = () => {
     toggleRubricItem, 
     error 
   } = useCourseSummary(courseId);
+
+  console.log('this is students ', students);
 
   const [analyticsData, setAnalyticsData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

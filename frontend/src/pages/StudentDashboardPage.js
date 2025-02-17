@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import RadarChart from '../components/RadarChart';
 import AssignmentList from '../components/AssignmentList';
@@ -398,22 +399,11 @@ export default function StudentDashboardPage() {
         setAssignmentRadarData(data);
     };
 
-    const handleAssignmentSelect = (assignment) => {
-        // Check if the clicked assignment is already selected
-        if (selectedAssignment?.id === assignment.id) {
-            // Deselect the assignment if it's already selected
-            setSelectedAssignment('');
-        } else {
-            // Otherwise, select the assignment
-            setSelectedAssignment(assignment);
-        }
-    };
-
     return (
         <div>
             <Navbar />
             <div> 
-                <h4>Welcome {username} to Your Student Dashboard</h4>
+                <h4>Welcome <Link to="/student-profile">{username}</Link> to Your Student Dashboard</h4>
             </div>
             {/* Display error message if there's an issue */}
             {error && <p style={{ color: 'red' }}>{error}</p>}

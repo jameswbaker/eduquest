@@ -30,12 +30,7 @@ function getTokenFromCookie(req) {
 }
 
 app.get('/api/users/user-details', async (req, res) => {
-  const apiToken = req.query.token;
-  if (!apiToken) {
-    return res.status(400).json({
-      message: "Missing required query parameters: token",
-    });
-  }
+  const apiToken = getTokenFromCookie(req);
   try {
     const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
       headers: {

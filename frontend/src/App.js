@@ -9,6 +9,7 @@ import CourseSummaryPage from './pages/CourseSummaryPage';
 import Navbar from './components/Navbar';
 import StudentDashboardPage from './pages/StudentDashboardPage';
 import CourseSummaryStudentPage from './pages/CourseSummaryStudentPage';
+import StudentProfilePage from './pages/StudentProfilePage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/course-summary" element={<CourseSummaryPage />} />
             <Route path="/student-dashboard" element={<StudentDashboardPage />} />
             <Route path="/course-summary-student" element={<CourseSummaryStudentPage />} />
+            <Route path="/student-profile" element={<StudentProfilePage />} />
           </Routes>
         </BrowserRouter>
       </header>

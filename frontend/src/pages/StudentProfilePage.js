@@ -44,6 +44,7 @@ export default function StudentProfilePage() {
 
     // Fetch student information from their canvas account
     const fetchStudentCanvasInfo = async() => {
+        
         try {
             const response = await axios.get('http://localhost:4000/api/users/user-details', {
                 withCredentials: true,

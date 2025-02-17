@@ -30,7 +30,10 @@ function getTokenFromCookie(req) {
 }
 
 app.get('/api/users/user-details', async (req, res) => {
-  const apiToken = getTokenFromCookie(req);
+  var apiToken = req.query.token;
+  if (!apiToken) {
+    apiToken = getTokenFromCookie(req);
+  }
   try {
     const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
       headers: {

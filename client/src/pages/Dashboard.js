@@ -10,11 +10,18 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
+  const [user, setUser] = useState("");
+
+  const handleTeacherView = () => {
+    // const idToNavigate = 0;  
+    navigate(`/teacherBoard`);
+  };
 
   useEffect(() => {
-    const user = ReactSession.get("user");
+    const currUser = ReactSession.get("user");
+    setUser(currUser);
     console.log("User is:", user);
-    if (!user) {
+    if (!currUser) {
       alert("Please log in first");
       navigate("/");
     }
@@ -49,11 +56,11 @@ const Dashboard = () => {
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        <h1>Chanya's Dashboard</h1>
+        <h1>{user.username} Dashboard</h1>
         <div className="header-icons">
-          <span className="icon">💬</span>
-          <span className="icon">🛒</span>
-          <span className="icon">⚪</span>
+        <button className="t-icon-button" onClick={handleTeacherView}>
+            Teacher View
+          </button>
         </div>
       </header>
 

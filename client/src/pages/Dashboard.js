@@ -1,20 +1,50 @@
+// Dashboard.jsx
+
 import React, { useState, useEffect } from "react";
 import { ReactSession } from "react-client-session";
-import "./Dashboard.css";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "./Dashboard.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-
+  const [courses, setCourses] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const user = ReactSession.get('user');
+    const user = ReactSession.get("user");
     console.log("User is:", user);
     if (!user) {
       alert("Please log in first");
-      navigate('/'); 
+      navigate("/");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    setError("");
+    try {
+      const response = await axios.get("http://localhost:4000/api/courses", {
+        withCredentials: true,
+      });
+      setCourses(response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching courses:",
+        error.response ? error.response.data : error.message
+      );
+      setError(
+        "Error fetching courses. Please check your token and permissions."
+      );
+    }
+  };
+
+  // Cycle through colors for the course cards
+  const colorOrder = ["yellow", "blue", "red", "pink", "green"];
+
   return (
     <div className="dashboard-container">
       {/* Header */}
@@ -32,37 +62,20 @@ const Dashboard = () => {
         {/* Courses Section */}
         <div className="courses-section">
           <h2>Courses</h2>
+          {error && <p style={{ color: "red" }}>{error}</p>}
           <div className="courses-list">
-            <CourseCard
-              courseName="English 101"
-              instructor="James Baker"
-              color="yellow"
-              courseId="1"
-            />
-            <CourseCard
-              courseName="Poetry"
-              instructor="Chanya Thanglerdsumpan"
-              color="blue"
-              courseId="2"
-            />
-            <CourseCard
-              courseName="Spelling"
-              instructor="Vivi Li"
-              color="red"
-              courseId="3"
-            />
-            <CourseCard
-              courseName="Intersection of Art & English"
-              instructor="Cindy Wei"
-              color="pink"
-              courseId="4"
-            />
-            <CourseCard
-              courseName="Grammar"
-              instructor="Avi"
-              color="green"
-              courseId="5"
-            />
+            {courses.map((course, index) => {
+              const color = colorOrder[index % colorOrder.length];
+              return (
+                <CourseCard
+                  key={course.id}
+                  courseName={course.name}
+                  instructor={course.instructor || "Unknown Instructor"}
+                  color={color}
+                  courseId={course.id}
+                />
+              );
+            })}
           </div>
         </div>
 
@@ -74,26 +87,21 @@ const Dashboard = () => {
               taskName="Understanding Romantic Gothic"
               dueDate="Due Nov 10"
               color="yellow"
-              border="black"
             />
             <ToDoCard
               taskName="Haiku"
               dueDate="No Due Date"
               color="yellow"
-              border="black"
             />
             <ToDoCard
               taskName="Problem-Solution Essay Writing"
               dueDate="Due Dec 12"
               color="red"
-              border="black"
             />
             <ToDoCard
               taskName="White Paper"
               dueDate="Due Oct 12 Finished Oct 10"
               color="green"
-              border="black"
-              courseId="5"
             />
           </div>
         </div>
@@ -120,7 +128,6 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   );
 };
 
-
 const ToDoCard = ({ taskName, dueDate, color }) => (
   <div className={`course-card ${color}`}>
     <div className={`todo-color-section ${color}`}></div>
@@ -130,7 +137,5 @@ const ToDoCard = ({ taskName, dueDate, color }) => (
     </div>
   </div>
 );
-
-
 
 export default Dashboard;

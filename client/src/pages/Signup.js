@@ -49,7 +49,7 @@ function SignUp() {
         
         // Redirect after successful sign-up
         // You can customize this route based on your needs
-        navigate('/teacher-dashboard');
+        navigate('/intro');
 
         // Reset all fields
         setFirstName('');
@@ -83,7 +83,7 @@ function SignUp() {
         {/* Prompt for existing account */}
         <div className="signup-prompt">
           <h2>Already have an account?</h2>
-          <NavLink to="/" className="login-button">Sign In Here</NavLink>
+          <NavLink to="/signIn" className="login-button">Sign In Here</NavLink>
         </div>
 
         {/* Sign-up Form */}

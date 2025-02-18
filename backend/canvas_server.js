@@ -30,10 +30,7 @@ function getTokenFromCookie(req) {
 }
 
 app.get('/api/users/user-details', async (req, res) => {
-  var apiToken = req.query.token;
-  if (!apiToken) {
-    apiToken = getTokenFromCookie(req);
-  }
+  const apiToken = req.query.token ? req.query.token : getTokenFromCookie(req);
   try {
     const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
       headers: {
@@ -256,6 +253,22 @@ app.post('/api/get-role', async (req, res) => {
   }
 });
 
+app.get('/api/user/to-do', async (req, res) => {
+  try {
+    const apiToken = getTokenFromCookie(req);
+    const response = await axios.get(`https://canvas.instructure.com/api/v1/users/self/todo`, {
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+      },
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: 'Error getting todo',
+      details: error.response?.data || error.message,
+    });
+  }
+});
 
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;

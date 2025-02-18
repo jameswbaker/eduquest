@@ -21,6 +21,7 @@ export default function StudentDashboardPage() {
     const [assignmentAverages, setAssignmentAverages] = useState([]);
     const [rubricItems, setRubricItems] = useState([]);
     const [selectedRubricItems, setSelectedRubricItems] = useState(new Set());
+    const [todos, setTodos] = useState([]);
 
     // Fetch student information
     const fetchStudentInfo = async() => {
@@ -32,6 +33,20 @@ export default function StudentDashboardPage() {
         } catch (error) {
             console.error('Error fetching student:', error.response ? error.response.data : error.message);
             setError('Error fetching student. Please check your token and permissions.');
+        }
+    }
+
+    const fetchTodo = async () => {
+        setError('');
+        try {
+            const response = await axios.get(`http://localhost:4000/api/user/to-do`, {
+                withCredentials: true,
+            });
+            setTodos(response.data);
+            console.log(todos);
+        } catch (error) {
+            console.error('Error fetching todo:', error.response ? error.response.data : error.message);
+            setError('Error fetching todo. Please check your token and permissions.');
         }
     }
 
@@ -53,6 +68,7 @@ export default function StudentDashboardPage() {
     useEffect(() => {
         fetchStudentInfo();
         fetchCourses();
+        fetchTodo();
     }, []); // Re-run the effect if the token changes
 
     // Fetch course details from Canvas API
@@ -466,6 +482,27 @@ export default function StudentDashboardPage() {
                     ) : (
                         <div className="no-course-selected">
                             <p>Select a course to view details.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div>
+                <h4 className="section-title">To-Do</h4>
+                <div>
+                    {todos.length > 0 ? (
+                        <>
+                            {todos.map((todo) => (
+                                <div
+                                    key={todo.id}    
+                                >
+                                    {todo.course_id}
+                                </div>
+                            ))}
+                        </>
+                    ) : (
+                        <div>
+                            <p>No to-do items</p>
                         </div>
                     )}
                 </div>

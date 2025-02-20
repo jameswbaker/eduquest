@@ -1,5 +1,6 @@
 import { AppBar, Container, Toolbar, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
+import { ReactSession } from 'react-client-session';
 
 const NavText = ({ href, text, isMain }) => {
   return (
@@ -27,6 +28,12 @@ const NavText = ({ href, text, isMain }) => {
 };
 
 export default function NavBar() {
+  // Assume that the enrollment type is stored in session as either "StudentEnrollment" or "TeacherEnrollment"
+  const enrollmentType = ReactSession.get("enrollmentType");
+  console.log(enrollmentType);
+  const dashboardRoute =
+    enrollmentType === "StudentEnrollment" ? "/dashboard/:studentId" : "/teacherBoard";
+
   return (
     <AppBar 
       position="static" 
@@ -38,8 +45,7 @@ export default function NavBar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <NavText href="/intro" text="Eduquest" isMain />
-          {/* TODO: CHANGE THIS PORTION LATER */}
-          <NavText href="/teacherBoard" text="Dashboard" />
+          <NavText href={dashboardRoute} text="Dashboard" />
           <NavText href="/createGame" text="Gamify" />
           <NavText href="/profile" text="Profile" />
           <NavText href="/logout" text="Logout" />

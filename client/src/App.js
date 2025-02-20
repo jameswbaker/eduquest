@@ -17,6 +17,8 @@ import StartPage from './pages/StartPage';
 import IntroSignInPage from './pages/IntroSignIn';
 import LinkCanvasPage from './pages/linkCanvas'
 import GameCreationPage from './pages/GameCreationPage';
+import CourseDashboardPage from './pages/CourseDashboard';
+
 
 
 import './App.css';
@@ -65,7 +67,7 @@ function AppContent() {
       {showNavBar && <NavBar />}
       <Routes>
         <Route path="/" element={<IntroSignInPage />} />
-        <Route path="/signIn" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/introSignIn" element={<IntroSignInPage />} />
       
@@ -81,6 +83,7 @@ function AppContent() {
           <Route path="/startGame/:gameName" element={<StartPage />} />
           <Route path="/linkCanvas" element={<LinkCanvasPage />} />
           <Route path="/createGame" element={<GameCreationPage />} />
+          <Route path="/courseDashboard/:courseId" element={<CourseDashboardPage />} />
      
         <Route path="*" element={<div>Page Not Found</div>} />
       </Routes>

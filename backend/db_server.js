@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-// const bcrypt = require('bcrypt');  // To securely compare passwords
 const mysql = require('mysql2');
 const cookieParser = require('cookie-parser');  // To parse cookies
 const cors = require('cors');
@@ -52,19 +51,7 @@ app.post('/signup', async (req, res) => {
               token: canvasToken,
           },
       });
-      // const userResponse = await axios.post('http://localhost:4000/api/users/user-details', {
-      //   query: `
-      //     query {
-      //       userDetails(token: "${canvasToken}") {
-      //         id
-      //       }
-      //     }
-      //   `
-      // });
-      // const teacherCanvasId = userResponse.data.data.userDetails.id;
       const teacherCanvasId = userResponse.data.id;
-      console.log('Teacher Canvas User ID: ', teacherCanvasId);
-
       const query = `
         INSERT INTO Account_Info (account_id, username, password, canvas_token) 
         VALUES (?, ?, ?, ?)
@@ -80,7 +67,6 @@ app.post('/signup', async (req, res) => {
       const token = jwt.sign({ username: username, userId: teacherCanvasId, canvasToken: canvasToken }, JWT_SECRET, { expiresIn: '1h' });
       res.cookie('auth_token', token, {
         httpOnly: false,
-        // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
         secure: false,
         sameSite: 'lax',  // Prevent CSRF
         maxAge: 3600000,  // 1 hour
@@ -96,11 +82,11 @@ app.post('/signup', async (req, res) => {
     }
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
   
     // Query the database to find the user by username
-    db.query('SELECT * FROM Account_Info WHERE username = ?', [username], (err, results) => {
+    db.query('SELECT * FROM Account_Info WHERE username = ?', [username], async (err, results) => {
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }
@@ -109,22 +95,35 @@ app.post('/login', (req, res) => {
       if (results.length === 0) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
-  
+      
       // Compare entered password with the stored hashed password
       const user = results[0];
       if (password == user.password) {
-        const token = jwt.sign({ username: user.username, userId: user.id, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
+        try {
+          const userResponse = await axios.get('http://localhost:4000/api/users/user-details', {
+              params: { token: user.canvas_token, },
+          });
+          const userId = userResponse.data.id;
 
-        // Set JWT token as an HTTP-only cookie
-        res.cookie('auth_token', token, {
-          httpOnly: false,
-          // secure: process.env.NODE_ENV === 'production',  // Secure only in HTTPS
-          secure: false,
-          sameSite: 'lax',  // Prevent CSRF
-          maxAge: 3600000,  // 1 hour
-        });
+          // Set up cookie
+          const token = jwt.sign({ username: user.username, userId: userId, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
+          // Set JWT token as an HTTP-only cookie
+          res.cookie('auth_token', token, {
+            httpOnly: false,
+            secure: false,
+            sameSite: 'lax',  // Prevent CSRF
+            maxAge: 3600000,  // 1 hour
+          });
 
-        return res.json({ message: 'Login successful!' });
+          return res.json({ 
+            username: user.username,
+            userId: userId,
+            message: 'Login successful!', 
+            });
+        } catch (error) {
+          console.log(error);
+        }
+        
       } else {
         return res.status(401).json({ message: 'Invalid credentials' });
       }

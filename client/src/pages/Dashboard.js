@@ -11,26 +11,29 @@ const Dashboard = () => {
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
   const [user, setUser] = useState("");
+  const [studentName, setStudentName] = useState(""); // New state for full name
+  const [todos, setTodos] = useState([]); // To-do items
 
-  const handleTeacherView = () => {
-    // const idToNavigate = 0;  
-    navigate(`/teacherBoard`);
-  };
-
+  // Check if the user is logged in and fetch session info
   useEffect(() => {
     const currUser = ReactSession.get("user");
     setUser(currUser);
-    console.log("User is:", user);
+    console.log("User is:", currUser);
     if (!currUser) {
       alert("Please log in first");
       navigate("/");
+    } else {
+      // If a user exists, fetch the student's Canvas info for their full name
+      fetchStudentCanvasInfo();
     }
   }, [navigate]);
 
   useEffect(() => {
     fetchCourses();
+    fetchTodos();
   }, []);
 
+  // Fetch courses from API
   const fetchCourses = async () => {
     setError("");
     try {
@@ -49,18 +52,49 @@ const Dashboard = () => {
     }
   };
 
-  // Cycle through colors for the course cards
+  // Fetch to-do items from API
+  const fetchTodos = async () => {
+    setError("");
+    try {
+      const response = await axios.get("http://localhost:4000/api/user/to-do", {
+        withCredentials: true,
+      });
+      setTodos(response.data);
+      console.log("Todos fetched:", response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching todos:",
+        error.response ? error.response.data : error.message
+      );
+      setError("Error fetching todos. Please check your token and permissions.");
+    }
+  };
+
+  // Fetch student info (full name) from Canvas API
+  const fetchStudentCanvasInfo = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/users/user-details", {
+        withCredentials: true,
+      });
+      setStudentName(response.data.name);
+    } catch (error) {
+      console.error(
+        "Error fetching student canvas info:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
+
+  // Colors for course cards
   const colorOrder = ["yellow", "blue", "red", "pink", "green"];
 
   return (
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        <h1>{user.username} Dashboard</h1>
+        <h1>{studentName ? `${studentName}'s Dashboard` : "Dashboard"}</h1>
         <div className="header-icons">
-        <button className="t-icon-button" onClick={handleTeacherView}>
-            Teacher View
-          </button>
+          {/* Optional teacher view button can go here */}
         </div>
       </header>
 
@@ -90,26 +124,18 @@ const Dashboard = () => {
         <div className="todo-section">
           <h2>To-do List</h2>
           <div className="todo-list">
-            <ToDoCard
-              taskName="Understanding Romantic Gothic"
-              dueDate="Due Nov 10"
-              color="yellow"
-            />
-            <ToDoCard
-              taskName="Haiku"
-              dueDate="No Due Date"
-              color="yellow"
-            />
-            <ToDoCard
-              taskName="Problem-Solution Essay Writing"
-              dueDate="Due Dec 12"
-              color="red"
-            />
-            <ToDoCard
-              taskName="White Paper"
-              dueDate="Due Oct 12 Finished Oct 10"
-              color="green"
-            />
+            {todos.length > 0 ? (
+              todos.map((todo) => (
+                <ToDoCard
+                  key={todo.id}
+                  taskName={todo.taskName || todo.course_id}
+                  dueDate={todo.dueDate || "No Due Date"}
+                  color={todo.color || "yellow"}
+                />
+              ))
+            ) : (
+              <p>No to-do items</p>
+            )}
           </div>
         </div>
       </div>
@@ -119,9 +145,8 @@ const Dashboard = () => {
 
 const CourseCard = ({ courseName, instructor, color, courseId }) => {
   const navigate = useNavigate();
-
   const handleClick = () => {
-    navigate(`/dataDashboard/${courseId}`);
+    navigate(`/courseDashboard/${courseId}`);
   };
 
   return (

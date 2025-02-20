@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./DataDashboard.css";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ReactSession } from 'react-client-session';
 import RadarChart from '../components/RadarChart';
 import { useCourseSummary } from '../hooks/useCourseSummary';
 
@@ -17,9 +18,23 @@ import AssignmentCard from '../components/AssignmentCard';
 
 import axios from 'axios'
 
+
 const TDashboard = () => {
   const { courseId } = useParams();
   console.log('courseId ', courseId);
+
+
+  const navigate = useNavigate();
+
+
+useEffect(() => {
+  const enrollmentType = ReactSession.get("enrollmentType");
+  console.log(enrollmentType);
+    if (enrollmentType === "StudentEnrollment") {
+      alert("Not authorized to access teacher page");
+      navigate('/dashboard/:studentId');
+    }
+  }, [navigate]);
 
   const [rubricOpen, setRubricOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState('students'); // Default to 'students'

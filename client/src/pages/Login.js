@@ -1,7 +1,13 @@
+// Login.jsx
+
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { ReactSession } from 'react-client-session'; // <-- Import ReactSession
+import { ReactSession } from 'react-client-session';
 import './Login.css';
+
+// Set the session store type (e.g., localStorage or sessionStorage)
+// This only needs to be done once (for example, in your app's entry point).
+ReactSession.setStoreType("localStorage");
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -12,41 +18,67 @@ function Login() {
     e.preventDefault();
     console.log('Username:', username);
     console.log('Password:', password);
-
     try {
       const response = await fetch('http://localhost:5001/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include', // Include cookies if needed
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+        credentials: 'include', // Include cookies in the request
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Login Success:', data.message);
+        console.log(data);
+        const { userId } = data;
+        console.log("userId in frontend: ", userId);
 
-        // 1. Store user info in session so other pages know you're logged in
-        //    If your backend returns something like data.user, you can store that.
-        //    Otherwise, at least store the username:
-        ReactSession.set('user', { username });
+        // Set the user in the session so it can be accessed elsewhere
+        ReactSession.set("user", userId);
 
-        // 2. Navigate to your landing page (or any other route you want)
-        navigate('/intro');
+        const response_enrollment = await fetch('http://localhost:4000/api/get-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+          credentials: 'include'
+        });
+        const res_enroll_data = await response_enrollment.json();
+        console.log("RESPONSE_ENROLLMENT: ", res_enroll_data[0]);
 
-        // 3. Reset fields
+        // Store the enrollment type (role) in the session
+        // For example, this will store "StudentEnrollment" or whatever value is returned.
+        ReactSession.set("enrollmentType", res_enroll_data[0].role);
+
+        const isTeacher = res_enroll_data[0].role === "StudentEnrollment" ? false : true;
+        if (isTeacher) {
+          // Redirect to teacher dashboard page
+          window.location.href = '/teacherBoard';
+        } else {
+          // Redirect to student dashboard (replace :studentId with the actual id if needed)
+          window.location.href = '/dashboard/:studentId';
+        }
+
+        console.log(data.message); // Success message
+
+        // Reset form
         setUsername('');
         setPassword('');
       } else {
         const errorData = await response.json();
         console.error('Error:', errorData.message);
-        alert(`Login Failed: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert(`Login Failed: ${error.message}`);
     }
+    // Optionally reset form
+    setUsername('');
+    setPassword('');
   };
 
   return (
@@ -63,7 +95,6 @@ function Login() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-
             <input
               type="password"
               id="password"
@@ -71,20 +102,14 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-
-            <a href="#" className="forgot-password">
-              Forgot Password?
-            </a>
+            <a href="#" className="forgot-password">Forgot Password?</a>
             <button type="submit">Sign In</button>
           </form>
         </div>
-
         {/* Sign-up prompt */}
         <div className="signup-prompt">
           <h2 className="donthaveanaccount">Don't have an account?</h2>
-          <NavLink to="/signUp" className="sign-up-button">
-            Sign Up Here
-          </NavLink>
+          <NavLink to="/signUp" className="sign-up-button">Sign Up Here</NavLink>
         </div>
       </div>
     </div>

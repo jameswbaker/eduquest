@@ -14,7 +14,7 @@ const IntroPage = () => {
       
       {/* Buttons for Sign In and Sign Up */}
       <div className="button-container">
-        <button className="buttons-intro" onClick={() => navigate("/signIn")}>
+        <button className="buttons-intro" onClick={() => navigate("/login")}>
           Sign In Here
         </button>
         <button className="buttons-intro" onClick={() => navigate("/signUp")}>

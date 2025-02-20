@@ -7,7 +7,7 @@ export default function SearchBar() {
     <div style={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
       <TextField
         variant="outlined"
-        placeholder="Search for a subject/tutor..."
+        placeholder="Search for a class..."
         style={{
           width: '80%', // Adjust the width
           border: '2px solid #000', // Add a border

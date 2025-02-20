@@ -22,6 +22,17 @@ const DashboardT = () => {
     }
   }, [navigate]);
 
+
+
+  useEffect(() => {
+  const enrollmentType = ReactSession.get("enrollmentType");
+  console.log(enrollmentType);
+    if (enrollmentType === "StudentEnrollment") {
+      alert("Not authorized to access teacher page");
+      navigate('/dashboard/:studentId');
+    }
+  }, [navigate]);
+
   useEffect(() => {
     fetchCourses();
   }, []);

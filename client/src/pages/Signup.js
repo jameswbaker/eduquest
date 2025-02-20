@@ -4,32 +4,27 @@ import { NavLink } from "react-router-dom";
 import './SignUp.css';
 
 function SignUp() {
-  // Existing fields (kept for UI)
   const [firstName, setFirstName]       = useState('');
   const [lastName, setLastName]         = useState('');
   const [email, setEmail]               = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userRole, setUserRole]         = useState('student');
 
-  // Fields we actually send to the backend
   const [username, setUsername]         = useState('');
   const [password, setPassword]         = useState('');
   const [canvasToken, setCanvasToken]   = useState('');
 
   const navigate = useNavigate();
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Optional: Check if password === confirmPassword
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
       return;
     }
 
     try {
-      // Send ONLY username, password, and canvasToken to the backend
       const response = await fetch('http://localhost:5001/signup', {
         method: 'POST',
         headers: {
@@ -47,11 +42,28 @@ function SignUp() {
         const data = await response.json();
         console.log('Sign Up Success:', data);
         
-        // Redirect after successful sign-up
-        // You can customize this route based on your needs
-        navigate('/intro');
+        const { userId } = data;
 
-        // Reset all fields
+        const responseEnrollment = await fetch('http://localhost:4000/api/get-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+          credentials: 'include'
+        });
+        const resEnrollData = await responseEnrollment.json();
+        console.log("RESPONSE_ENROLLMENT: ", resEnrollData);
+        
+     
+        const isTeacher = resEnrollData[0]?.role === "StudentEnrollment" ? false : true;
+        
+        if (isTeacher) {
+          navigate('/teacheBboard');
+        } else {
+          navigate("/dashboard/:studentId");
+        }
+
         setFirstName('');
         setLastName('');
         setEmail('');
@@ -71,10 +83,6 @@ function SignUp() {
     }
   };
 
-  const handleSignUp = () => {
-    // Example: if you want an alternate sign-up button flow
-    // navigate("/linkCanvas");
-  };
 
   return (
     <div className="signup-container">
@@ -83,7 +91,7 @@ function SignUp() {
         {/* Prompt for existing account */}
         <div className="signup-prompt">
           <h2>Already have an account?</h2>
-          <NavLink to="/signIn" className="login-button">Sign In Here</NavLink>
+          <NavLink to="/login" className="login-button">Sign In Here</NavLink>
         </div>
 
         {/* Sign-up Form */}
@@ -91,7 +99,6 @@ function SignUp() {
           <h1>Sign Up</h1>
 
           <form onSubmit={handleSubmit}>
-
             {/* First & Last Name (kept for UI, not used in request) */}
             <div className="name-fields">
               <input
@@ -194,4 +201,3 @@ function SignUp() {
 }
 
 export default SignUp;
-

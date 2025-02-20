@@ -310,7 +310,21 @@ const getChartLabel = () => {
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        <h1>{courseName || "Loading..."}</h1>
+      <div className="go-back-link">
+            <a
+            href="#"
+            onClick={(e) => {
+                e.preventDefault();
+                navigate('/teacherBoard');
+            }}
+            style={{ textDecoration: 'none', color: '#007bff' }}
+            >
+            {/* ← Back to Dashboard */}
+            ⬅️
+
+            </a>
+            <h1>{courseName || "Loading..."}</h1>
+        </div>
         <div className="teacher-navbar">
           <button 
               className={`icon-button ${selectedTab === 'students' ? 'active' : ''}`} 

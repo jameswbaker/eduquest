@@ -68,11 +68,11 @@ const DashboardT = () => {
       {/* Header */}
       <header className="t-dashboard-header">
         <h1>Teacher's Dashboard</h1>
-        <div className="t-header-icons">
+        {/* <div className="t-header-icons">
           <button className="t-icon-button" onClick={handleStudentView}>
             Student View
           </button>
-        </div>
+        </div> */}
       </header>
 
       {/* Show error (if any) */}

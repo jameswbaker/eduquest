@@ -28,6 +28,17 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
+
+  useEffect(() => {
+    const enrollmentType = ReactSession.get("enrollmentType");
+    console.log(enrollmentType);
+      if (enrollmentType === "TeacherEnrollment") {
+        alert("Not authorized to access teacher page");
+        navigate('/teacherBoard');
+      }
+    }, [navigate]);
+    
+
   useEffect(() => {
     fetchCourses();
     fetchTodos();
@@ -122,7 +133,7 @@ const Dashboard = () => {
 
         {/* To-Do List Section */}
         <div className="todo-section">
-          <h2>To-do List</h2>
+          <h2>Upcoming Assignments</h2>
           <div className="todo-list">
             {todos.length > 0 ? (
               todos.map((todo) => (

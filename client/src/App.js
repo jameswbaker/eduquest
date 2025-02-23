@@ -18,6 +18,9 @@ import IntroSignInPage from './pages/IntroSignIn';
 import LinkCanvasPage from './pages/linkCanvas'
 import GameCreationPage from './pages/GameCreationPage';
 import CourseDashboardPage from './pages/CourseDashboard';
+import ProfileTPage from './pages/ProfileT';
+import IntroTPage from './pages/IntroT';
+
 
 
 
@@ -72,11 +75,13 @@ function AppContent() {
         <Route path="/introSignIn" element={<IntroSignInPage />} />
       
           <Route path="/intro" element={<IntroPage />} />
-       
+          <Route path="/introT" element={<IntroTPage />} />
+
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/dashboard/:studentId" element={<DashboardPage />} />
           <Route path="/teacherBoard" element={<TeacherBoardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profileT" element={<ProfileTPage />} />
           <Route path="/dataDashboard/:courseId" element={<DataDashboard />} />
           {/* <Route path="/game" element={<GamePage />} /> */}
           <Route path="/game/:gameName" element={<GamePage />} />

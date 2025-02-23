@@ -36,6 +36,9 @@ useEffect(() => {
     }
   }, [navigate]);
 
+
+  
+
   const [rubricOpen, setRubricOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState('students'); // Default to 'students'
 

@@ -8,6 +8,7 @@ import AssignmentCard from '../components/AssignmentCard';
 import RubricCard from '../components/RubricCard';
 import Navbar from '../components/NavBar';
 import './CourseDashboard.css';
+import { ReactSession } from "react-client-session";
 
 export default function CourseDashboard() {
   // Get courseId from URL path parameters
@@ -26,6 +27,16 @@ export default function CourseDashboard() {
   const [processedData, setProcessedData] = useState('');
   const [assignmentAverages, setAssignmentAverages] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+
+  useEffect(() => {
+    const enrollmentType = ReactSession.get("enrollmentType");
+    console.log(enrollmentType);
+      if (enrollmentType === "TeacherEnrollment") {
+        alert("Not authorized to access teacher page");
+        navigate('/teacherBoard');
+      }
+    }, [navigate]);
+    
 
   // Fetch course details from API and extract rubric items
   const fetchCourseDetails = async () => {
@@ -47,6 +58,9 @@ export default function CourseDashboard() {
       setError('Error fetching course details. Please check your token and permissions.');
     }
   };
+
+
+  
 
   const extractRubricItems = (assignments) => {
     const uniqueRubrics = new Set();

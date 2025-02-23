@@ -23,15 +23,6 @@ const IntroPage = () => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    const enrollmentType = ReactSession.get("enrollmentType");
-    console.log(enrollmentType);
-      if (enrollmentType === "TeacherEnrollment") {
-        alert("Not authorized to access teacher page");
-        navigate('/teacherBoard');
-      }
-    }, [navigate]);
-
   // Fetch incomplete goals for the user
   const fetchGoals = async (user) => {
     try {

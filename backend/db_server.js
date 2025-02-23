@@ -191,3 +191,20 @@ app.post('/store-course', (req, res) => {
     local_account_id,
   } = req.body;
 });
+
+
+app.post('/update-goal', (req, res) => {
+  const { goalId, completed } = req.body;
+  if (!goalId) {
+    return res.status(400).json({ message: "goalId is required" });
+  }
+  const query = `UPDATE Goals SET completed = ? WHERE goal_id = ?`;
+  db.query(query, [completed, goalId], (err, result) => {
+    if (err) {
+      console.error("Error updating goal:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+    return res.status(200).json({ message: "Goal updated successfully" });
+  });
+});
+

@@ -34,6 +34,12 @@ export default function NavBar() {
   const dashboardRoute =
     enrollmentType === "StudentEnrollment" ? "/dashboard/:studentId" : "/teacherBoard";
 
+    const profileRoute =
+    enrollmentType === "StudentEnrollment" ? "/profile" : "/profileT";
+    
+    const introRoute =
+    enrollmentType === "StudentEnrollment" ? "/intro" : "/introT";
+
   return (
     <AppBar 
       position="static" 
@@ -44,10 +50,10 @@ export default function NavBar() {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <NavText href="/intro" text="Eduquest" isMain />
+          <NavText href={introRoute} text="Eduquest" isMain />
           <NavText href={dashboardRoute} text="Dashboard" />
           <NavText href="/createGame" text="Gamify" />
-          <NavText href="/profile" text="Profile" />
+          <NavText href={profileRoute} text="Profile" />
           <NavText href="/logout" text="Logout" />
         </Toolbar>
       </Container>

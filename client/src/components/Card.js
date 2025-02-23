@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Typography, CircularProgress, Box } from '@mui/material';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
-const CardComponent = ({ title, date, progress, backgroundColor, link }) => {
+const CardComponent = ({ title, date, progress, progressText, backgroundColor, link }) => {
   const progressSize = 60; // Set the size of the progress ring
 
   return (
@@ -58,7 +58,7 @@ const CardComponent = ({ title, date, progress, backgroundColor, link }) => {
             value={progress} 
             size={progressSize}
             thickness={6} 
-            sx={{ color: '#8FCE5D' }} 
+            sx={{ color: '#c23127'}} 
           />
           <Box
             sx={{
@@ -72,8 +72,8 @@ const CardComponent = ({ title, date, progress, backgroundColor, link }) => {
               justifyContent: 'center',
             }}
           >
-            <Typography variant="caption" component="div" color="text.secondary">
-              {`${Math.round(progress)}%`}
+            <Typography variant="caption" component="div" color="black">
+              {progressText}
             </Typography>
           </Box>
         </Box>

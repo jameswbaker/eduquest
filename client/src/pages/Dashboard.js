@@ -63,6 +63,15 @@ const Dashboard = () => {
     }
   };
 
+  function formatDate(isoString) {
+    if (!isoString) return;
+    const date = new Date(isoString);
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${month}-${day}-${year}`;
+  }
+
   // Fetch to-do items from API
   const fetchTodos = async () => {
     setError("");
@@ -70,8 +79,15 @@ const Dashboard = () => {
       const response = await axios.get("http://localhost:4000/api/user/to-do", {
         withCredentials: true,
       });
-      setTodos(response.data);
-      console.log("Todos fetched:", response.data);
+      const formattedTodos = response.data.map((todo, index) => ({
+        todoId: todo.assignment?.id || index,
+        contextName: todo.context_name, 
+        assignmentName: todo.assignment?.name || "No assignment name",
+        dueAt: todo.assignment?.due_at ? formatDate(todo.assignment.due_at) : "No due date",
+        htmlUrl: todo.assignment?.html_url || "#",
+      }));
+      setTodos(formattedTodos);
+      console.log("Todos fetched:", formattedTodos);
     } catch (error) {
       console.error(
         "Error fetching todos:",
@@ -136,12 +152,14 @@ const Dashboard = () => {
           <h2>Upcoming Assignments</h2>
           <div className="todo-list">
             {todos.length > 0 ? (
-              todos.map((todo) => (
+              todos.map(todo => (
                 <ToDoCard
-                  key={todo.id}
-                  taskName={todo.taskName || todo.course_id}
-                  dueDate={todo.dueDate || "No Due Date"}
+                  key={todo.todoId}
+                  contextName={todo.contextName}
+                  assignmentName={todo.assignmentName}
+                  dueDate={todo.dueAt}
                   color={todo.color || "yellow"}
+                  htmlUrl={todo.htmlUrl}
                 />
               ))
             ) : (
@@ -171,14 +189,17 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   );
 };
 
-const ToDoCard = ({ taskName, dueDate, color }) => (
-  <div className={`course-card ${color}`}>
-    <div className={`todo-color-section ${color}`}></div>
-    <div className="todo-text-section">
-      <h3>{taskName}</h3>
-      <p>{dueDate}</p>
+const ToDoCard = ({ contextName, assignmentName, dueDate, htmlUrl, color }) => (
+  <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
+    <div className={`course-card ${color}`}>
+      <div className={`todo-color-section ${color}`}></div>
+      <div className="todo-text-section">
+        <h3>{contextName}</h3>
+        <p>{assignmentName}</p>
+        <p><strong>Due:</strong> {dueDate}</p>
+      </div>
     </div>
-  </div>
+  </a>
 );
 
 export default Dashboard;

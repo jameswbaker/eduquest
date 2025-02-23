@@ -146,7 +146,6 @@ app.post('/add-goal', async (req, res) => {
         console.error('Error inserting into Goals:', err);
         return res.status(500).json({ message: 'Database error' });
       }
-      console.log(result);
       return res.status(201).json({
         message: 'Goal added successfully',
       });

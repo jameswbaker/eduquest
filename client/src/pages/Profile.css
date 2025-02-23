@@ -307,8 +307,8 @@ h2 {
 }
 
 .goals-container {
-  width: 35%;
-  max-width: 35%; /* Or 100% of a fixed parent width */
+  width: 100%;
+  max-width: 850px; /* Or 100% of a fixed parent width */
   overflow-x: auto;
   white-space: nowrap;
 }

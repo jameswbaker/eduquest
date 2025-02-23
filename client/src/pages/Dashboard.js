@@ -1,5 +1,3 @@
-// Dashboard.jsx
-
 import React, { useState, useEffect } from "react";
 import { ReactSession } from "react-client-session";
 import { useNavigate } from "react-router-dom";
@@ -11,8 +9,8 @@ const Dashboard = () => {
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
   const [user, setUser] = useState("");
-  const [studentName, setStudentName] = useState(""); // New state for full name
-  const [todos, setTodos] = useState([]); // To-do items
+  const [studentName, setStudentName] = useState(""); // For full name
+  const [todos, setTodos] = useState([]); // To-do (assignment) items
 
   // Check if the user is logged in and fetch session info
   useEffect(() => {
@@ -23,21 +21,19 @@ const Dashboard = () => {
       alert("Please log in first");
       navigate("/");
     } else {
-      // If a user exists, fetch the student's Canvas info for their full name
+      // Fetch student's Canvas info for their full name
       fetchStudentCanvasInfo();
     }
   }, [navigate]);
 
-
   useEffect(() => {
     const enrollmentType = ReactSession.get("enrollmentType");
     console.log(enrollmentType);
-      if (enrollmentType === "TeacherEnrollment") {
-        alert("Not authorized to access teacher page");
-        navigate('/teacherBoard');
-      }
-    }, [navigate]);
-    
+    if (enrollmentType === "TeacherEnrollment") {
+      alert("Not authorized to access teacher page");
+      navigate('/teacherBoard');
+    }
+  }, [navigate]);
 
   useEffect(() => {
     fetchCourses();
@@ -63,29 +59,41 @@ const Dashboard = () => {
     }
   };
 
+  // Helper: Format ISO date string to "MM-DD-YYYY"
   function formatDate(isoString) {
     if (!isoString) return;
     const date = new Date(isoString);
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const day = String(date.getUTCDate()).padStart(2, '0');
     const year = date.getUTCFullYear();
     return `${month}-${day}-${year}`;
   }
 
-  // Fetch to-do items from API
+  // Fetch to-do items (assignments) from API and sort by due date
   const fetchTodos = async () => {
     setError("");
     try {
       const response = await axios.get("http://localhost:4000/api/user/to-do", {
         withCredentials: true,
       });
-      const formattedTodos = response.data.map((todo, index) => ({
-        todoId: todo.assignment?.id || index,
-        contextName: todo.context_name, 
-        assignmentName: todo.assignment?.name || "No assignment name",
-        dueAt: todo.assignment?.due_at ? formatDate(todo.assignment.due_at) : "No due date",
-        htmlUrl: todo.assignment?.html_url || "#",
-      }));
+      const formattedTodos = response.data.map((todo, index) => {
+        const dueAtISO = todo.assignment?.due_at; // original ISO string
+        return {
+          todoId: todo.assignment?.id || index,
+          courseName: todo.context_name, 
+          assignmentName: todo.assignment?.name || "No assignment name",
+          dueAt: dueAtISO ? formatDate(dueAtISO) : "No due date",
+          dueAtISO: dueAtISO || null, // keep ISO for sorting
+          htmlUrl: todo.assignment?.html_url || "#",
+        };
+      });
+      // Sort assignments by due date (earliest first), assignments with no due date go to the end
+      formattedTodos.sort((a, b) => {
+        if (!a.dueAtISO && !b.dueAtISO) return 0;
+        if (!a.dueAtISO) return 1;
+        if (!b.dueAtISO) return -1;
+        return new Date(a.dueAtISO) - new Date(b.dueAtISO);
+      });
       setTodos(formattedTodos);
       console.log("Todos fetched:", formattedTodos);
     } catch (error) {
@@ -147,7 +155,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* To-Do List Section */}
+        {/* Upcoming Assignments Section */}
         <div className="todo-section">
           <h2>Upcoming Assignments</h2>
           <div className="todo-list">
@@ -155,11 +163,11 @@ const Dashboard = () => {
               todos.map(todo => (
                 <ToDoCard
                   key={todo.todoId}
-                  contextName={todo.contextName}
-                  assignmentName={todo.assignmentName}
-                  dueDate={todo.dueAt}
-                  color={todo.color || "yellow"}
+                  assignmentName={todo.assignmentName}  // Title: Assignment name
+                  courseName={todo.courseName}          // Next line: Course name
+                  dueDate={todo.dueAt}                  // Last line: Due date
                   htmlUrl={todo.htmlUrl}
+                  color={todo.color || "yellow"}
                 />
               ))
             ) : (
@@ -189,13 +197,18 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   );
 };
 
-const ToDoCard = ({ contextName, assignmentName, dueDate, htmlUrl, color }) => (
-  <a href={htmlUrl} target="_blank" rel="noopener noreferrer">
+const ToDoCard = ({ courseName, assignmentName, dueDate, htmlUrl, color }) => (
+  <a 
+    href={htmlUrl} 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    style={{ textDecoration: 'none' }} 
+  >
     <div className={`course-card ${color}`}>
       <div className={`todo-color-section ${color}`}></div>
       <div className="todo-text-section">
-        <h3>{contextName}</h3>
-        <p>{assignmentName}</p>
+        <h3>{assignmentName}</h3>
+        <p>{courseName}</p>
         <p><strong>Due:</strong> {dueDate}</p>
       </div>
     </div>

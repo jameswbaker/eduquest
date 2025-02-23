@@ -108,3 +108,20 @@ html, body {
   display: block; 
   border-radius: 10px;
 }
+
+
+.scroll-container {
+  overflow-x: auto;
+  padding-bottom: 10px; /* optional: add space for scrollbar */
+}
+
+.cards-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px; /* optional: space between cards */
+}
+
+/* Optionally, ensure each card has a minimum width */
+.cards-wrapper .card-component {
+  min-width: 250px; /* adjust as needed */
+}

@@ -1,3 +1,56 @@
+/* FLAPPY GAME CONFIGURATION CONSTANTS */
+const FLAPPY_CONFIG = {
+    bird: {
+        x: 150,
+        y: 300,
+        width: 25,
+        height: 20,
+        gravity: 0.3,
+        jumpForce: -8,
+        bounceForce: 4
+    },
+    pipes: {
+        width: 20,
+        gapHeight: 200,
+        gapSpacing: 150,
+        pipeSpacing: 400,
+        speed: 1.75,
+        preGenerateCount: 5,
+        removeOffset: -100,
+        gapMargin: 80
+    },
+    feedback: {
+        duration: 90,
+        color: 'red'
+    },
+    pause: {
+        duration: 150
+    },
+    text: {
+        answerFont: '14px Arial',
+        lineHeight: 16,
+        boxPadding: 10,
+        boxExtraWidth: 20,    // extra width added on each side
+        boxExtraHeight: 20,   // subtracted from gapHeight for box height
+        answerTextOffset: 20,
+        answerBoxBackground: 'rgba(255, 255, 255, 0.9)'
+    },
+    colors: {
+        pipe: '#4CAF50',
+        bird: '#FF6B6B',
+        score: 'black',
+        answerTopText: 'black',
+        answerBottomText: 'red'
+    },
+    ui: {
+        scoreFont: '24px Arial',
+        gameOverFont: '48px Arial',
+        finalScoreFont: '24px Arial',
+        feedbackFont: 'bold 36px Arial',
+        pauseFont: '24px Arial'
+    }
+};
+
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -6,14 +59,14 @@ class Game {
         
         // Bird properties
         this.bird = {
-            x: 150,
-            y: 300,
-            width: 25,    // Reduced from 30
-            height: 20,   // Reduced from 25
+            x: FLAPPY_CONFIG.bird.x,
+            y: FLAPPY_CONFIG.bird.y,
+            width: FLAPPY_CONFIG.bird.width,
+            height: FLAPPY_CONFIG.bird.height,
             velocity: 0,
-            gravity: 0.4,    // Reduced from 0.6
-            jumpForce: -8,
-            bounceForce: 4   // New property for boundary bouncing
+            gravity: FLAPPY_CONFIG.bird.gravity,
+            jumpForce: FLAPPY_CONFIG.bird.jumpForce,
+            bounceForce: FLAPPY_CONFIG.bird.bounceForce
         };
 
         // Game state
@@ -25,26 +78,26 @@ class Game {
         
         // Pipe properties
         this.pipes = [];
-        this.pipeWidth = 40;     // Reduced from 60
-        this.gapHeight = 150;
-        this.gapSpacing = 150;
-        this.pipeSpacing = 350;
-        this.pipeSpeed = 2.5;
+        this.pipeWidth = FLAPPY_CONFIG.pipes.width;
+        this.gapHeight = FLAPPY_CONFIG.pipes.gapHeight;
+        this.gapSpacing = FLAPPY_CONFIG.pipes.gapSpacing;
+        this.pipeSpacing = FLAPPY_CONFIG.pipes.pipeSpacing;
+        this.pipeSpeed = FLAPPY_CONFIG.pipes.speed;
         this.worldOffset = 0;
         
         // Feedback system
         this.feedback = {
             active: false,
-            timer: 0,
-            duration: 90,
+            timer: FLAPPY_CONFIG.feedback.duration,
+            duration: FLAPPY_CONFIG.feedback.duration,
             message: "",
-            color: "red"
+            color: FLAPPY_CONFIG.feedback.color
         };
         
         // Game state control
         this.isPaused = false;
         this.pauseTimer = 0;
-        this.pauseDuration = 150;
+        this.pauseDuration = FLAPPY_CONFIG.pause.duration;
         
         // Event listeners
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -109,7 +162,7 @@ class Game {
 
     preGeneratePipes() {
         // Generate initial set of pipes
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < FLAPPY_CONFIG.pipes.preGenerateCount; i++) {
             this.generatePipe(this.canvas.width + (i * this.pipeSpacing));
         }
     }
@@ -129,8 +182,8 @@ class Game {
         }
 
         // Calculate gap positions - ensure both gaps are visible
-        const minY = 80;
-        const maxY = this.canvas.height - 80 - this.gapHeight - this.gapSpacing - this.gapHeight;
+        const minY = FLAPPY_CONFIG.pipes.gapMargin;
+        const maxY = this.canvas.height - FLAPPY_CONFIG.pipes.gapMargin - this.gapHeight - this.gapSpacing - this.gapHeight;
         const firstGapY = Math.random() * (maxY - minY) + minY;
         const secondGapY = firstGapY + this.gapHeight + this.gapSpacing;
 
@@ -205,7 +258,7 @@ class Game {
             }
 
             // Remove off-screen pipes and generate new ones
-            if (pipe.x + this.pipeWidth < -100) {
+            if (pipe.x + this.pipeWidth < FLAPPY_CONFIG.pipes.removeOffset) {
                 this.pipes.splice(i, 1);
                 if (this.pipes.length > 0) {
                     const lastPipe = this.pipes[this.pipes.length - 1];
@@ -248,52 +301,50 @@ class Game {
         // Draw pipes and answers
         this.pipes.forEach(pipe => {
             // Draw pipes
-            this.ctx.fillStyle = '#4CAF50';
+            this.ctx.fillStyle = FLAPPY_CONFIG.colors.pipe;
             this.ctx.fillRect(pipe.x, 0, this.pipeWidth, pipe.gapY1); // Top section
-            this.ctx.fillRect(pipe.x, pipe.gapY1 + this.gapHeight, 
-                            this.pipeWidth, pipe.gapY2 - (pipe.gapY1 + this.gapHeight)); // Middle section
-            this.ctx.fillRect(pipe.x, pipe.gapY2 + this.gapHeight, 
-                            this.pipeWidth, this.canvas.height - (pipe.gapY2 + this.gapHeight)); // Bottom section
+            this.ctx.fillRect(pipe.x, pipe.gapY1 + this.gapHeight, this.pipeWidth, pipe.gapY2 - (pipe.gapY1 + this.gapHeight));
+            this.ctx.fillRect(pipe.x, pipe.gapY2 + this.gapHeight, this.pipeWidth, this.canvas.height - (pipe.gapY2 + this.gapHeight));
 
             // Draw answer boxes
-            const padding = 10;
-            const boxWidth = this.pipeWidth + 40;
-            const boxHeight = this.gapHeight - 20;
-            
-            // Draw answer backgrounds
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            this.ctx.fillRect(pipe.x - 20, pipe.gapY1 + 10, boxWidth, boxHeight);
-            this.ctx.fillRect(pipe.x - 20, pipe.gapY2 + 10, boxWidth, boxHeight);
-            
-            // Draw answer text
-            this.ctx.fillStyle = pipe.isTopCorrect ? 'black' : 'red';
-            this.ctx.font = '16px Arial';
+            const boxWidth = this.pipeWidth + 2 * FLAPPY_CONFIG.text.boxExtraWidth;
+            const boxHeight = this.gapHeight - FLAPPY_CONFIG.text.boxExtraHeight;
+            const boxX = pipe.x - FLAPPY_CONFIG.text.boxExtraWidth;
+            const boxYTop = pipe.gapY1 + FLAPPY_CONFIG.text.boxPadding;
+            const boxYBottom = pipe.gapY2 + FLAPPY_CONFIG.text.boxPadding;
+
+            // Draw answer box backgrounds
+            this.ctx.fillStyle = FLAPPY_CONFIG.text.answerBoxBackground;
+            this.ctx.fillRect(boxX, boxYTop, boxWidth, boxHeight);
+            this.ctx.fillRect(boxX, boxYBottom, boxWidth, boxHeight);
+
+            // Draw answer text for top gap
+            this.ctx.fillStyle = pipe.isTopCorrect ? FLAPPY_CONFIG.colors.answerTopText : FLAPPY_CONFIG.colors.answerBottomText;
+            this.ctx.font = FLAPPY_CONFIG.text.answerFont;
             this.ctx.textAlign = 'center';
-            this.wrapText(this.ctx, pipe.topGapAnswer, pipe.x + this.pipeWidth/2, 
-                         pipe.gapY1 + 30, boxWidth - 20, 20);
-            
-            this.ctx.fillStyle = pipe.isTopCorrect ? 'red' : 'black';
-            this.wrapText(this.ctx, pipe.bottomGapAnswer, pipe.x + this.pipeWidth/2, 
-                         pipe.gapY2 + 30, boxWidth - 20, 20);
+            this.wrapText(this.ctx, pipe.topGapAnswer, pipe.x + this.pipeWidth/2, boxYTop + FLAPPY_CONFIG.text.answerTextOffset, boxWidth - 2 * FLAPPY_CONFIG.text.boxPadding, FLAPPY_CONFIG.text.lineHeight);
+
+            // Draw answer text for bottom gap
+            this.ctx.fillStyle = pipe.isTopCorrect ? FLAPPY_CONFIG.colors.answerBottomText : FLAPPY_CONFIG.colors.answerTopText;
+            this.wrapText(this.ctx, pipe.bottomGapAnswer, pipe.x + this.pipeWidth/2, boxYBottom + FLAPPY_CONFIG.text.answerTextOffset, boxWidth - 2 * FLAPPY_CONFIG.text.boxPadding, FLAPPY_CONFIG.text.lineHeight);
         });
 
         // Draw bird
-        this.ctx.fillStyle = '#FF6B6B';
+        this.ctx.fillStyle = FLAPPY_CONFIG.colors.bird;
         this.ctx.beginPath();
-        this.ctx.arc(this.bird.x + this.bird.width/2, this.bird.y + this.bird.height/2, 
-                    this.bird.width/2, 0, Math.PI * 2);
+        this.ctx.arc(this.bird.x + this.bird.width/2, this.bird.y + this.bird.height/2, this.bird.width/2, 0, Math.PI * 2);
         this.ctx.fill();
 
         // Draw score
-        this.ctx.fillStyle = 'black';
-        this.ctx.font = '24px Arial';
+        this.ctx.fillStyle = FLAPPY_CONFIG.colors.score;
+        this.ctx.font = FLAPPY_CONFIG.ui.scoreFont;
         this.ctx.textAlign = 'left';
         this.ctx.fillText(`Score: ${this.score}`, 10, 30);
 
         // Draw feedback
         if (this.feedback.active) {
             this.ctx.fillStyle = this.feedback.color;
-            this.ctx.font = 'bold 36px Arial';
+            this.ctx.font = FLAPPY_CONFIG.ui.feedbackFont;
             this.ctx.textAlign = 'center';
             this.ctx.fillText(this.feedback.message, this.canvas.width/2, this.canvas.height/2);
             this.feedback.timer--;
@@ -307,10 +358,10 @@ class Game {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = 'white';
-            this.ctx.font = '48px Arial';
+            this.ctx.font = FLAPPY_CONFIG.ui.gameOverFont;
             this.ctx.textAlign = 'center';
             this.ctx.fillText('Game Over!', this.canvas.width/2, this.canvas.height/2);
-            this.ctx.font = '24px Arial';
+            this.ctx.font = FLAPPY_CONFIG.ui.finalScoreFont;
             this.ctx.fillText(`Final Score: ${this.score}`, this.canvas.width/2, this.canvas.height/2 + 40);
             this.ctx.fillText('Press Space to Try Again', this.canvas.width/2, this.canvas.height/2 + 80);
         }
@@ -320,14 +371,14 @@ class Game {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = 'white';
-            this.ctx.font = '24px Arial';
+            this.ctx.font = FLAPPY_CONFIG.ui.pauseFont;
             this.ctx.textAlign = 'center';
             this.ctx.fillText('Get Ready!', this.canvas.width/2, this.canvas.height/2);
         }
     }
 
     resetGame() {
-        this.bird.y = 300;
+        this.bird.y = FLAPPY_CONFIG.bird.y;
         this.bird.velocity = 0;
         this.pipes = [];
         this.score = 0;

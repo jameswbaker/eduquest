@@ -1,3 +1,57 @@
+/* GAME CONFIGURATION CONSTANTS */
+const GAME_CONFIG = {
+    player: {
+        speed: 6, // decreased from 8 for slower movement speed
+        width: 30,
+        height: 30,
+        initialLives: 5,
+        hurtTimer: 30,
+        color: {
+            normal: 'red',
+            hurt: '#ff6666'
+        }
+    },
+    projectile: {
+        minSpeed: 2,
+        maxSpeed: 4,
+        width: 10,
+        height: 10,
+        color: '#ff0000'
+    },
+    turret: {
+        minCount: 2,
+        maxCount: 4,
+        width: 40,
+        height: 40,
+        minShootInterval: 30,
+        shootIntervalRange: 60,
+        spawnMargin: 40,
+        initialDelay: 1000, // delay (ms) before turrets start shooting
+        color: '#444'
+    },
+    platform: {
+        spawnMargin: 100,
+        textPadding: 20,
+        minWidth: 80,
+        height: 80
+    },
+    text: {
+        answerFont: '16px Arial',
+        answerColor: 'white',
+        answerLineHeight: 18,
+        scoreFont: '24px Arial',
+        gameOverFont: '48px Arial',
+        finalScoreFont: '24px Arial'
+    },
+    colors: {
+        answerArea: '#2196F3'
+    },
+    positioning: {
+        maxAttempts: 100
+    },
+    safeRadius: 100
+};
+
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -8,9 +62,9 @@ class Game {
         this.player = {
             x: 50,
             y: 300,
-            width: 30,
-            height: 30,
-            speed: 8,
+            width: GAME_CONFIG.player.width,
+            height: GAME_CONFIG.player.height,
+            speed: GAME_CONFIG.player.speed,
             hurt: false,
             hurtTimer: 0
         };
@@ -18,7 +72,7 @@ class Game {
         // Game state
         this.level = 1;
         this.levelsCleared = 0;
-        this.lives = 5;
+        this.lives = GAME_CONFIG.player.initialLives;
         this.gameOver = false;
         this.currentQuestion = null;
         this.platforms = [];
@@ -40,8 +94,6 @@ class Game {
         // Add new properties
         this.projectiles = [];
         this.turrets = [];
-        this.projectileSpeed = 7; // Reduced from 10
-        this.safeRadius = 100; // Radius around player where objects can't spawn
         this.levelStartTime = 0; // Track when level starts
 
         // Show input container initially
@@ -95,18 +147,18 @@ class Game {
         const possibleAnswers = currentQ.answers.map(a => a.text);
         
         // Create answer areas in random positions
-        const margin = 100; // Minimum distance from edges
+        const margin = GAME_CONFIG.platform.spawnMargin; // Minimum distance from edges
 
         // Calculate platform size based on longest word
         const longestWord = possibleAnswers.reduce((a, b) => a.length > b.length ? a : b);
-        const platformWidth = Math.max(this.ctx.measureText(longestWord).width + 40, 80); // Min 80px width
-        const platformHeight = 80;
+        const platformWidth = Math.max(this.ctx.measureText(longestWord).width + GAME_CONFIG.platform.textPadding, GAME_CONFIG.platform.minWidth);
+        const platformHeight = GAME_CONFIG.platform.height;
 
         possibleAnswers.forEach((answer) => {
             let validPosition = false;
             let platform;
             let attempts = 0;
-            const maxAttempts = 100;
+            const maxAttempts = GAME_CONFIG.positioning.maxAttempts;
             
             while (!validPosition && attempts < maxAttempts) {
                 attempts++;
@@ -133,23 +185,23 @@ class Game {
         });
 
         // Add random turrets
-        const numTurrets = Math.floor(Math.random() * 3) + 2; // 2-4 turrets
+        const numTurrets = Math.floor(Math.random() * (GAME_CONFIG.turret.maxCount - GAME_CONFIG.turret.minCount + 1)) + GAME_CONFIG.turret.minCount;
         
         for (let i = 0; i < numTurrets; i++) {
             let validPosition = false;
             let turret;
             let attempts = 0;
-            const maxAttempts = 100;
+            const maxAttempts = GAME_CONFIG.positioning.maxAttempts;
             
             while (!validPosition && attempts < maxAttempts) {
                 attempts++;
                 turret = {
-                    x: Math.random() * (this.canvas.width - 80) + 40,
-                    y: Math.random() * (this.canvas.height - 80) + 40,
-                    width: 40,
-                    height: 40,
+                    x: Math.random() * (this.canvas.width - 2 * GAME_CONFIG.turret.spawnMargin) + GAME_CONFIG.turret.spawnMargin,
+                    y: Math.random() * (this.canvas.height - 2 * GAME_CONFIG.turret.spawnMargin) + GAME_CONFIG.turret.spawnMargin,
+                    width: GAME_CONFIG.turret.width,
+                    height: GAME_CONFIG.turret.height,
                     shootTimer: 0,
-                    shootInterval: Math.random() * 60 + 30 // Random interval between 30-90
+                    shootInterval: Math.random() * GAME_CONFIG.turret.shootIntervalRange + GAME_CONFIG.turret.minShootInterval
                 };
                 
                 // Check if position is valid (away from player, platforms, and other turrets)
@@ -292,8 +344,8 @@ class Game {
     }
 
     updateTurrets() {
-        // Don't shoot for first 3 seconds of level
-        if (Date.now() - this.levelStartTime < 1000) {
+        // Don't shoot for initial delay of level
+        if (Date.now() - this.levelStartTime < GAME_CONFIG.turret.initialDelay) {
             return;
         }
 
@@ -308,12 +360,12 @@ class Game {
 
     shootProjectile(turret) {
         const angle = Math.atan2(this.player.y - turret.y, this.player.x - turret.x);
-        const speed = Math.random() * 2 + 3; // Random speed between 3-5 (reduced from 3-6)
+        const speed = Math.random() * (GAME_CONFIG.projectile.maxSpeed - GAME_CONFIG.projectile.minSpeed) + GAME_CONFIG.projectile.minSpeed;
         this.projectiles.push({
             x: turret.x,
             y: turret.y,
-            width: 10,
-            height: 10,
+            width: GAME_CONFIG.projectile.width,
+            height: GAME_CONFIG.projectile.height,
             velocityX: Math.cos(angle) * speed,
             velocityY: Math.sin(angle) * speed
         });
@@ -329,7 +381,7 @@ class Game {
     hurtPlayer() {
         if (!this.player.hurt) {
             this.player.hurt = true;
-            this.player.hurtTimer = 30;
+            this.player.hurtTimer = GAME_CONFIG.player.hurtTimer;
             this.lives--;
             this.projectiles = []; // Clear projectiles on hurt
             
@@ -355,7 +407,7 @@ class Game {
 
         // Draw answer areas
         this.answers.forEach(answer => {
-            this.ctx.fillStyle = '#2196F3'; // All answers same color
+            this.ctx.fillStyle = GAME_CONFIG.colors.answerArea; // All answers same color
             this.ctx.fillRect(
                 answer.platform.x,
                 answer.platform.y,
@@ -364,8 +416,8 @@ class Game {
             );
             
             // Draw answer text with smaller font
-            this.ctx.fillStyle = 'white';
-            this.ctx.font = '16px Arial'; // Reduced from 20px to 16px
+            this.ctx.fillStyle = GAME_CONFIG.text.answerColor;
+            this.ctx.font = GAME_CONFIG.text.answerFont;
             this.ctx.textAlign = 'center';
             
             // Split text into multiple lines if needed
@@ -376,7 +428,7 @@ class Game {
             for(let i = 1; i < words.length; i++) {
                 const testLine = currentLine + ' ' + words[i];
                 const metrics = this.ctx.measureText(testLine);
-                if (metrics.width < answer.platform.width - 10) {
+                if (metrics.width < answer.platform.width - 10) { // 10 remains as a small margin
                     currentLine = testLine;
                 } else {
                     lines.push(currentLine);
@@ -386,7 +438,7 @@ class Game {
             lines.push(currentLine);
             
             // Draw each line
-            const lineHeight = 18;
+            const lineHeight = GAME_CONFIG.text.answerLineHeight;
             const totalHeight = lines.length * lineHeight;
             const startY = answer.platform.y + (answer.platform.height - totalHeight) / 2 + lineHeight;
             
@@ -400,24 +452,23 @@ class Game {
         });
 
         // Draw turrets
-        this.ctx.fillStyle = '#444';
+        this.ctx.fillStyle = GAME_CONFIG.turret.color;
         this.turrets.forEach(turret => {
             this.ctx.fillRect(turret.x, turret.y, turret.width, turret.height);
         });
 
         // Draw projectiles
-        this.ctx.fillStyle = '#ff0000';
+        this.ctx.fillStyle = GAME_CONFIG.projectile.color;
         this.projectiles.forEach(proj => {
             this.ctx.fillRect(proj.x, proj.y, proj.width, proj.height);
         });
 
         // Draw player
-        this.ctx.fillStyle = this.player.hurt ? '#ff6666' : 'red';
+        this.ctx.fillStyle = this.player.hurt ? GAME_CONFIG.player.color.hurt : GAME_CONFIG.player.color.normal;
         this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
 
         // Draw score and lives
-        this.ctx.fillStyle = 'black';
-        this.ctx.font = '24px Arial';
+        this.ctx.font = GAME_CONFIG.text.scoreFont;
         this.ctx.textAlign = 'left';
         this.ctx.fillText(`Score: ${this.levelsCleared}`, 10, 30);
         this.ctx.fillText(`Lives: ${this.lives}`, 10, 60);
@@ -427,10 +478,10 @@ class Game {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = 'white';
-            this.ctx.font = '48px Arial';
+            this.ctx.font = GAME_CONFIG.text.gameOverFont;
             this.ctx.textAlign = 'center';
             this.ctx.fillText('Game Over!', this.canvas.width/2, this.canvas.height/2);
-            this.ctx.font = '24px Arial';
+            this.ctx.font = GAME_CONFIG.text.finalScoreFont;
             this.ctx.fillText(`Final Score: ${this.levelsCleared}`, this.canvas.width/2, this.canvas.height/2 + 40);
         }
     }

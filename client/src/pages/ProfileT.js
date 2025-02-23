@@ -28,14 +28,17 @@ const Profile = () => {
       fetchTeacherAccountInfo();
       fetchTeacherCanvasInfo();
       fetchCourses();
-      fetchTeacherSummary(user);
+      // fetchTeacherSummary(user);
     }
   }, [navigate]);
+
+  useEffect(() => {
+    aggregateTeacherSummary();
+  }, [courses]);
 
 
   useEffect(() => {
     const enrollmentType = ReactSession.get("enrollmentType");
-    console.log(enrollmentType);
       if (enrollmentType === "StudentEnrollment") {
         alert("Not authorized to access teacher page");
         navigate('/dashboard/:studentId');
@@ -69,26 +72,49 @@ const Profile = () => {
 
   // Fetch courses info (optional)
   const fetchCourses = async () => {
+    let courseIds = [];
     try {
       const response = await axios.get('http://localhost:4000/api/courses', {
         withCredentials: true,
       });
-      setCourses(response.data);
+      const coursesData = response.data;
+      coursesData.forEach((courseData) => {
+        courseIds.push(courseData.id);
+      });
+      setCourses(courseIds);
     } catch (error) {
       console.error('Error fetching courses:', error.response ? error.response.data : error.message);
     }
   };
 
-  // Fetch teacher summary info (total students and total assignments)
-  const fetchTeacherSummary = async (user) => {
+  const fetchTeacherSummaryByCourse = async (courseId) => {
     try {
-      // Adjust this endpoint and response parsing as needed
-      const response = await axios.get(`http://localhost:5001/teacher-summary?teacher_id=${user}`, {
+      const response = await axios.get(`http://localhost:4000/api/teacher-profile-agg/${courseId}`, {
         withCredentials: true,
       });
-      // Assume response.data is an object with keys totalStudents and totalAssignments
-      setTotalStudents(response.data.totalStudents);
-      setTotalAssignments(response.data.totalAssignments);
+      const studentIds = response.data.enrollmentsConnection.nodes
+        .filter(enrollment => enrollment.type === "StudentEnrollment")
+        .map(enrollment => enrollment.user._id);
+      const numAssignments = response.data.assignmentsConnection.nodes.length;
+      return { studentIds, numAssignments };
+    } catch (error) {
+      console.error('Error fetching teacher summary:', error.response ? error.response.data : error.message);
+      return {studentIds: [], numAssignments: 0 };
+    }
+  };
+
+  const aggregateTeacherSummary = async () => {
+    let uniqueStudentIds = new Set();
+    let totalNumAssignments = 0;
+    
+    try {
+      const summaries = await Promise.all(courses.map(courseId => fetchTeacherSummaryByCourse(courseId)));
+      summaries.forEach(summary => {
+        summary.studentIds.forEach(studentId => uniqueStudentIds.add(studentId));
+        totalNumAssignments += summary.numAssignments;
+      });
+      setTotalStudents(uniqueStudentIds.size);
+      setTotalAssignments(totalNumAssignments);
     } catch (error) {
       console.error('Error fetching teacher summary:', error.response ? error.response.data : error.message);
     }

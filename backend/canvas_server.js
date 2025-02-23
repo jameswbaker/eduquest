@@ -261,7 +261,20 @@ app.get('/api/user/to-do', async (req, res) => {
         'Authorization': `Bearer ${apiToken}`,
       },
     });
-    res.json(response.data);
+    const filteredData = response.data.map(item => ({
+      course_id: item.course_id,
+      context_name: item.context_name,
+      assignment: item.assignment
+        ? {
+            id: item.assignment.id,
+            due_at: item.assignment.due_at,
+            name: item.assignment.name,
+            html_url: item.assignment.html_url,
+            rubric: item.assignment.rubric || [], // Ensure rubric exists even if empty
+          }
+        : null, // If no assignment, return null
+    }));
+    res.json(filteredData);
   } catch (error) {
     res.status(error.response?.status || 500).json({
       message: 'Error getting todo',

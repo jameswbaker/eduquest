@@ -83,52 +83,100 @@ app.post('/signup', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-  
-    // Query the database to find the user by username
-    db.query('SELECT * FROM Account_Info WHERE username = ?', [username], async (err, results) => {
-      if (err) {
-        return res.status(500).json({ message: 'Database error' });
-      }
+  const { username, password } = req.body;
 
-      // If no user found, return an error
-      if (results.length === 0) {
-        return res.status(401).json({ message: 'Invalid credentials' });
+  // Query the database to find the user by username
+  db.query('SELECT * FROM Account_Info WHERE username = ?', [username], async (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Database error' });
+    }
+
+    // If no user found, return an error
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    
+    // Compare entered password with the stored hashed password
+    const user = results[0];
+    if (password == user.password) {
+      try {
+        const userResponse = await axios.get('http://localhost:4000/api/users/user-details', {
+            params: { token: user.canvas_token, },
+        });
+        const userId = userResponse.data.id;
+
+        // Set up cookie
+        const token = jwt.sign({ username: user.username, userId: userId, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
+        // Set JWT token as an HTTP-only cookie
+        res.cookie('auth_token', token, {
+          httpOnly: false,
+          secure: false,
+          sameSite: 'lax',  // Prevent CSRF
+          maxAge: 3600000,  // 1 hour
+        });
+
+        return res.json({ 
+          username: user.username,
+          userId: userId,
+          message: 'Login successful!', 
+          });
+      } catch (error) {
+        console.log(error);
       }
       
-      // Compare entered password with the stored hashed password
-      const user = results[0];
-      if (password == user.password) {
-        try {
-          const userResponse = await axios.get('http://localhost:4000/api/users/user-details', {
-              params: { token: user.canvas_token, },
-          });
-          const userId = userResponse.data.id;
-
-          // Set up cookie
-          const token = jwt.sign({ username: user.username, userId: userId, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
-          // Set JWT token as an HTTP-only cookie
-          res.cookie('auth_token', token, {
-            httpOnly: false,
-            secure: false,
-            sameSite: 'lax',  // Prevent CSRF
-            maxAge: 3600000,  // 1 hour
-          });
-
-          return res.json({ 
-            username: user.username,
-            userId: userId,
-            message: 'Login successful!', 
-            });
-        } catch (error) {
-          console.log(error);
-        }
-        
-      } else {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-    });
+    } else {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
   });
+});
+
+app.post('/add-goal', async (req, res) => {
+  const { goal_title, description, deadline, account_id } = req.body;
+  if (!goal_title || !account_id) {
+    return res.status(400).json({ message: 'goal_title and account_id are required' });
+  }
+
+  try {
+    const query = `
+      INSERT INTO Goals (account_id, goal_title, description, deadline) 
+      VALUES (?, ?, ?, ?)
+    `;
+    db.query(query, [account_id, goal_title, description, deadline], async (err, result) => {
+      if (err) {
+        console.error('Error inserting into Goals:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      console.log(result);
+      return res.status(201).json({
+        message: 'Goal added successfully',
+      });
+    });
+  } catch (error) {
+    console.error('Error adding goal to database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to add goal to databse' });
+  }
+});
+
+app.get('/get-goals', async (req, res) => {
+  const { account_id } = req.query;
+  if (!account_id) {
+    return res.status(400).json({ message: 'account_id is required' });
+  }
+
+  try {
+    const query = `SELECT * FROM Goals WHERE account_id = ?`;
+    db.query(query, [account_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching from Goals:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      return res.status(200).json(results);
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+})
 
 const PORT = 5001;
 app.listen(PORT, () => {

@@ -12,6 +12,7 @@ const Profile = () => {
   // Profile info state from our backend and Canvas
   const [username, setUsername] = useState('');
   const [fullName, setFullName] = useState('');
+  const [accountId, setAccountId] = useState('');
   const [email, setEmail] = useState('(no email for now)'); 
   const [courses, setCourses] = useState([]);
   
@@ -19,7 +20,7 @@ const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [goals, setGoals] = useState([]);
   const [formData, setFormData] = useState({
-    title: "",
+    goal_title: "",
     description: "",
     deadline: "",
     assignedBy: "",
@@ -36,6 +37,7 @@ const Profile = () => {
       fetchStudentAccountInfo();
       fetchStudentCanvasInfo();
       fetchCourses();
+      fetchGoals(user);
     }
   }, [navigate]);
 
@@ -46,6 +48,7 @@ const Profile = () => {
         withCredentials: true,
       });
       setUsername(response.data.username);
+      setAccountId(response.data.userId);
     } catch (error) {
       console.error('Error fetching student account info:', error.response ? error.response.data : error.message);
     }
@@ -77,16 +80,67 @@ const Profile = () => {
     }
   };
 
+  function formatDate(isoString) {
+    if (!isoString) return;
+    const date = new Date(isoString);
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${month}-${day}-${year}`;
+  }
+
+  const fetchGoals = async (user) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/get-goals?account_id=${user}`, {
+        withCredentials: true,
+      });
+      const formattedGoals = response.data.map(goal => ({
+        ...goal,
+        description: goal.description ? goal.description : "N/A",
+        deadline: goal.deadline ? formatDate(goal.deadline) : "N/A", // Handle null deadlines
+      }));
+      setGoals(formattedGoals);
+    } catch (error) {
+      console.error('Error fetching goals:', error.response ? error.response.data : error.message);
+    }
+  };
+
   // Handlers for Goals section
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const addGoal = () => {
-    setGoals([...goals, formData]); // add new goal
-    setFormData({ title: "", description: "", deadline: "", assignedBy: "student" }); // reset form
-    setIsModalOpen(false);
+  const addGoal = async () => {
+    if (!formData.goal_title.trim()) {
+      alert("Goal title is required.");
+      return;
+    }
+    if (!accountId) {
+      alert("User ID empty");
+      return;
+    }
+
+    try {
+      const goalData = {
+        goal_title: formData.goal_title,
+        description: formData.description,
+        deadline: formData.deadline || null,
+        account_id: accountId,
+      };
+      const response = await axios.post('http://localhost:5001/add-goal', goalData, {
+        withCredentials: true,
+      });
+  
+      setGoals([...goals, { ...formData, assignedBy: "student" }]); // add new goal
+      setFormData({ goal_title: "", description: "", deadline: "", assignedBy: "student" }); // reset form
+      setIsModalOpen(false);
+  
+      alert(response.data.message);
+    } catch (error) {
+      console.error("Error adding goal: ", error.response ? error.response.data : error.message);
+      alert("Error adding goal. Please try again.");
+    }
   };
 
   return (
@@ -125,8 +179,8 @@ const Profile = () => {
                 className={`goal-card ${goal.assignedBy === "teacher" ? "teacher-goal" : "student-goal"}`}
                 key={index}
               >
-                <h3>{goal.title}</h3>
-                <p>{goal.description}</p>
+                <h3>{goal.goal_title}</h3>
+                <p>Description: {goal.description}</p>
                 <p>Deadline: {goal.deadline}</p>
               </div>
             ))}
@@ -144,8 +198,8 @@ const Profile = () => {
                 Goal Title:
                 <input
                   type="text"
-                  name="title"
-                  value={formData.title}
+                  name="goal_title"
+                  value={formData.goal_title}
                   onChange={handleInputChange}
                 />
               </label>

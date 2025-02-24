@@ -50,9 +50,12 @@ app.get('/api/users/user-details', async (req, res) => {
 app.get('/api/courses', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
-    const response = await axios.get('https://canvas.instructure.com/api/v1/users/self/courses', {
+    const response = await axios.get('https://canvas.instructure.com/api/v1/courses', {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
+      },
+      params: {
+        'enrollment_state': 'active',
       },
     });
     res.json(response.data); // Return the courses data

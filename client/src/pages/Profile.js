@@ -46,7 +46,7 @@ const Profile = () => {
     console.log(enrollmentType);
       if (enrollmentType === "TeacherEnrollment") {
         alert("Not authorized to access teacher page");
-        navigate('/dashboard/:studentId');
+        navigate('/teacherBoard');
       }
     }, [navigate]);
     

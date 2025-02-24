@@ -61,7 +61,7 @@ export const theme = createTheme({
 
 function AppContent() {
   const location = useLocation();
-  const hiddenPaths = ["/signIn", "/signUp", "/"];
+  const hiddenPaths = ["/login", "/signUp", "/"];
   const showNavBar = !hiddenPaths.includes(location.pathname);
 
   return (

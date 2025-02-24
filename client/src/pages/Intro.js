@@ -145,7 +145,7 @@ const IntroPage = () => {
         <h1>Ready to go on a quest today?</h1>
         <p>Unlock Your Potential: Improve your reading with exciting games today!</p>
         <img src="/image/coverPhoto.png" alt="Banner" className="header-image" />
-        <SearchBar />
+    
       </div>
 
       <div className="green-container">
@@ -155,7 +155,9 @@ const IntroPage = () => {
   <h2>Incomplete Goals</h2>
   <div className="scroll-container">
     <div className="cards-wrapper">
-      {goals.map((goal) => {
+
+    {goals.length > 0 ? (
+        goals.map((goal) => {
         const deadlineStr = goal.deadline || "no deadline";
         const daysLeft = calculateDaysLeft(deadlineStr);
         let ringProgress = 0;
@@ -188,7 +190,10 @@ const IntroPage = () => {
             link="/profile"
           />
         );
-      })}
+      })
+      ) : (
+        <p>No Goals</p>
+      )}
     </div>
   </div>
 </div>
@@ -235,7 +240,7 @@ const IntroPage = () => {
           );
         })
       ) : (
-        <p>No assignments</p>
+        <p>No Assignments</p>
       )}
     </div>
   </div>

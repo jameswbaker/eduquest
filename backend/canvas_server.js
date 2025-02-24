@@ -283,6 +283,67 @@ app.get('/api/user/to-do', async (req, res) => {
   }
 });
 
+app.get('/api/teacher-profile-agg/:courseId', async (req, res) => {
+  const { courseId } = req.params;
+  if (!courseId) {
+    return res.status(400).json({
+      message: "Missing required query parameter: courseId",
+    });
+  }
+
+  const query = `
+    query courseDetails($courseId: ID!) {
+      course(id: $courseId) {
+        _id
+        enrollmentsConnection {
+          nodes {
+            type
+            user {
+              name
+              _id
+            }
+          }
+        }
+        assignmentsConnection {
+          nodes {
+            _id
+            name
+          }
+        }
+      }
+    }
+  `;
+  const variables = { courseId };
+
+  try {
+    const apiToken = getTokenFromCookie(req); // get token from browser cookie
+
+    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
+    const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
+      {
+        query,
+        variables
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    // The entire "course" object from GraphQL:
+    const course = graphqlResponse.data.data.course;
+
+    // Just return it as JSON to the frontend:
+    res.json(course);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching GQL course details',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
   const decoded = jwt.verify(token, JWT_SECRET);

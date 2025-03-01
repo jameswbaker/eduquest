@@ -1,5 +1,6 @@
-import { AppBar, Container, Toolbar, Typography } from '@mui/material'
+import { AppBar, Container, Toolbar, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
+import { ReactSession } from 'react-client-session';
 
 const NavText = ({ href, text, isMain }) => {
   return (
@@ -8,7 +9,7 @@ const NavText = ({ href, text, isMain }) => {
       noWrap
       style={{
         marginRight: '75px',
-        fontFamily: 'Gill Sans',
+        fontFamily: 'Hammersmith One',
         fontWeight: 700,
         letterSpacing: '.3rem',
       }}
@@ -23,20 +24,37 @@ const NavText = ({ href, text, isMain }) => {
         {text}
       </NavLink>
     </Typography>
-  )
-}
+  );
+};
 
 export default function NavBar() {
+  // Assume that the enrollment type is stored in session as either "StudentEnrollment" or "TeacherEnrollment"
+  const enrollmentType = ReactSession.get("enrollmentType");
+  console.log(enrollmentType);
+  const dashboardRoute =
+    enrollmentType === "StudentEnrollment" ? "/dashboard/:studentId" : "/teacherBoard";
+
+    const profileRoute =
+    enrollmentType === "StudentEnrollment" ? "/profile" : "/profileT";
+    
+    const introRoute =
+    enrollmentType === "StudentEnrollment" ? "/intro" : "/introT";
+
   return (
-    <AppBar position='static'>
-      <Container maxWidth='xl'>
+    <AppBar 
+      position="static" 
+      sx={{ 
+        borderBottom: '3px solid black', 
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <NavText href='/intro' text='SafeStreetNYC' isMain />
-          <NavText href='/airbnb' text='AIRBNB' />
-          <NavText href='/housing' text='HOUSINGS' />
-          <NavText href='/hospitals' text='HOSPITALS' />
-          <NavText href='/nearby' text='NEARBY HOSPITALS&CRIME' />
-          <NavText href='/logout' text='LOGOUT' />
+          <NavText href={introRoute} text="Eduquest" isMain />
+          <NavText href={dashboardRoute} text="Dashboard" />
+          <NavText href="/createGame" text="Gamify" />
+          <NavText href={profileRoute} text="Profile" />
+          <NavText href="/logout" text="Logout" />
         </Toolbar>
       </Container>
     </AppBar>

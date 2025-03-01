@@ -1,0 +1,47 @@
+/* Start Page Styling */
+.start-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #d8f4e3;
+    font-family: "Hanken Grotesk", sans-serif;
+  }
+  
+  .start-container {
+    text-align: center;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 4px solid black;
+  }
+  
+  .game-title {
+    font-size: 2rem;
+    color: #6fae7b;
+    margin-bottom: 1rem;
+  }
+  
+  .game-description {
+    font-size: 1rem;
+    color: #333333;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+  
+  .start-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.2rem;
+    background-color: #6fae7b;
+    color: black;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border: 3px solid black;
+  }
+  
+  .start-button:hover {
+    background-color: #558e62;
+  }
+  

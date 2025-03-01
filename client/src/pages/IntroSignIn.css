@@ -1,0 +1,74 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow-y: auto; 
+}
+
+
+ h1 {
+  margin: 10px 0;
+  font-size: 60px;
+}
+
+ p {
+  font-size: 25px;
+  margin-bottom: 20px;
+}
+
+
+/* Ensure content is centered */
+.intro-signin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100vh;
+  background-color: #f9f9f9;
+  padding: 20px;
+  background-color: #F4D376; 
+  color: #000;
+  padding: 20px;
+  padding-top: 80px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* Header image styling */
+.header-image {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  margin: 20px auto;
+  border-radius: 10px;
+}
+
+/* Button container */
+.button-container {
+  display: flex;
+  gap: 20px; /* Space between buttons */
+  margin-top: 20px;
+}
+
+/* Button styling (Same as "Start" button) */
+.buttons-intro {
+  font-family: 'Hammersmith One', sans-serif;
+  background-color: white; 
+  color: black;
+  border: 3px solid black;
+  border-radius: 15px; 
+  padding: 10px 35px;
+  font-size: 20px;
+  cursor: pointer;
+  text-align: center;
+  width: auto;
+}
+
+.buttons-intro:hover {
+  background-color: rgb(219, 219, 219); 
+  transition: background-color 0.3s ease;
+}
+
+.buttons-intro:focus {
+  outline: none;
+}

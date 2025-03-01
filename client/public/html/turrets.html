@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Choose Your Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <style>
+    /* Basic body style */
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #ffffff;
+      font-family: "Hanken Grotesk", sans-serif;
+    }
+
+    .game-creation-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #2d6a4f;
+      padding-bottom: 3rem;
+      border-radius: 8px;
+      text-align: center; /* Center the heading text */
+    }
+
+    #inputContainer {
+      padding: 40px;
+      background-color: white;
+      border-radius: 15px;
+      display: block;
+      max-width: 900px;
+      width: 90%;
+  
+    }
+
+    #inputContainer h2 {
+      color: #1976D2;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: row;
+      gap: 30px; /* Space between columns */
+      justify-content: center;
+      align-items: flex-start; /* Align them at the top */
+      margin-bottom: 20px;
+    }
+
+    .upload-section {
+      width: 300px;
+      padding: 10px;
+      margin-bottom: 10px;
+      text-align: center; /* Center everything within */
+    }
+
+    .drag-drop-box {
+      width: 250px;
+      height: 200px;
+      padding: 0;
+      background-color: #e9f5ee;
+      border: 2px dashed #2d6a4f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px auto;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .drag-drop-box p {
+      font-size: 0.9rem;
+      text-align: center;
+      margin: 0;
+    }
+
+    #fileUpload {
+      display: none; /* Hide the actual file input */
+    }
+
+    .choose-file-btn {
+      background-color: #2d6a4f;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 9px;
+      cursor: pointer;
+      display: inline-block;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      width: 60%;
+      background-color: #ddd;
+      margin: 10px auto;
+      border-radius: 5px;
+      height: 10px;
+      display: none;
+    }
+
+    .progress {
+      background-color: #2d6a4f;
+      height: 100%;
+      border-radius: 5px;
+      width: 0;
+    }
+
+    .uploaded-files p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .input-section {
+      flex-direction: column;
+      display: flex;
+      width: 300px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .input-field {
+      width: 70%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+      padding-bottom: 10px;
+    }
+
+    .dropbtn {
+      padding: 15px 20px;
+      cursor: pointer;
+      background-color: #2d6a4f;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-content {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 200px;
+      z-index: 1000;
+      display: none;
+      padding: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-search {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .selected-classes-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      gap: 10px;
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .selected-class-box {
+      display: flex;
+      align-items: center;
+      background-color: #e0f7fa;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      border: 1px solid #2d6a4f;
+      color: #2d6a4f;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .remove-class-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 5px;
+      color: red;
+    }
+
+    /* "Create Game" button that expands on hover */
+    .start-btn {
+      background-color: #333;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: block;
+      margin: 30px auto 0 auto;
+    }
+
+    .start-btn:hover {
+      background-color: #333;
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+    }
+
+    .start-btn:active {
+      transform: scale(1.0);
+    }
+
+    /* Canvas + question displayed after game start */
+    #question {
+      font-size: 24px;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    #gameCanvas {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    /* LOADING OVERLAY */
+    #loadingOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #333;
+      z-index: 9999;
+      display: none; /* hidden by default */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay">Loading...</div>
+
+  <div id="inputContainer">
+    <!-- Title -->
+    <h1 class="game-creation-title">Create a new game!</h1>
+    
+    <div class="form-row">
+      <!-- Upload section -->
+      <div class="upload-section">
+        <div class="drag-drop-box" id="dropArea">
+          <p>Drag learning materials here</p>
+        </div>
+
+        <input
+          type="file"
+          id="fileUpload"
+          accept=".txt"
+          multiple
+          style="display:none;"
+        />
+        <label for="fileUpload" class="choose-file-btn">
+          Choose File
+        </label>
+
+        <div class="progress-bar" id="progressBar">
+          <div class="progress" id="progressFill"></div>
+        </div>
+
+        <div class="uploaded-files" id="uploadedFiles" style="display:none;"></div>
+      </div>
+
+      <!-- Game & Class Selection Section -->
+      <div class="input-section">
+        
+        <!-- 1) GAME NAME -->
+        <input
+          type="text"
+          placeholder="Game name*"
+          id="gameNameInput"
+          class="input-field"
+        />
+
+        <!-- 2) GAME TYPE DROPDOWN (FLAPPY / TURRETS) -->
+        <select
+          id="gameTypeSelect"
+          class="input-field"
+          style="margin-bottom: 10px; width:76%;"
+        >
+          <option value="">-- Select Game Type --</option>
+          <option value="flappy">Flappy</option>
+          <option value="turrets">Turrets</option>
+        </select>
+
+        <!-- 3) DEADLINE -->
+        <input
+          type="date"
+          id="deadlineInput"
+          class="input-field"
+        />
+
+        <!-- 4) CLASS SELECTION DROPDOWN -->
+        <div class="dropdown">
+          <button class="dropbtn" id="dropBtn">Select Classes</button>
+          <div class="dropdown-content" id="dropdownContent">
+            <input
+              type="text"
+              placeholder="Search..."
+              id="searchInput"
+              class="dropdown-search"
+            />
+            <div id="filteredList"></div>
+          </div>
+        </div>
+
+        <div class="selected-classes-container" id="selectedClasses"></div>
+      </div>
+    </div> <!-- .form-row -->
+
+    <!-- Create Game button -->
+    <button class="start-btn" onclick="submitFile()">Create Game!</button>
+  </div>
+
+  <!-- Question & Canvas (hidden by default) -->
+  <div id="question"></div>
+  <canvas id="gameCanvas"></canvas>
+
+  <script>
+    /************************
+     * 0) GAME TYPE DROPDOWN
+     ************************/
+    const gameTypeSelect = document.getElementById("gameTypeSelect");
+    function getSelectedGame() {
+      return gameTypeSelect.value || "";
+    }
+
+    /************************
+     * 1) Drag & Drop Upload
+     ************************/
+    const dropArea = document.getElementById("dropArea");
+    const fileInput = document.getElementById("fileUpload");
+    const progressBar = document.getElementById("progressBar");
+    const progressFill = document.getElementById("progressFill");
+    const uploadedFilesList = document.getElementById("uploadedFiles");
+    
+    let uploadedFiles = [];
+    let uploadProgress = 0;
+
+    dropArea.addEventListener("dragover", handleDragOver);
+    dropArea.addEventListener("drop", handleDrop);
+    fileInput.addEventListener("change", handleFileUpload);
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const files = Array.from(e.dataTransfer.files);
+      processFiles(files);
+    }
+
+    function handleFileUpload(e) {
+      const files = Array.from(e.target.files);
+      processFiles(files);
+    }
+
+    function processFiles(files) {
+      uploadedFiles = [...uploadedFiles, ...files];
+      setUploadProgress(50);
+      setTimeout(() => {
+        setUploadProgress(100);
+      }, 800);
+      displayUploadedFiles();
+    }
+
+    function setUploadProgress(value) {
+      uploadProgress = value;
+      progressBar.style.display = "block";
+      progressFill.style.width = value + "%";
+    }
+
+    function displayUploadedFiles() {
+      if (uploadedFiles.length > 0) {
+        uploadedFilesList.style.display = "block";
+        uploadedFilesList.innerHTML = "";
+        uploadedFiles.forEach((file) => {
+          const p = document.createElement("p");
+          p.textContent = "📄 " + file.name;
+          uploadedFilesList.appendChild(p);
+        });
+      }
+    }
+
+    /************************
+     * 2) Class Selection
+     ************************/
+    let classes = ["English 1", "English Literature", "Math 101", "Science"];
+    let dropdownOpen = false;
+    let searchTerm = "";
+    let selectedClasses = [];
+
+    const dropBtn = document.getElementById("dropBtn");
+    const dropdownContent = document.getElementById("dropdownContent");
+    const searchInput = document.getElementById("searchInput");
+    const filteredListDiv = document.getElementById("filteredList");
+    const selectedClassesDiv = document.getElementById("selectedClasses");
+
+    dropBtn.addEventListener("click", () => {
+      dropdownOpen = !dropdownOpen;
+      dropdownContent.style.display = dropdownOpen ? "block" : "none";
+      updateFilteredClasses();
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      searchTerm = e.target.value;
+      updateFilteredClasses();
+    });
+
+    function updateFilteredClasses() {
+      filteredListDiv.innerHTML = "";
+      const lowerSearch = searchTerm.toLowerCase();
+      const filtered = classes.filter((cls) => cls.toLowerCase().includes(lowerSearch));
+
+      if (filtered.length > 0) {
+        filtered.forEach((cls) => {
+          const div = document.createElement("div");
+          div.className = "dropdown-item";
+          div.textContent = cls;
+          div.onclick = () => handleClassSelection(cls);
+          filteredListDiv.appendChild(div);
+        });
+      } else {
+        const p = document.createElement("p");
+        p.textContent = "No classes found";
+        filteredListDiv.appendChild(p);
+      }
+    }
+
+    function handleClassSelection(cls) {
+      if (!selectedClasses.includes(cls)) {
+        selectedClasses.push(cls);
+        renderSelectedClasses();
+      }
+    }
+
+    function renderSelectedClasses() {
+      selectedClassesDiv.innerHTML = "";
+      selectedClasses.forEach((cls) => {
+        const container = document.createElement("div");
+        container.className = "selected-class-box";
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-class-btn";
+        removeBtn.textContent = "✖";
+        removeBtn.onclick = () => handleRemoveClass(cls);
+
+        container.appendChild(removeBtn);
+        container.appendChild(document.createTextNode(cls));
+        selectedClassesDiv.appendChild(container);
+      });
+    }
+
+    function handleRemoveClass(cls) {
+      selectedClasses = selectedClasses.filter((c) => c !== cls);
+      renderSelectedClasses();
+    }
+
+    /************************
+     * 3) Start the Game
+     ************************/
+    const gameNameInput = document.getElementById("gameNameInput");
+    const deadlineInput = document.getElementById("deadlineInput");
+    const questionDiv = document.getElementById("question");
+    const canvas = document.getElementById("gameCanvas");
+    const loadingOverlay = document.getElementById("loadingOverlay"); // The new overlay
+
+    function resizeCanvas() {
+      canvas.width = Math.min(800, window.innerWidth - 40);
+      canvas.height = Math.min(600, window.innerHeight - 120);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    async function submitFile() {
+      // Validate game name
+      if (!gameNameInput.value.trim()) {
+        alert("Game name is required!");
+        return;
+      }
+
+      // Validate game type
+      const chosenGame = getSelectedGame();
+      if (!chosenGame) {
+        alert("Please select a game type (Flappy or Turrets)!");
+        return;
+      }
+
+      // Validate file upload
+      if (uploadedFiles.length === 0) {
+        alert("Please select or drop a file first.");
+        return;
+      }
+
+      // Show "Loading..." overlay
+      loadingOverlay.style.display = "flex";
+
+      // Read the FIRST file
+      const file = uploadedFiles[0];
+      const reader = new FileReader();
+      reader.onload = async function (event) {
+        const content = event.target.result;
+
+        try {
+          // Send content to your backend
+          const response = await fetch("http://127.0.0.1:5000/generate-questions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content,
+              num_questions: 25,
+              num_answers: 2,
+              game_name: gameNameInput.value,
+              game_type: chosenGame,
+              deadline: deadlineInput.value,
+              classes: selectedClasses,
+            }),
+          });
+
+          const data = await response.json();
+          if (data.error) throw new Error(data.error);
+
+          // Hide input container; show canvas & question
+          document.getElementById("inputContainer").style.display = "none";
+          questionDiv.style.display = "block";
+          canvas.style.display = "block";
+          resizeCanvas();
+
+          // Dynamically load & start the chosen game
+          if (chosenGame === "flappy") {
+            await loadScript("flappy.js");
+            const game = new Game();
+            game.startGame(data.questions);
+          } else {
+            await loadScript("turrets.js");
+            const game = new Game();
+            game.startGame(data.questions);
+          }
+
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Error generating questions. Please try again.");
+        } finally {
+          // Hide "Loading..." overlay
+          loadingOverlay.style.display = "none";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /****************************
+     * 4) Dynamic Script Loading
+     ****************************/
+    async function loadScript(url) {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+          return resolve(); // Already loaded
+        }
+        const script = document.createElement("script");
+        script.src = url;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${url}`));
+        document.body.appendChild(script);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -32,13 +32,17 @@ export default function NavBar() {
   const enrollmentType = ReactSession.get("enrollmentType");
   console.log(enrollmentType);
   const dashboardRoute =
-    enrollmentType === "StudentEnrollment" ? "/dashboard/:studentId" : "/teacherBoard";
+  enrollmentType === "StudentEnrollment" ? "/dashboard/:studentId" : "/teacherBoard";
 
-    const profileRoute =
-    enrollmentType === "StudentEnrollment" ? "/profile" : "/profileT";
-    
-    const introRoute =
-    enrollmentType === "StudentEnrollment" ? "/intro" : "/introT";
+  const profileRoute =
+  enrollmentType === "StudentEnrollment" ? "/profile" : "/profileT";
+  
+  const introRoute =
+  enrollmentType === "StudentEnrollment" ? "/intro" : "/introT";
+
+  const gamifyRoute =
+  enrollmentType === "StudentEnrollment" ? "/studentGame/:studentId" : "/createGame";
+
 
   return (
     <AppBar 
@@ -52,7 +56,7 @@ export default function NavBar() {
         <Toolbar disableGutters>
           <NavText href={introRoute} text="Eduquest" isMain />
           <NavText href={dashboardRoute} text="Dashboard" />
-          <NavText href="/createGame" text="Gamify" />
+          <NavText href={gamifyRoute} text="Gamify" />
           <NavText href={profileRoute} text="Profile" />
           <NavText href="/logout" text="Logout" />
         </Toolbar>

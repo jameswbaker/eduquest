@@ -9,9 +9,12 @@ const PORT = 4000;
 
 const app = express();
 
+const potentialRoots = ["cbsd.instructure.com", "canvas.instructure.com"];
+const root = potentialRoots[1];
+
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5001'],  // Frontend URL
-  methods: ['GET', 'POST'],        // Allow specific methods
+  methods: ['GET', 'POST', 'OPTIONS'],        // Allow specific methods
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
 })); // Enable CORS for all routes
@@ -37,7 +40,7 @@ function getTokenFromCookie(req) {
 app.get('/api/users/user-details', async (req, res) => {
   const apiToken = req.query.token ? req.query.token : getTokenFromCookie(req);
   try {
-    const response = await axios.get('https://canvas.instructure.com/api/v1/users/self', {
+    const response = await axios.get(`https://${root}/api/v1/users/self`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
@@ -55,7 +58,7 @@ app.get('/api/users/user-details', async (req, res) => {
 app.get('/api/courses', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
-    const response = await axios.get('https://canvas.instructure.com/api/v1/courses', {
+    const response = await axios.get(`https://${root}/api/v1/courses`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
@@ -139,7 +142,7 @@ app.get('/api/course-details-agg/:courseId', async (req, res) => {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
 
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-    const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
+    const graphqlResponse = await axios.post(`https://${root}/api/graphql`, 
       {
         query,
         variables
@@ -176,7 +179,7 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
 
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-    const courseResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}`, {
+    const courseResponse = await axios.get(`https://${root}/api/v1/courses/${courseId}`, {
       headers: { 'Authorization': `Bearer ${apiToken}`, },
     });
     const course_name = courseResponse.data.name;
@@ -184,7 +187,7 @@ app.get('/api/courses/:courseId/course-details', async (req, res) => {
     const account_id = courseResponse.data.account_id;
 
     // Request for all assignments under a course
-    const assignmentResponse = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/assignments`, {
+    const assignmentResponse = await axios.get(`https://${root}/api/v1/courses/${courseId}/assignments`, {
       headers: { 'Authorization': `Bearer ${apiToken}`, },
       params: {
         include: ['rubric', 'score_statistics'], 
@@ -219,7 +222,7 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-    const response = await axios.get(`https://canvas.instructure.com/api/v1/courses/${courseId}/enrollments`, {
+    const response = await axios.get(`https://${root}/api/v1/courses/${courseId}/enrollments`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
@@ -245,7 +248,7 @@ app.post('/api/get-role', async (req, res) => {
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
 
     const { userId } = req.body;
-    const response = await axios.get(`https://canvas.instructure.com/api/v1/users/${userId}/enrollments`, {
+    const response = await axios.get(`https://${root}/api/v1/users/${userId}/enrollments`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
@@ -264,7 +267,7 @@ app.post('/api/get-role', async (req, res) => {
 app.get('/api/user/to-do', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req);
-    const response = await axios.get(`https://canvas.instructure.com/api/v1/users/self/todo`, {
+    const response = await axios.get(`https://${root}/api/v1/users/self/todo`, {
       headers: {
         'Authorization': `Bearer ${apiToken}`,
       },
@@ -422,7 +425,7 @@ app.get('/api/teacher-profile-agg/:courseId', async (req, res) => {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
 
     // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-    const graphqlResponse = await axios.post(`https://canvas.instructure.com/api/graphql`, 
+    const graphqlResponse = await axios.post(`https://${root}/api/graphql`, 
       {
         query,
         variables

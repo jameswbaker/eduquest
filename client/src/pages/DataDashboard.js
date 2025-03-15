@@ -51,8 +51,21 @@ useEffect(() => {
         // Otherwise, select the student
         setSelectedStudent(student);
         console.log("STUDENT SELECTED: ", student.user.name);
+        filterRubricItemsByStudent(student);
     }
   }
+
+  const filterRubricItemsByStudent = (student) => {
+    console.log('this is the student selected: ', student);
+  
+    const studentRubrics = new Set(
+      Object.values(processedData[student.user.id]).map(item => item.description)
+    );
+  
+    console.log('this is studentRubrics: ', studentRubrics);
+    setRubricItems(Array.from(studentRubrics));
+  };
+  
 
   const [selectedAssignment, setSelectedAssignment] = useState("");
   const toggleSelectedAssignment = (assignment) => {

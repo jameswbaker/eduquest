@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route,useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route,useLocation, useNavigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from '@mui/material'
 import { createTheme } from "@mui/material/styles";
 
@@ -20,7 +20,7 @@ import GameCreationPage from './pages/GameCreationPage';
 import CourseDashboardPage from './pages/CourseDashboard';
 import ProfileTPage from './pages/ProfileT';
 import IntroTPage from './pages/IntroT';
-
+import StudentGamePage from './pages/StudentGamePage';
 
 
 
@@ -57,12 +57,12 @@ export const theme = createTheme({
   },
 });
 
-
-
 function AppContent() {
   const location = useLocation();
   const hiddenPaths = ["/login", "/signUp", "/"];
   const showNavBar = !hiddenPaths.includes(location.pathname);
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -79,6 +79,7 @@ function AppContent() {
 
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/dashboard/:studentId" element={<DashboardPage />} />
+          <Route path="/studentGame/:studentId" element={<StudentGamePage />} />
           <Route path="/teacherBoard" element={<TeacherBoardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profileT" element={<ProfileTPage />} />

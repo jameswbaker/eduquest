@@ -1,0 +1,198 @@
+/* Course Card Styling */
+.course-card {
+  display: flex;
+  align-items: stretch; 
+  width: 100%;
+  height: 120px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  overflow: hidden;
+  box-sizing: border-box;
+
+}
+
+
+
+/* Left color section */
+.color-section {
+  flex-basis: 25%; 
+  min-width: 25%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+/* Text section with a lighter shade */
+.text-section {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  
+  box-sizing: border-box;
+}
+
+/* Increased text size */
+.text-section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+  padding-left: 15px;
+}
+
+.text-section p {
+  font-size: 16px;
+  color: gray;
+  margin: 5px 0 0;
+  padding-left: 15px;
+}
+
+/* Course Colors */
+.color-section.yellow {
+  background-color: #F2C100;
+}
+
+.text-section.yellow {
+  background-color: #FBE79F; /* Lighter yellow */
+}
+
+.color-section.blue {
+  background-color: #5586E0;
+}
+
+.text-section.blue {
+  background-color: #A9C6F5; /* Lighter blue */
+}
+
+.color-section.red {
+  background-color: #E54B32;
+}
+
+.text-section.red {
+  background-color: #F6A79B; /* Lighter red */
+}
+
+.color-section.pink {
+  background-color: #EA97B3;
+}
+
+.text-section.pink {
+  background-color: #F7C3D1; /* Lighter pink */
+}
+
+.color-section.green {
+  background-color: #8FCE5D;
+}
+
+.text-section.green {
+  background-color: #C5E6A0; /* Lighter green */
+}
+
+/* To-Do Card (same as course card) */
+.todo-card {
+  display: flex;
+  align-items: stretch; /* Ensures sections stretch to fill height */
+  width: 100%;
+  height: 120px;
+  border-radius: 15px;
+  border: 3px solid black !important;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.todo-text-section p {
+  font-size: 16px;
+  color: gray;
+  padding-left: 15px;
+}
+
+
+
+/* Left color section (strip) */
+.todo-color-section {
+  height: 100%;
+  flex-grow: 1; /* Ensures it expands fully */
+  border-right: 3px solid black;
+  box-sizing: border-box;
+}
+
+/* Text section */
+.todo-text-section {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+/* Increased text size */
+.todo-text-section h3 {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  margin: 0;
+  padding-left: 15px;
+}
+
+
+
+/* To-Do Colors */
+.todo-color-section.yellow {
+  background-color: #F2C100;
+}
+
+.todo-text-section.yellow {
+  background-color: #FBE79F; /* Lighter yellow */
+}
+
+.todo-color-section.red {
+  background-color: #E54B32;
+}
+
+.todo-text-section.red {
+  background-color: #F6A79B; /* Lighter red */
+}
+
+.todo-color-section.green {
+  background-color: #8FCE5D;
+}
+
+.todo-text-section.green {
+  background-color: #C5E6A0; /* Lighter green */
+}
+
+/* Header Icons */
+.header-icons {
+  display: flex;
+  gap: 15px; /* Adds spacing between icons */
+}
+
+.icon {
+  font-size: 30px; 
+  cursor: pointer; 
+  transition: transform 0.2s ease-in-out;
+  user-select: none; 
+  padding: 10px;
+}
+
+.icon:hover {
+  transform: scale(1.2); 
+}
+
+.dashboard-container {
+    background-color: #d8f4e3;
+    /* min-height: 100vh; */
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+  }

@@ -2,18 +2,21 @@ import React, { useState, useEffect } from "react";
 import { ReactSession } from "react-client-session";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Dashboard.css";
+import "./StudentGamePage.css";
 
-const Dashboard = () => {
+const StudentGamePage = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
   const [user, setUser] = useState("");
   const [studentName, setStudentName] = useState(""); // For full name
-  const [todos, setTodos] = useState([]); // To-do (assignment) items
+  const [todos, setTodos] = useState([]); 
+  const [selectedCourse, setSelectedCourse] = useState(null); 
+
 
   // Check if the user is logged in and fetch session info
   useEffect(() => {
+    // TODO: check logic here. i think it fixes curr session user to be vivi li
     const currUser = ReactSession.get("user");
     setUser(currUser);
     console.log("User is:", currUser);
@@ -112,6 +115,8 @@ const Dashboard = () => {
         withCredentials: true,
       });
       setStudentName(response.data.name);
+      console.log("this is student's info: ", response.data);
+      console.log("this is student's name: ", studentName);
     } catch (error) {
       console.error(
         "Error fetching student canvas info:",
@@ -120,6 +125,10 @@ const Dashboard = () => {
     }
   };
 
+  const filteredTodos = selectedCourse
+    ? todos.filter(todo => todo.courseId === selectedCourse)
+    : todos;
+
   // Colors for course cards
   const colorOrder = ["yellow", "blue", "red", "pink", "green"];
 
@@ -127,7 +136,6 @@ const Dashboard = () => {
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        {/* TODO: check if studentName is supposed to be vivi here? Even for james it says vivi */}
         <h1>{studentName ? `${studentName}'s Dashboard` : "Dashboard"}</h1>
         <div className="header-icons">
           {/* Optional teacher view button can go here */}
@@ -150,29 +158,31 @@ const Dashboard = () => {
                   instructor={course.instructor || "Unknown Instructor"}
                   color={color}
                   courseId={course.id}
+                  isSelected={selectedCourse === course.id}
+                  onSelect={setSelectedCourse}
                 />
               );
             })}
           </div>
         </div>
 
-        {/* Upcoming Assignments Section */}
+        {/* Games Section */}
         <div className="todo-section">
-          <h2>Upcoming Assignments</h2>
+          <h2>{selectedCourse ? "Games for Selected Course" : "All Games"}</h2>
           <div className="todo-list">
-            {todos.length > 0 ? (
-              todos.map(todo => (
+            {filteredTodos.length > 0 ? (
+              filteredTodos.map(todo => (
                 <ToDoCard
                   key={todo.todoId}
-                  assignmentName={todo.assignmentName}  // Title: Assignment name
-                  courseName={todo.courseName}          // Next line: Course name
-                  dueDate={todo.dueAt}                  // Last line: Due date
+                  assignmentName={todo.assignmentName}
+                  courseName={todo.courseName}
+                  dueDate={todo.dueAt}
                   htmlUrl={todo.htmlUrl}
-                  color={todo.color || "yellow"}
+                  color="yellow"
                 />
               ))
             ) : (
-              <p>No to-do items</p>
+              <p>No available games.</p>
             )}
           </div>
         </div>
@@ -180,6 +190,23 @@ const Dashboard = () => {
     </div>
   );
 };
+
+const CourseCard = ({ courseName, instructor, color, courseId, isSelected, onSelect }) => {
+    return (
+      <div
+        className={`course-card ${color} ${isSelected ? "selected" : ""}`}
+        onClick={() => onSelect(courseId)}
+      >
+        <div className={`color-section ${color}`}></div>
+        <div className={`text-section ${color}`}>
+          <h3>{courseName}</h3>
+          <p>{instructor}</p>
+        </div>
+      </div>
+    );
+  };
+
+/*
 
 const CourseCard = ({ courseName, instructor, color, courseId }) => {
   const navigate = useNavigate();
@@ -197,6 +224,7 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
     </div>
   );
 };
+*/
 
 const ToDoCard = ({ courseName, assignmentName, dueDate, htmlUrl, color }) => (
   <a 
@@ -216,4 +244,4 @@ const ToDoCard = ({ courseName, assignmentName, dueDate, htmlUrl, color }) => (
   </a>
 );
 
-export default Dashboard;
+export default StudentGamePage;

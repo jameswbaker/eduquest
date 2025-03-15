@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactSession } from "react-client-session";
+import axios from "axios";
 import "./GameCreationPage.css";
 
 const GameCreationPage = () => {
@@ -14,6 +15,7 @@ const GameCreationPage = () => {
       alert("Please log in first");
       navigate('/'); 
     }
+    fetchCourses();
   }, [navigate]);
   const [gameName, setGameName] = useState("");
   const [selectedClasses, setSelectedClasses] = useState([]);
@@ -22,9 +24,34 @@ const GameCreationPage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [courses, setCourses] = useState([]);
+  const [error, setError] = useState("");
 
 
-  const classes = ["English 1", "English Literature", "Math 101", "Science"];
+  const fetchCourses = async () => {
+    console.log("fetching courses");
+    setError("");
+    try {
+      const response = await axios.get("http://localhost:4000/api/courses", {
+        withCredentials: true,
+      });
+      console.log("response data: ", response.data);
+      const courseNames = response.data.map(course => course.name);
+      // Set only course names in state
+      setCourses(courseNames);
+      console.log("this is course data: ", courses);
+
+    } catch (error) {
+      console.error(
+        "Error fetching courses:",
+        error.response ? error.response.data : error.message
+      );
+      setError(
+        "Error fetching courses. Please check your token and permissions."
+      );
+    }
+  };
+
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -76,7 +103,7 @@ const GameCreationPage = () => {
     setSelectedClasses(selectedClasses.filter((cls) => cls !== className));
   };
 
-  const filteredClasses = classes.filter((cls) =>
+  const filteredClasses = courses.filter((cls) =>
     cls.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

@@ -85,7 +85,7 @@ const GameCreationPage = () => {
       <div className="game-container">
         
       <iframe
-      src="/html/turrets.html"
+      src="/html/game_generate.html"
       width="700"
       height="600"
       frameBorder="0"

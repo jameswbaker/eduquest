@@ -52,7 +52,6 @@ function Login() {
         console.log("RESPONSE_ENROLLMENT: ", res_enroll_data[0]);
 
         // Store the enrollment type (role) in the session
-        // For example, this will store "StudentEnrollment" or whatever value is returned.
         ReactSession.set("enrollmentType", res_enroll_data[0].role);
 
         const isTeacher = res_enroll_data[0].role === "StudentEnrollment" ? false : true;
@@ -72,9 +71,13 @@ function Login() {
       } else {
         const errorData = await response.json();
         console.error('Error:', errorData.message);
+        // Show error in a pop-up window
+        alert(`Error: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error:', error);
+      // Show error in a pop-up window
+      alert(`An error occurred: ${error.message}`);
     }
     // Optionally reset form
     setUsername('');

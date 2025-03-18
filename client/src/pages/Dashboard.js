@@ -127,7 +127,6 @@ const Dashboard = () => {
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        {/* TODO: check if studentName is supposed to be vivi here? Even for james it says vivi */}
         <h1>{studentName ? `${studentName}'s Dashboard` : "Dashboard"}</h1>
         <div className="header-icons">
           {/* Optional teacher view button can go here */}
@@ -140,40 +139,48 @@ const Dashboard = () => {
         <div className="courses-section">
           <h2>Courses</h2>
           {error && <p style={{ color: "red" }}>{error}</p>}
-          <div className="courses-list">
-            {courses.map((course, index) => {
-              const color = colorOrder[index % colorOrder.length];
-              return (
-                <CourseCard
-                  key={course.id}
-                  courseName={course.name}
-                  instructor={course.instructor || "Unknown Instructor"}
-                  color={color}
-                  courseId={course.id}
-                />
-              );
-            })}
-          </div>
+          {courses.length > 0 ? (
+            <div className="courses-list">
+              {courses.map((course, index) => {
+                const color = colorOrder[index % colorOrder.length];
+                return (
+                  <CourseCard
+                    key={course.id}
+                    courseName={course.name}
+                    instructor={course.instructor || "Unknown Instructor"}
+                    color={color}
+                    courseId={course.id}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <p>No courses</p>
+          )}
         </div>
 
         {/* Upcoming Assignments Section */}
         <div className="todo-section">
           <h2>Upcoming Assignments</h2>
           <div className="todo-list">
-            {todos.length > 0 ? (
-              todos.map(todo => (
+          {todos.length > 0 ? (
+            todos.map((todo, index) => {
+              const color = colorOrder[index % colorOrder.length];
+              return (
                 <ToDoCard
                   key={todo.todoId}
                   assignmentName={todo.assignmentName}  // Title: Assignment name
                   courseName={todo.courseName}          // Next line: Course name
                   dueDate={todo.dueAt}                  // Last line: Due date
                   htmlUrl={todo.htmlUrl}
-                  color={todo.color || "yellow"}
+                  color={color}
                 />
-              ))
-            ) : (
-              <p>No to-do items</p>
-            )}
+              );
+            })
+          ) : (
+            <p>No to-do items</p>
+          )}
+
           </div>
         </div>
       </div>

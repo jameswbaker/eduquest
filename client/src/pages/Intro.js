@@ -149,8 +149,99 @@ const IntroPage = () => {
       </div>
 
       <div className="green-container">
-        {/* Column for Incomplete Goals */}
-       {/* Column for Incomplete Goals */}
+      <div className="column">
+  <h2>Upcoming Assignments</h2>
+  <div className="scroll-container">
+    <div className="cards-wrapper">
+      {todos.length > 0 ? (
+        todos.map((todo) => {
+          const dueAtStr = todo.dueAt;
+          const daysLeft = calculateDaysLeft(dueAtStr);
+          let ringProgress = 0;
+          let progressText = "";
+          let cardColor = "#5586E0";
+
+          if (!dueAtStr || dueAtStr.toLowerCase().includes("no due date")) {
+            ringProgress = 0;
+            progressText = "";
+          } else if (daysLeft >= 7) {
+            ringProgress = 0;
+            progressText = `${daysLeft} days`;
+          } else if (daysLeft >= 0 && daysLeft < 7) {
+            ringProgress = ((7 - daysLeft) / 7) * 100;
+            progressText = `${daysLeft} days`;
+          } else {
+            ringProgress = 100;
+            progressText = `Late`;
+            cardColor = "#ff6055";
+          }
+
+          return (
+            <CardComponent
+              key={todo.todoId}
+              title={todo.assignmentName}
+              subtitle={todo.courseName}
+              date={formatDeadlineDisplay(dueAtStr)}
+              progress={ringProgress}
+              progressText={progressText}
+              backgroundColor={cardColor}
+              link={todo.htmlUrl}
+            />
+          );
+        })
+      ) : (
+        <p>No Assignments</p>
+      )}
+    </div>
+  </div>
+</div>
+
+       <div className="column">
+  <h2>Assigned Games</h2>
+  <div className="scroll-container">
+    <div className="cards-wrapper">
+      {todos.length > 0 ? (
+        todos.map((todo) => {
+          const dueAtStr = todo.dueAt;
+          const daysLeft = calculateDaysLeft(dueAtStr);
+          let ringProgress = 0;
+          let progressText = "";
+          let cardColor = "#5586E0";
+
+          if (!dueAtStr || dueAtStr.toLowerCase().includes("no due date")) {
+            ringProgress = 0;
+            progressText = "";
+          } else if (daysLeft >= 7) {
+            ringProgress = 0;
+            progressText = `${daysLeft} days`;
+          } else if (daysLeft >= 0 && daysLeft < 7) {
+            ringProgress = ((7 - daysLeft) / 7) * 100;
+            progressText = `${daysLeft} days`;
+          } else {
+            ringProgress = 100;
+            progressText = `Late`;
+            cardColor = "#ff6055";
+          }
+
+          return (
+            <CardComponent
+              key={todo.todoId}
+              title={todo.assignmentName}
+              subtitle={todo.courseName}
+              date={formatDeadlineDisplay(dueAtStr)}
+              progress={ringProgress}
+              progressText={progressText}
+              backgroundColor={cardColor}
+              link={todo.htmlUrl}
+            />
+          );
+        })
+      ) : (
+        <p>No Games</p>
+      )}
+    </div>
+  </div>
+</div>
 <div className="column">
   <h2>Incomplete Goals</h2>
   <div className="scroll-container">
@@ -199,52 +290,7 @@ const IntroPage = () => {
 </div>
 
 {/* Column for Upcoming Assignments */}
-<div className="column">
-  <h2>Upcoming Assignments</h2>
-  <div className="scroll-container">
-    <div className="cards-wrapper">
-      {todos.length > 0 ? (
-        todos.map((todo) => {
-          const dueAtStr = todo.dueAt;
-          const daysLeft = calculateDaysLeft(dueAtStr);
-          let ringProgress = 0;
-          let progressText = "";
-          let cardColor = "#5586E0";
 
-          if (!dueAtStr || dueAtStr.toLowerCase().includes("no due date")) {
-            ringProgress = 0;
-            progressText = "";
-          } else if (daysLeft >= 7) {
-            ringProgress = 0;
-            progressText = `${daysLeft} days`;
-          } else if (daysLeft >= 0 && daysLeft < 7) {
-            ringProgress = ((7 - daysLeft) / 7) * 100;
-            progressText = `${daysLeft} days`;
-          } else {
-            ringProgress = 100;
-            progressText = `Late`;
-            cardColor = "#ff6055";
-          }
-
-          return (
-            <CardComponent
-              key={todo.todoId}
-              title={todo.assignmentName}
-              subtitle={todo.courseName}
-              date={formatDeadlineDisplay(dueAtStr)}
-              progress={ringProgress}
-              progressText={progressText}
-              backgroundColor={cardColor}
-              link={todo.htmlUrl}
-            />
-          );
-        })
-      ) : (
-        <p>No Assignments</p>
-      )}
-    </div>
-  </div>
-</div>
 </div>
     </div>
   );

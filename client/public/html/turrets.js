@@ -56,6 +56,15 @@ class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
+        
+        // Check canvas dimensions and reset if needed
+        console.log("Canvas dimensions at start:", this.canvas.width, this.canvas.height);
+        if (!this.canvas.width || !this.canvas.height) {
+            console.warn("Canvas has no dimensions, resetting to default size");
+            this.canvas.width = 800;
+            this.canvas.height = 600;
+        }
+        
         this.questionDiv = document.getElementById('question');
         
         // Player properties
@@ -107,6 +116,11 @@ class Game {
     }
 
     async startGame(questions) {
+        console.log("Game started with questions:", questions);
+        if (!questions || !Array.isArray(questions) || questions.length === 0) {
+            console.error("Invalid questions data received:", questions);
+            return;
+        }
         this.questions = questions;
         document.getElementById('inputContainer').style.display = 'none';
         this.canvas.style.display = 'block';
@@ -118,7 +132,9 @@ class Game {
     }
 
     generateLevel(keepCurrentWord = false) {
+        console.log("Generating level, question index:", this.currentQuestionIndex);
         if (this.currentQuestionIndex >= this.questions.length) {
+            console.log("No more questions, game over");
             this.gameOver = true;
             return;
         }
@@ -127,6 +143,7 @@ class Game {
         this.levelStartTime = Date.now();
 
         const currentQ = this.questions[this.currentQuestionIndex];
+        console.log("Current question:", currentQ);
         
         // Update current question
         this.currentQuestion = {
@@ -145,15 +162,21 @@ class Game {
 
         // Create answer areas using the multiple choice answers
         const possibleAnswers = currentQ.answers.map(a => a.text);
+        console.log("Possible answers:", possibleAnswers);
         
         // Create answer areas in random positions
         const margin = GAME_CONFIG.platform.spawnMargin; // Minimum distance from edges
+        // Make sure we have a valid safeRadius
+        const safeRadius = GAME_CONFIG.safeRadius || 100;
+        console.log("Safe radius:", safeRadius);
+        console.log("Canvas dimensions:", this.canvas.width, this.canvas.height);
+        console.log("Player position:", this.player.x, this.player.y);
 
         // Calculate platform size based on longest word
         const longestWord = possibleAnswers.reduce((a, b) => a.length > b.length ? a : b);
         const platformWidth = Math.max(this.ctx.measureText(longestWord).width + GAME_CONFIG.platform.textPadding, GAME_CONFIG.platform.minWidth);
         const platformHeight = GAME_CONFIG.platform.height;
-
+        
         possibleAnswers.forEach((answer) => {
             let validPosition = false;
             let platform;
@@ -171,21 +194,25 @@ class Game {
                 
                 // Check if position is valid (away from player and other platforms)
                 validPosition = !this.platforms.some(existing => this.checkCollision(platform, existing)) && 
-                              Math.hypot(platform.x - this.player.x, platform.y - this.player.y) > this.safeRadius;
+                              Math.hypot(platform.x - this.player.x, platform.y - this.player.y) > safeRadius;
             }
             
             if (validPosition) {
+                console.log(`Created platform at (${platform.x.toFixed(0)}, ${platform.y.toFixed(0)}) for answer: ${answer}`);
                 this.platforms.push(platform);
                 this.answers.push({
                     value: answer,
                     platform: platform,
                     isCorrect: answer === this.currentQuestion.correct
                 });
+            } else {
+                console.warn(`Failed to find valid position for answer: ${answer} after ${maxAttempts} attempts`);
             }
         });
 
         // Add random turrets
         const numTurrets = Math.floor(Math.random() * (GAME_CONFIG.turret.maxCount - GAME_CONFIG.turret.minCount + 1)) + GAME_CONFIG.turret.minCount;
+        console.log(`Attempting to create ${numTurrets} turrets`);
         
         for (let i = 0; i < numTurrets; i++) {
             let validPosition = false;
@@ -207,11 +234,14 @@ class Game {
                 // Check if position is valid (away from player, platforms, and other turrets)
                 validPosition = !this.platforms.some(platform => this.checkCollision(turret, platform)) && 
                               !this.turrets.some(existing => this.checkCollision(turret, existing)) && 
-                              Math.hypot(turret.x - this.player.x, turret.y - this.player.y) > this.safeRadius;
+                              Math.hypot(turret.x - this.player.x, turret.y - this.player.y) > safeRadius;
             }
             
             if (validPosition) {
+                console.log(`Created turret at (${turret.x.toFixed(0)}, ${turret.y.toFixed(0)})`);
                 this.turrets.push(turret);
+            } else {
+                console.warn(`Failed to create turret ${i+1} after ${maxAttempts} attempts`);
             }
         }
     }
@@ -406,6 +436,7 @@ class Game {
         }
 
         // Draw answer areas
+        console.log("Drawing answers:", this.answers.length);
         this.answers.forEach(answer => {
             this.ctx.fillStyle = GAME_CONFIG.colors.answerArea; // All answers same color
             this.ctx.fillRect(
@@ -452,12 +483,14 @@ class Game {
         });
 
         // Draw turrets
+        console.log("Drawing turrets:", this.turrets.length);
         this.ctx.fillStyle = GAME_CONFIG.turret.color;
         this.turrets.forEach(turret => {
             this.ctx.fillRect(turret.x, turret.y, turret.width, turret.height);
         });
 
         // Draw projectiles
+        console.log("Drawing projectiles:", this.projectiles.length);
         this.ctx.fillStyle = GAME_CONFIG.projectile.color;
         this.projectiles.forEach(proj => {
             this.ctx.fillRect(proj.x, proj.y, proj.width, proj.height);

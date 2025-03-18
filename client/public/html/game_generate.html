@@ -344,12 +344,7 @@
         <div class="dropdown">
           <button class="dropbtn" id="dropBtn">Select Classes</button>
           <div class="dropdown-content" id="dropdownContent">
-            <input
-              type="text"
-              placeholder="Search..."
-              id="searchInput"
-              class="dropdown-search"
-            />
+            <input type="text" placeholder="Search..." id="searchInput" class="dropdown-search"/>
             <div id="filteredList"></div>
           </div>
         </div>
@@ -438,77 +433,98 @@
     /************************
      * 2) Class Selection
      ************************/
-    let classes = ["English 1", "English Literature", "Math 101", "Science"];
-    let dropdownOpen = false;
-    let searchTerm = "";
-    let selectedClasses = [];
+     let classes = [];
+  let dropdownOpen = false;
+  let searchTerm = "";
+  let selectedClasses = [];
 
-    const dropBtn = document.getElementById("dropBtn");
-    const dropdownContent = document.getElementById("dropdownContent");
-    const searchInput = document.getElementById("searchInput");
-    const filteredListDiv = document.getElementById("filteredList");
-    const selectedClassesDiv = document.getElementById("selectedClasses");
+  const dropBtn = document.getElementById("dropBtn");
+  const dropdownContent = document.getElementById("dropdownContent");
+  const searchInput = document.getElementById("searchInput");
+  const filteredListDiv = document.getElementById("filteredList");
+  const selectedClassesDiv = document.getElementById("selectedClasses");
 
-    dropBtn.addEventListener("click", () => {
-      dropdownOpen = !dropdownOpen;
-      dropdownContent.style.display = dropdownOpen ? "block" : "none";
-      updateFilteredClasses();
-    });
+  dropBtn.addEventListener("click", () => {
+    dropdownOpen = !dropdownOpen;
+    dropdownContent.style.display = dropdownOpen ? "block" : "none";
+    updateFilteredClasses();
+  });
 
-    searchInput.addEventListener("input", (e) => {
-      searchTerm = e.target.value;
-      updateFilteredClasses();
-    });
+  searchInput.addEventListener("input", (e) => {
+    searchTerm = e.target.value;
+    updateFilteredClasses();
+  });
 
-    function updateFilteredClasses() {
-      filteredListDiv.innerHTML = "";
-      const lowerSearch = searchTerm.toLowerCase();
-      const filtered = classes.filter((cls) => cls.toLowerCase().includes(lowerSearch));
+  function updateFilteredClasses() {
+    filteredListDiv.innerHTML = "";
+    const lowerSearch = searchTerm.toLowerCase();
+    const filtered = classes.filter((cls) => cls.toLowerCase().includes(lowerSearch));
 
-      if (filtered.length > 0) {
-        filtered.forEach((cls) => {
-          const div = document.createElement("div");
-          div.className = "dropdown-item";
-          div.textContent = cls;
-          div.onclick = () => handleClassSelection(cls);
-          filteredListDiv.appendChild(div);
-        });
-      } else {
-        const p = document.createElement("p");
-        p.textContent = "No classes found";
-        filteredListDiv.appendChild(p);
-      }
-    }
-
-    function handleClassSelection(cls) {
-      if (!selectedClasses.includes(cls)) {
-        selectedClasses.push(cls);
-        renderSelectedClasses();
-      }
-    }
-
-    function renderSelectedClasses() {
-      selectedClassesDiv.innerHTML = "";
-      selectedClasses.forEach((cls) => {
-        const container = document.createElement("div");
-        container.className = "selected-class-box";
-
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-class-btn";
-        removeBtn.textContent = "✖";
-        removeBtn.onclick = () => handleRemoveClass(cls);
-
-        container.appendChild(removeBtn);
-        container.appendChild(document.createTextNode(cls));
-        selectedClassesDiv.appendChild(container);
+    if (filtered.length > 0) {
+      filtered.forEach((cls) => {
+        const div = document.createElement("div");
+        div.className = "dropdown-item";
+        div.textContent = cls;
+        div.onclick = () => handleClassSelection(cls);
+        filteredListDiv.appendChild(div);
       });
+    } else {
+      const p = document.createElement("p");
+      p.textContent = "No classes found";
+      filteredListDiv.appendChild(p);
     }
+  }
 
-    function handleRemoveClass(cls) {
-      selectedClasses = selectedClasses.filter((c) => c !== cls);
+  function handleClassSelection(cls) {
+    if (!selectedClasses.includes(cls)) {
+      selectedClasses.push(cls);
       renderSelectedClasses();
     }
+  }
 
+  function renderSelectedClasses() {
+    selectedClassesDiv.innerHTML = "";
+    selectedClasses.forEach((cls) => {
+      const container = document.createElement("div");
+      container.className = "selected-class-box";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "remove-class-btn";
+      removeBtn.textContent = "✖";
+      removeBtn.onclick = () => handleRemoveClass(cls);
+
+      container.appendChild(removeBtn);
+      container.appendChild(document.createTextNode(cls));
+      selectedClassesDiv.appendChild(container);
+    });
+  }
+
+  function handleRemoveClass(cls) {
+    selectedClasses = selectedClasses.filter((c) => c !== cls);
+    renderSelectedClasses();
+  }
+
+  /****************************
+   *  Fetch Courses from API
+   ****************************/
+  async function fetchCoursesFromAPI() {
+    try {
+      const response = await fetch("http://localhost:4000/api/courses", { credentials: 'include' });
+      if (!response.ok) {
+        throw new Error("Failed to fetch courses");
+      }
+      const coursesData = await response.json();
+      // Update the classes array with course names from the API
+      classes = coursesData.map(course => course.name);
+      updateFilteredClasses();
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+      alert("Error fetching courses: " + error.message);
+    }
+  }
+
+  // Call the fetch function on page load
+  fetchCoursesFromAPI();
     /************************
      * 3) Start the Game
      ************************/
@@ -584,10 +600,12 @@
             await loadScript("flappy.js");
             const game = new Game();
             game.startGame(data.questions);
-          } else {
+          } else if (chosenGame === "turrets") {
             await loadScript("turrets.js");
-            const game = new Game();
+            // Use the global game instance created by initGame()
             game.startGame(data.questions);
+          } else {
+            console.error("Invalid game type selected");
           }
 
         } catch (error) {

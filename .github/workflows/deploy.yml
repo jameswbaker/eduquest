@@ -1,0 +1,28 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/eduquest
+            git pull origin main
+            cd /home/ubuntu/eduquest/backend
+            npm install
+            pm2 restart canvas_server.js
+            pm2 restart db_server.js
+            cd /home/ubuntu/eduquest/client
+            npm install --force
+            npm run build
+            npm install -g serve || true
+            pm2 restart frontend

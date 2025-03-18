@@ -13,11 +13,11 @@ const potentialRoots = ["cbsd.instructure.com", "canvas.instructure.com"];
 const root = potentialRoots[1];
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5001'],  // Frontend URL
-  methods: ['GET', 'POST', 'OPTIONS'],        // Allow specific methods
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
-})); // Enable CORS for all routes
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 

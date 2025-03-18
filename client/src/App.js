@@ -57,6 +57,8 @@ export const theme = createTheme({
   },
 });
 
+
+
 function AppContent() {
   const location = useLocation();
   const hiddenPaths = ["/login", "/signUp", "/"];

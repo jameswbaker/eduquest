@@ -509,7 +509,7 @@
    ****************************/
   async function fetchCoursesFromAPI() {
     try {
-      const response = await fetch("http://localhost:4000/api/courses", { credentials: 'include' });
+      const response = await fetch("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses", { credentials: 'include' });
       if (!response.ok) {
         throw new Error("Failed to fetch courses");
       }
@@ -571,8 +571,11 @@
         const content = event.target.result;
 
         try {
+          // Use the config
+          const apiBaseUrl = window.APP_CONFIG.apiBaseUrl;
+
           // Send content to your backend
-          const response = await fetch("http://127.0.0.1:5000/generate-questions", {
+          const response = await fetch(`${apiBaseUrl}/generate-questions`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

@@ -48,7 +48,7 @@ const IntroPage = () => {
   const fetchGoals = async (user) => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/get-goals?account_id=${user}`,
+        `http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/get-goals?account_id=${user}`,
         { withCredentials: true }
       );
       console.log("Fetched goals:", response.data);
@@ -79,7 +79,7 @@ const IntroPage = () => {
   // Fetch upcoming assignments (to-dos) and sort them by due date
   const fetchTodos = async (user) => {
     try {
-      const response = await axios.get("http://localhost:4000/api/user/to-do", {
+      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/user/to-do", {
         withCredentials: true,
       });
       const formattedTodos = response.data.map((todo, index) => {

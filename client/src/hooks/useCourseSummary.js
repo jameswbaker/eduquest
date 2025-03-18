@@ -24,7 +24,7 @@ export function useCourseSummary(courseId) {
     const fetchCourseDetails = async () => {
         console.log('fetch course');
         try {
-            const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/course-details`, { withCredentials: true });
+            const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses/${courseId}/course-details`, { withCredentials: true });
             console.log('fetching course details: ', response);
             setCourseName(response.data.course_name);
             setCourseCode(response.data.course_code);
@@ -38,7 +38,7 @@ export function useCourseSummary(courseId) {
     const fetchStudents = async () => {
         console.log('fetch students');
         try {
-            const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/students`, { withCredentials: true });
+            const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses/${courseId}/students`, { withCredentials: true });
             console.log('fetching student details: ', response);
             setStudents(response.data);
         } catch (err) {

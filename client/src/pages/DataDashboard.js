@@ -133,7 +133,7 @@ useEffect(() => {
   const fetchCourseDetails = async () => {
     setError('');
     try {
-        const response = await axios.get(`http://localhost:4000/api/courses/${courseId}/course-details`, {
+        const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses/${courseId}/course-details`, {
             withCredentials: true,
         });
         setCourseName(response.data.course_name);
@@ -164,7 +164,7 @@ useEffect(() => {
 
   async function aggregateCourseDetails(courseId) {
     try {
-      const response = await axios.get(`http://localhost:4000/api/course-details-agg/${courseId}`, {
+      const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/course-details-agg/${courseId}`, {
         withCredentials: true,
       });
   

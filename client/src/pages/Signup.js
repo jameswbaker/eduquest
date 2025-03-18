@@ -25,7 +25,7 @@ function SignUp() {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/signup', {
+      const response = await fetch('http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ function SignUp() {
         
         const { userId } = data;
 
-        const responseEnrollment = await fetch('http://localhost:4000/api/get-role', {
+        const responseEnrollment = await fetch('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/get-role', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

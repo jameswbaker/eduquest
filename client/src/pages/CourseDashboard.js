@@ -43,7 +43,7 @@ export default function CourseDashboard() {
     setError('');
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/courses/${courseId}/course-details`,
+        `http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses/${courseId}/course-details`,
         { withCredentials: true }
       );
       setCourseName(response.data.course_name);
@@ -95,7 +95,7 @@ export default function CourseDashboard() {
   async function aggregateCourseDetailsData() {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/course-details-agg/${courseId}`,
+        `http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/course-details-agg/${courseId}`,
         { withCredentials: true }
       );
       const course = response.data;

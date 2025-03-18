@@ -40,7 +40,7 @@ const DashboardT = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get("http://localhost:4000/api/courses", {
+      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses", {
         withCredentials: true,
       });
       setCourses(response.data);

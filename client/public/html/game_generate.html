@@ -600,10 +600,12 @@
             await loadScript("flappy.js");
             const game = new Game();
             game.startGame(data.questions);
-          } else {
+          } else if (chosenGame === "turrets") {
             await loadScript("turrets.js");
-            const game = new Game();
+            // Use the global game instance created by initGame()
             game.startGame(data.questions);
+          } else {
+            console.error("Invalid game type selected");
           }
 
         } catch (error) {

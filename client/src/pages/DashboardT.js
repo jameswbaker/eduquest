@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import axios from 'axios';
 import "./DashboardT.css";
+import { domain } from "../const.js";
 
 const DashboardT = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const DashboardT = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses", {
+      const response = await axios.get(`${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       setCourses(response.data);

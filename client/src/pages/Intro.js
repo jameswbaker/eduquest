@@ -6,6 +6,7 @@ import axios from "axios";
 import "./Intro.css";
 import SearchBar from "../components/SearchBar";
 import CardComponent from "../components/Card";
+import { domain } from "../const.js";
 
 const IntroPage = () => {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ const IntroPage = () => {
   const fetchGoals = async (user) => {
     try {
       const response = await axios.get(
-        `http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/get-goals?account_id=${user}`,
+        `${domain}:5001/get-goals?account_id=${user}`,
         { withCredentials: true }
       );
       console.log("Fetched goals:", response.data);
@@ -79,7 +80,7 @@ const IntroPage = () => {
   // Fetch upcoming assignments (to-dos) and sort them by due date
   const fetchTodos = async (user) => {
     try {
-      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/user/to-do", {
+      const response = await axios.get(`${domain}:4000/api/user/to-do`, {
         withCredentials: true,
       });
       const formattedTodos = response.data.map((todo, index) => {

@@ -3,6 +3,7 @@ import { ReactSession } from "react-client-session";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Dashboard.css";
+import { domain } from "../const.js";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const Dashboard = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses", {
+      const response = await axios.get(`${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       setCourses(response.data);
@@ -73,7 +74,7 @@ const Dashboard = () => {
   const fetchTodos = async () => {
     setError("");
     try {
-      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/user/to-do", {
+      const response = await axios.get(`${domain}:4000/api/user/to-do`, {
         withCredentials: true,
       });
       const formattedTodos = response.data.map((todo, index) => {
@@ -108,7 +109,7 @@ const Dashboard = () => {
   // Fetch student info (full name) from Canvas API
   const fetchStudentCanvasInfo = async () => {
     try {
-      const response = await axios.get("http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/users/user-details", {
+      const response = await axios.get(`${domain}:4000/api/users/user-details`, {
         withCredentials: true,
       });
       setStudentName(response.data.name);

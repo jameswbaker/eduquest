@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import RadarChart from '../components/RadarChart';
 import { useCourseSummary } from '../hooks/useCourseSummary';
-
+import { domain } from "../const.js";
 import { 
   computeClassAverages,  
   aggregateAllRubricData,  
@@ -133,7 +133,7 @@ useEffect(() => {
   const fetchCourseDetails = async () => {
     setError('');
     try {
-        const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses/${courseId}/course-details`, {
+        const response = await axios.get(`${domain}:4000/api/courses/${courseId}/course-details`, {
             withCredentials: true,
         });
         setCourseName(response.data.course_name);
@@ -164,7 +164,7 @@ useEffect(() => {
 
   async function aggregateCourseDetails(courseId) {
     try {
-      const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/course-details-agg/${courseId}`, {
+      const response = await axios.get(`${domain}:4000/api/course-details-agg/${courseId}`, {
         withCredentials: true,
       });
   

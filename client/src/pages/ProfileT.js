@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactSession } from "react-client-session";
 import axios from "axios";
+import { domain } from "../const.js";
 import "./Profile.css";
 
 const Profile = () => {
@@ -48,7 +49,7 @@ const Profile = () => {
   // Fetch teacher account info
   const fetchTeacherAccountInfo = async () => {
     try {
-      const response = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/protected-route', {
+      const response = await axios.get(`${domain}:4000/protected-route`, {
         withCredentials: true,
       });
       setUsername(response.data.username);
@@ -61,7 +62,7 @@ const Profile = () => {
   // Fetch teacher canvas info
   const fetchTeacherCanvasInfo = async () => {
     try {
-      const response = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/users/user-details', {
+      const response = await axios.get(`${domain}:4000/api/users/user-details`, {
         withCredentials: true,
       });
       setFullName(response.data.name);
@@ -74,7 +75,7 @@ const Profile = () => {
   const fetchCourses = async () => {
     let courseIds = [];
     try {
-      const response = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses', {
+      const response = await axios.get(`${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       const coursesData = response.data;
@@ -89,7 +90,7 @@ const Profile = () => {
 
   const fetchTeacherSummaryByCourse = async (courseId) => {
     try {
-      const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/teacher-profile-agg/${courseId}`, {
+      const response = await axios.get(`${domain}:4000/api/teacher-profile-agg/${courseId}`, {
         withCredentials: true,
       });
       const studentIds = response.data.enrollmentsConnection.nodes

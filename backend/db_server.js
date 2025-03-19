@@ -1,3 +1,4 @@
+const { domain } = require('./const');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
@@ -6,8 +7,9 @@ const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
+
 app.use(cors({
-    origin: ['http://ec2-54-159-150-90.compute-1.amazonaws.com:3000', 'http://ec2-54-159-150-90.compute-1.amazonaws.com:4000'],  // Frontend URL
+    origin: [`${domain}:3000`, `${domain}:4000`],  // Frontend URL
     methods: ['GET', 'POST'],        // Allow specific methods
     credentials: true, // Enable cookies
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
@@ -46,7 +48,7 @@ app.post('/signup', async (req, res) => {
     }
 
     try {
-      const userResponse = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/users/user-details', {
+      const userResponse = await axios.get(`${domain}:4000/api/users/user-details`, {
           params: {
               token: canvasToken,
           },
@@ -100,7 +102,7 @@ app.post('/login', async (req, res) => {
     const user = results[0];
     if (password == user.password) {
       try {
-        const userResponse = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/users/user-details', {
+        const userResponse = await axios.get(`${domain}:4000/api/users/user-details`, {
             params: { token: user.canvas_token, },
         });
         const userId = userResponse.data.id;

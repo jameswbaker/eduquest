@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ReactSession } from "react-client-session";
 import axios from "axios";
 import confetti from "canvas-confetti";
+import { domain } from "../const.js";
 import "./Profile.css";
 
 const Profile = () => {
@@ -54,7 +55,7 @@ const Profile = () => {
   // Fetch student account info
   const fetchStudentAccountInfo = async () => {
     try {
-      const response = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/protected-route', {
+      const response = await axios.get(`${domain}:4000/protected-route`, {
         withCredentials: true,
       });
       setUsername(response.data.username);
@@ -67,7 +68,7 @@ const Profile = () => {
   // Fetch student canvas info
   const fetchStudentCanvasInfo = async () => {
     try {
-      const response = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/users/user-details', {
+      const response = await axios.get(`${domain}:4000/api/users/user-details`, {
         withCredentials: true,
       });
       setFullName(response.data.name);
@@ -79,7 +80,7 @@ const Profile = () => {
   // Fetch courses info
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/courses', {
+      const response = await axios.get(`${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       setCourses(response.data);
@@ -115,7 +116,7 @@ const Profile = () => {
 
   const fetchGoals = async (user) => {
     try {
-      const response = await axios.get(`http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/get-goals?account_id=${user}`, {
+      const response = await axios.get(`${domain}:5001/get-goals?account_id=${user}`, {
         withCredentials: true,
       });
       console.log("Fetched goals:", response.data); // Check structure in console
@@ -176,7 +177,7 @@ const Profile = () => {
         deadline: formData.deadline || null,
         account_id: accountId,
       };
-      const response = await axios.post('http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/add-goal', goalData, {
+      const response = await axios.post(`${domain}:5001/add-goal`, goalData, {
         withCredentials: true,
       });
   
@@ -195,7 +196,7 @@ const Profile = () => {
   const handleGoalAchieved = async (goalId) => {
     try {
       // Update goal in the database to mark it as completed
-      await axios.post('http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/update-goal', { goalId, completed: true }, { withCredentials: true });
+      await axios.post(`${domain}:5001/update-goal`, { goalId, completed: true }, { withCredentials: true });
       // Trigger confetti animation
       confetti({
         particleCount: 100,

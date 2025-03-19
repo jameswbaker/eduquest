@@ -505,7 +505,22 @@
 
         try {
           // Example: send content + additional data to your backend
-          const response = await fetch("http://ec2-54-159-150-90.compute-1.amazonaws.com:5000/generate-questions", {
+          // const response = await fetch(`http://ec2-54-159-150-90.compute-1.amazonaws.com:5000/generate-questions`, {
+          //   method: "POST",
+          //   headers: {
+          //     "Content-Type": "application/json",
+          //   },
+          //   body: JSON.stringify({
+          //     content,
+          //     num_questions: 25,
+          //     num_answers: 2,
+          //     game_name: gameNameInput.value,
+          //     deadline: deadlineInput.value,
+          //     classes: selectedClasses
+          //   }),
+          // });
+
+          const response = await fetch(`http://localhost:5000/generate-questions`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

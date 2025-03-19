@@ -18,16 +18,13 @@ jobs:
             cd /home/ubuntu/eduquest
             git pull origin main
             sudo apt install nodejs npm
-            
-            # Run backend
             cd /home/ubuntu/eduquest/backend
             npm install
             npm install pm2
-            pm2 restart canvas_server.js
             pm2 restart db_server.js
-
-            # Run frontend
+            pm2 restart canvas_server.js
             cd /home/ubuntu/eduquest/client
             npm install --force
             npm run build
+            npm install pm2
             pm2 restart frontend

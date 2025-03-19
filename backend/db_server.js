@@ -209,6 +209,27 @@ app.post('/update-goal', (req, res) => {
   });
 });
 
+app.get('/api/games', async (req, res) => {
+  const { course_id } = req.query;
+  if (!course_id) {
+    return res.status(400).json({ message: 'course_id is required' });
+  }
+
+  try {
+    const query = `SELECT * FROM Games`;
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error fetching from Games:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      return res.status(200).json(results);
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+})
+
 app.post('/add-game', (req, res) => {
   const { name, type, course_id } = req.body;
   if (!name || !type || !course_id) {

@@ -7,11 +7,11 @@ import axios from 'axios';
 import "./GameDashT.css";
 import { domain } from "../const.js";
 
-const GameDashT = () => {
+const GameDashS = () => {
   const navigate = useNavigate();
   
   // Store courses & errors from backend
-  const [games, setGames] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -23,34 +23,23 @@ const GameDashT = () => {
     }
   }, [navigate]);
 
-
-
   useEffect(() => {
-  const enrollmentType = ReactSession.get("enrollmentType");
-  console.log(enrollmentType);
-    if (enrollmentType === "StudentEnrollment") {
-      alert("Not authorized to access teacher page");
-      navigate('/dashboard/:studentId');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    fetchGames();
+    fetchCourses();
   }, []);
 
-  const fetchGames = async () => {
+  const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.post(`${domain}:5001/api/games`, {
+      const response = await axios.get(`${domain}:4000/api/courses`, {
         withCredentials: true,
       });
-      setGames(response.data);
+      setCourses(response.data);
     } catch (error) {
       console.error(
-        "Error fetching games:",
+        "Error fetching courses:",
         error.response ? error.response.data : error.message
       );
-      setError("Error fetching games. Please check your token and permissions.");
+      setError("Error fetching courses. Please check your token and permissions.");
     }
   };
 
@@ -68,41 +57,31 @@ const GameDashT = () => {
     <div className="t-game-dashboard-container">
       {/* Header */}
       <header className="t-dashboard-header">
-        <h1>Teacher's Game Dashboard</h1>
-        {/* <div className="t-header-icons">
-          <button className="t-icon-button" onClick={handleStudentView}>
-            Student View
-          </button>
-        </div> */}
+        <h1>Student's Game Dashboard</h1>
       </header>
-
-
-      <a href={"/createGame"}> 
-        <button> Create New Game </button>
-      </a>
 
       {/* Show error (if any) */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Main Content */}
       <div className="t-dashboard-main">
-        {/* Games Section */}
+        {/* Courses Section */}
         <div className="t-courses-section">
           <h2>Games</h2>
           <div className="t-courses-list">
             {/* Dynamically render courses */}
-            {games.map((game, index) => {
+            {/* {courses.map((course, index) => {
               const color = colorOrder[index % colorOrder.length];
               return (
                 <CourseCard
-                  key={game.id}
-                  courseName={game.name}
-                  instructor={game.type}
+                  key={course.id}
+                  courseName={course.name}
+                  instructor="Unknown Instructor" // or course.instructor if available
                   color={color}
-                  courseId={game.course_id}
+                  courseId={course.id}
                 />
               );
-            })}
+            })} */}
           </div>
         </div>
       </div>
@@ -128,4 +107,4 @@ const CourseCard = ({ courseName, instructor, color, courseId }) => {
   );
 };
 
-export default GameDashT;
+export default GameDashS;

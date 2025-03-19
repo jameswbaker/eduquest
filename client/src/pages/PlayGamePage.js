@@ -30,6 +30,7 @@ const PlayGamePage = () => {
         <a href="/teacherGameBoard">
           <button>Back</button>
         </a>
+        {/* TODO: direct to either teacher dashboard or student dashboard depending on role */}
         
         <iframe
           src={`/html/game_play.html?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`}

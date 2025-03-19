@@ -51,11 +51,43 @@ const FLAPPY_CONFIG = {
   }
 };
 
+let gameId = null;
+let studentId = null;
+let isUserTeacher = false;
+let userName = null;
+
+function extractURLParams() {
+  try {
+    // Get the current script's URL
+    const scripts = document.getElementsByTagName('script');
+    const currentScript = scripts[scripts.length - 1]; // Most recently added script
+    
+    if (currentScript && currentScript.src && currentScript.src.includes('?')) {
+      const urlParams = new URLSearchParams(currentScript.src.split('?')[1]);
+      gameId = urlParams.get('gameId');
+      studentId = urlParams.get('studentId');
+      isUserTeacher = urlParams.get('isUserTeacher') === 'true';
+      userName = urlParams.get('userName');
+    } else {
+      console.warn('No URL parameters found in script tag');
+    }
+  } catch (e) {
+    console.error('Error extracting URL parameters:', e);
+  }
+}
+
+extractURLParams();
+
 class Game {
   constructor() {
     this.canvas = document.getElementById('gameCanvas');
     this.ctx = this.canvas.getContext('2d');
     this.questionDiv = document.getElementById('question');
+
+    this.gameId = gameId;
+    this.studentId = studentId;
+    this.isUserTeacher = isUserTeacher;
+    this.userName = userName;
 
     // Bird properties
     this.bird = {
@@ -169,6 +201,39 @@ class Game {
     requestAnimationFrame(this.gameLoop.bind(this));
   }
 
+  async saveGameResult() {
+    if (!this.gameId || !this.studentId) {
+      console.error('Cannot save game result: missing gameId or studentId');
+      return;
+    }
+
+    if (isUserTeacher) {
+      console.log("Player is a teacher. Don't save results");
+      return;
+    }
+
+    try {
+      console.log("Score:", this.score);
+      const response = await fetch(`http://localhost:5001/add-game-result`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          game_id: this.gameId,
+          student_id: this.studentId,
+          score: this.score,
+          user_name: this.userName,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to save game result: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log("Game result saved:", data);
+    } catch (error) {
+      console.error("Error saving game result:", error);
+    }
+  };
+
   preGeneratePipes() {
     for (let i = 0; i < FLAPPY_CONFIG.pipes.preGenerateCount; i++) {
       this.generatePipe(this.canvas.width + (i * this.pipeSpacing));
@@ -270,6 +335,7 @@ class Game {
 
     if (this.currentQuestionIndex >= this.questions.length && this.pipes.length === 0) {
       this.gameOver = true;
+      this.saveGameResult();
     }
   }
 
@@ -287,6 +353,7 @@ class Game {
 
       if (!inTopGap && !inBottomGap) {
         this.gameOver = true;
+        this.saveGameResult();
         return true;
       }
 
@@ -295,6 +362,7 @@ class Game {
         this.feedback.timer = this.feedback.duration;
         this.feedback.message = "Wrong Answer!";
         this.gameOver = true;
+        this.saveGameResult(); 
         return true;
       }
     }

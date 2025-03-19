@@ -32,7 +32,6 @@ const openai = new OpenAI();
 
 // Helper function to extract token from cookies
 function getTokenFromCookie(req) {
-  console.log(req.cookies);
   const token = req.cookies.auth_token;
   const decoded = jwt.verify(token, JWT_SECRET);
 

@@ -229,7 +229,64 @@ app.get('/get-games', async (req, res) => {
     console.error('Error fetching goals from database: ', error.response?.data || error.message);
     return res.status(500).json({ message: 'Failed to fetch goals from database' });
   }
-})
+});
+
+app.post('/add-game-result', (req, res) => {
+  const { game_id, student_id, score, user_name } = req.body;
+  if (!game_id || !student_id || score == null) {
+    return res.status(400).json({ message: "game_id, student_id, and score are all required" });
+  }
+
+  const numericGameId = Number(game_id);
+  const numericStudentId = Number(student_id);
+  const numericScore = Number(score);
+
+  console.log("game_id:", numericGameId, "student_id:", numericStudentId, 
+              "score:", numericScore, "user_name:", user_name);
+  
+  // First check if student exists
+  const checkStudentQuery = `SELECT student_id FROM Students WHERE student_id = ?`;
+  db.query(checkStudentQuery, [numericStudentId], (checkErr, students) => {
+    if (checkErr) {
+      console.error("Error checking student:", checkErr);
+      return res.status(500).json({ message: "Database error while checking student" });
+    }
+    
+    // If student doesn't exist, insert them first
+    if (students.length === 0) {      
+      const studentName = req.body.user_name || `Student ${numericStudentId}`;
+      
+      const insertStudentQuery = `INSERT INTO Students (student_id, name) VALUES (?, ?)`;
+      
+      db.query(insertStudentQuery, [numericStudentId, studentName], (insertErr) => {
+        if (insertErr) {
+          console.error("Error inserting student:", insertErr);
+          return res.status(500).json({ message: "Database error while inserting student" });
+        }
+        
+        // Now save the game result
+        saveGameResult();
+      });
+    } else {
+      // Student exists, just save the game result
+      saveGameResult();
+    }
+  });
+  
+  function saveGameResult() {
+    const query = `INSERT INTO GameResults (game_id, student_id, score) VALUES (?, ?, ?)`;
+    db.query(query, [numericGameId, numericStudentId, numericScore], (err, result) => {
+      if (err) {
+        console.error("Error updating game results:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+      return res.status(200).json({ 
+        message: "Game results updated successfully",
+        result_id: result.insertId,
+      });
+    });
+  }
+});
 
 app.post('/add-game', (req, res) => {
   const { name, type, course_id } = req.body;

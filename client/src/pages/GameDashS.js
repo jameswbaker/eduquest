@@ -11,8 +11,10 @@ const GameDashS = () => {
   const navigate = useNavigate();
   
   // Store courses & errors from backend
-  const [courses, setCourses] = useState([]);
+  const [games, setGames] = useState([]);
   const [error, setError] = useState("");
+
+
 
   useEffect(() => {
     const user = ReactSession.get('user');
@@ -24,22 +26,22 @@ const GameDashS = () => {
   }, [navigate]);
 
   useEffect(() => {
-    fetchCourses();
+    fetchGames();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchGames = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:4000/api/courses`, {
+      const response = await axios.get(`${domain}:5001/api/games`, {
         withCredentials: true,
       });
-      setCourses(response.data);
+      setGames(response.data);
     } catch (error) {
       console.error(
-        "Error fetching courses:",
+        "Error fetching games:",
         error.response ? error.response.data : error.message
       );
-      setError("Error fetching courses. Please check your token and permissions.");
+      setError("Error fetching games. Please check your token and permissions.");
     }
   };
 
@@ -70,18 +72,21 @@ const GameDashS = () => {
           <h2>Games</h2>
           <div className="t-courses-list">
             {/* Dynamically render courses */}
-            {/* {courses.map((course, index) => {
+            {games.slice() // creates a copy so the original array isn't mutated
+            .sort((a, b) => b.game_id - a.game_id)
+            .map((game, index) => {
               const color = colorOrder[index % colorOrder.length];
               return (
-                <CourseCard
-                  key={course.id}
-                  courseName={course.name}
-                  instructor="Unknown Instructor" // or course.instructor if available
+                <GameCard
+                  key={game.game_id}
+                  gameId={game.game_id}
+                  gameName={game.name}
+                  type={game.type}
                   color={color}
-                  courseId={course.id}
+                  courseId={game.course_id}
                 />
               );
-            })} */}
+            })}
           </div>
         </div>
       </div>
@@ -89,19 +94,43 @@ const GameDashS = () => {
   );
 };
 
-const CourseCard = ({ courseName, instructor, color, courseId }) => {
+async function getCourseFromCourseId(courseId) {
+  try {
+    const response = await fetch(`${domain}:4000/api/courses/${courseId}/name`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch course name");
+    }
+    const data = await response.json();
+    return data.course_name;
+  } catch (error) {
+    console.error("Error fetching course name:", error);
+    return "Unknown Course";
+  }
+}
+
+const GameCard = ({ gameId, gameName, type, color, courseId }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/dataDashboard/${courseId}`);
+    navigate(`/playGame?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`);
   };
+
+  const [course, setCourse] = useState("");
+
+  useEffect(() => {
+    getCourseFromCourseId(courseId).then(setCourse);
+  }, [courseId]);
 
   return (
     <div className="t-course-card" onClick={handleClick}>
       <div className={`t-color-section ${color}`}></div>
       <div className={`t-text-section ${color}`}>
-        <h3>{courseName}</h3>
-        <p>{instructor}</p>
+        <h3>{gameName}</h3>
+        <p>{type}</p>
+        <p className="course-name">Course Name: {course}</p>
       </div>
     </div>
   );

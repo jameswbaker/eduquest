@@ -34,7 +34,7 @@ jobs:
             
             # Deploy frontend
             cd /home/ubuntu/eduquest/client
-            npm install
+            npm install --force
             npm run build
             
             # Start or restart the frontend

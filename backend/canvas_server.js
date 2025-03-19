@@ -20,6 +20,7 @@ app.use(cors({
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
 })); // Enable CORS for all routes
+// comment
 
 app.use(cookieParser());
 app.use(express.json());

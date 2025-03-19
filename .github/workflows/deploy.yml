@@ -15,14 +15,30 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Update repository
             cd /home/ubuntu/eduquest
             git pull origin main
+            
+            # Install system dependencies if needed
+            sudo apt update
+            sudo apt install -y nodejs npm
+            
+            # Install PM2 globally ONCE
+            sudo npm install -g pm2
+            
+            # Deploy backend
             cd /home/ubuntu/eduquest/backend
             npm install
-            pm2 restart canvas_server.js
-            pm2 restart db_server.js
+            pm2 restart db_server.js || pm2 start db_server.js
+            pm2 restart canvas_server.js || pm2 start canvas_server.js
+            
+            # Deploy frontend
             cd /home/ubuntu/eduquest/client
             npm install --force
             npm run build
-            npm install -g serve || true
-            pm2 restart frontend
+            
+            # Start or restart the frontend
+            pm2 restart frontend || pm2 start "npx serve -s build -l 3000" --name frontend
+            
+            # Save PM2 configuration so it persists after reboot
+            pm2 save 

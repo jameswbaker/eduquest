@@ -227,3 +227,49 @@ app.post('/add-game', (req, res) => {
   });
 });
 
+app.post('/add-questions-answers', (req, res) => {
+  const { game_id, questions: questionData } = req.body;
+
+  if (!game_id || !questionData || !Array.isArray(questionData.questions) || questionData.questions.length === 0) {
+    return res.status(400).json({ error: "Missing or invalid game_id/questions" });
+  }
+
+  db.beginTransaction(async (err) => {
+    if (err) {
+      console.error("Transaction error:", err);
+      return res.status(500).json({ error: "Database transaction error" });
+    }
+
+    try {
+      for (const q of questionData.questions) {
+        // Insert question
+        const [questionResult] = await db.promise().execute(
+          `INSERT INTO Questions (text, game_id) VALUES (?, ?)`,
+          [q.question, game_id]
+        );
+
+        const questionId = questionResult.insertId; // Get the inserted question ID
+
+        // Insert answers for the question
+        for (const ans of q.answers) {
+          await db.promise().execute(
+            `INSERT INTO Answers (text, is_correct, question_id) VALUES (?, ?, ?)`,
+            [ans.text, ans.isCorrect ? 1 : 0, questionId] // Convert true/false to 1/0
+          );
+        }
+      }
+
+      db.commit((commitErr) => {
+        if (commitErr) {
+          console.error("Commit error:", commitErr);
+          return res.status(500).json({ error: "Failed to commit transaction" });
+        }
+        res.json({ message: "Questions and answers stored successfully!" });
+      });
+
+    } catch (error) {
+      db.rollback(() => console.error("Transaction rolled back due to error:", error));
+      res.status(500).json({ error: "Error inserting questions and answers" });
+    }
+  });
+});

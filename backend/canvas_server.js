@@ -383,7 +383,19 @@ app.post('/generate-questions', async (req, res) => {
       }
     }
 
+    const dbApiBaseUrl = "http://localhost:5001";
+    const storeResponse = await fetch(`${dbApiBaseUrl}/add-questions-answers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ game_id, questions })
+    });
+
+    const storeData = await storeResponse.json();
+    if (!storeResponse.ok) {
+      throw new Error(storeData.error || "Failed to store questions in database");
+    }
     console.log("Generated questions count:", questions.questions.length);
+    console.log("Questions and answers successfully stored!");
     res.json(questions);
   } catch (error) {
     console.error("Error generating questions:", error);

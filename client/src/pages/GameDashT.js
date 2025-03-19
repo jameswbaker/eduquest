@@ -41,7 +41,7 @@ const GameDashT = () => {
   const fetchGames = async () => {
     setError("");
     try {
-      const response = await axios.post(`${domain}:5001/api/games`, {
+      const response = await axios.get(`${domain}:5001/api/games`, {
         withCredentials: true,
       });
       setGames(response.data);

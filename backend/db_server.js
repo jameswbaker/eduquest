@@ -210,10 +210,6 @@ app.post('/update-goal', (req, res) => {
 });
 
 app.get('/api/games', async (req, res) => {
-  const { course_id } = req.query;
-  if (!course_id) {
-    return res.status(400).json({ message: 'course_id is required' });
-  }
 
   try {
     const query = `SELECT * FROM Games`;

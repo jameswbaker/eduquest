@@ -298,8 +298,8 @@ app.get('/api/user/to-do', async (req, res) => {
 });
 
 app.post('/generate-questions', async (req, res) => {
-  const { content, num_answers = 4, num_questions = 25 } = req.body;
-  console.log("num_questions:", num_questions, "num_answers:", num_answers);
+  const { content, num_answers = 4, num_questions = 25, game_id } = req.body;
+  console.log("num_questions:", num_questions, "num_answers:", num_answers, "game_id:", game_id);
   try {
     const response = await openai.beta.chat.completions.parse({
       model: "gpt-4o-2024-08-06",

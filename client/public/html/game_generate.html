@@ -436,7 +436,7 @@
      let classes = [];
   let dropdownOpen = false;
   let searchTerm = "";
-  let selectedClasses = [];
+  let selectedCourseId = null;
 
   const dropBtn = document.getElementById("dropBtn");
   const dropdownContent = document.getElementById("dropdownContent");
@@ -458,14 +458,14 @@
   function updateFilteredClasses() {
     filteredListDiv.innerHTML = "";
     const lowerSearch = searchTerm.toLowerCase();
-    const filtered = classes.filter((cls) => cls.toLowerCase().includes(lowerSearch));
+    const filtered = classes.filter((cls) => cls.name.toLowerCase().includes(lowerSearch));
 
     if (filtered.length > 0) {
       filtered.forEach((cls) => {
         const div = document.createElement("div");
         div.className = "dropdown-item";
-        div.textContent = cls;
-        div.onclick = () => handleClassSelection(cls);
+        div.textContent = cls.name;
+        div.onclick = () => handleClassSelection(cls.id, cls.name);
         filteredListDiv.appendChild(div);
       });
     } else {
@@ -475,33 +475,24 @@
     }
   }
 
-  function handleClassSelection(cls) {
-    if (!selectedClasses.includes(cls)) {
-      selectedClasses.push(cls);
-      renderSelectedClasses();
-    }
+  function handleClassSelection(courseId, courseName) {
+    // Ensure only one course is selected
+    selectedCourseId = courseId; 
+    renderSelectedClasses(courseName);
+    dropdownOpen = false;
+    dropdownContent.style.display = "none";
   }
 
-  function renderSelectedClasses() {
-    selectedClassesDiv.innerHTML = "";
-    selectedClasses.forEach((cls) => {
+  function renderSelectedClasses(courseName) {
+    selectedClassesDiv.innerHTML = ""; // Clear previous selection
+
+    if (selectedCourseId) {
       const container = document.createElement("div");
       container.className = "selected-class-box";
+      container.textContent = courseName;
 
-      const removeBtn = document.createElement("button");
-      removeBtn.className = "remove-class-btn";
-      removeBtn.textContent = "✖";
-      removeBtn.onclick = () => handleRemoveClass(cls);
-
-      container.appendChild(removeBtn);
-      container.appendChild(document.createTextNode(cls));
       selectedClassesDiv.appendChild(container);
-    });
-  }
-
-  function handleRemoveClass(cls) {
-    selectedClasses = selectedClasses.filter((c) => c !== cls);
-    renderSelectedClasses();
+    }
   }
 
   /****************************
@@ -516,7 +507,10 @@
       }
       const coursesData = await response.json();
       // Update the classes array with course names from the API
-      classes = coursesData.map(course => course.name);
+      classes = coursesData.map(course => ({
+        id: course.id,
+        name: course.name
+      }));
       updateFilteredClasses();
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -562,6 +556,11 @@
         return;
       }
 
+      if (!selectedCourseId) {
+        alert("Please select a course");
+        return;
+      }
+
       // Show "Loading..." overlay
       loadingOverlay.style.display = "flex";
 
@@ -574,10 +573,28 @@
         try {
           // Use the config
           // const apiBaseUrl = window.APP_CONFIG.apiBaseUrl;
-          const apiBaseUrl = "http://localhost:4000";
+          const canvasApiBaseUrl = "http://localhost:4000";
+          const dbApiBaseUrl = "http://localhost:5001";
+
+          const gameDbResponse = await fetch(`${dbApiBaseUrl}/add-game`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: gameNameInput.value,
+              type: chosenGame,
+              course_id: selectedCourseId,
+            }),
+          });
+
+          if (!gameDbResponse.ok) {
+            throw new Error("Error saving game to database");
+          }
+
+          const gameData = await gameDbResponse.json();  // Get response data
+          console.log("Game saved:", gameData);
 
           // Send content to your backend
-          const response = await fetch(`${apiBaseUrl}/generate-questions`, {
+          const gameGenResponse = await fetch(`${canvasApiBaseUrl}/generate-questions`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -586,12 +603,10 @@
               num_answers: 2,
               game_name: gameNameInput.value,
               game_type: chosenGame,
-              deadline: deadlineInput.value,
-              classes: selectedClasses,
             }),
           });
 
-          const data = await response.json();
+          const data = await gameGenResponse.json();
           if (data.error) throw new Error(data.error);
 
           // Hide input container; show canvas & question

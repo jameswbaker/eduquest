@@ -209,3 +209,21 @@ app.post('/update-goal', (req, res) => {
   });
 });
 
+app.post('/add-game', (req, res) => {
+  const { name, type, course_id } = req.body;
+  if (!name || !type || !course_id) {
+    return res.status(400).json({ message: "name, type, and course_id are all required" });
+  }
+  const query = `INSERT INTO Games (name, type, course_id) VALUES (?, ?, ?)`;
+  db.query(query, [name, type, course_id], (err, result) => {
+    if (err) {
+      console.error("Error updating games:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+    return res.status(200).json({ 
+      message: "Games updated successfully",
+      game_id: result.insertId,
+    });
+  });
+});
+

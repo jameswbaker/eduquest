@@ -26,33 +26,77 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       margin-bottom: 20px;
     }
+    #question {
+      font-size: 24px;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
   <h1 class="game-title" id="gameTitle">Loading Game...</h1>
+  <div id="question"></div>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", async function() {
       const urlParams = new URLSearchParams(window.location.search);
-      const gameId = urlParams.get("courseId");
+      const gameId = urlParams.get("gameId");
       const gameType = urlParams.get("type");
       const courseId = urlParams.get("courseId");
       const gameName = urlParams.get("gameName");
 
       document.getElementById("gameTitle").textContent = (gameType && gameName) ? `${gameName} (${gameType})` : "";
       
-      const canvas = document.getElementById("gameCanvas");
-      const ctx = canvas.getContext("2d");
-      
-      if (gameType === "flappy") {
-        startFlappyGame(ctx, gameData);
-      } else if (gameType === "turrets") {
-        startTurretsGame(ctx, gameData);
-      } else {
-        ctx.font = "20px Arial";
-        ctx.fillText("Invalid Game Type", 300, 300);
+      if (!gameId) {
+        alert("Game ID not found!");
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:5001/api/get-questions-answers?game_id=${gameId}`);
+        const gameData = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch questions");
+        }
+
+        console.log("Questions:", gameData.questions);
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        if (gameType === "flappy") {
+          await loadScript("flappy.js");
+          const game = new Game();
+          game.startGame(gameData.questions);
+        } else if (gameType === "turrets") {
+          await loadScript("turrets.js");
+          const game = new Game();
+          game.startGame(gameData.questions);
+        } else {
+          ctx.font = "20px Arial";
+          ctx.fillText("Invalid Game Type", 300, 300);
+        }
+      } catch (error) {
+        console.error("Error loading game data:", error);
+        alert("Error loading game. Please try again.");
       }
     });
+
+    async function loadScript(url) {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+          return resolve(); // Already loaded
+        }
+        const script = document.createElement("script");
+        script.src = url;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${url}`));
+        document.body.appendChild(script);
+      });
+    }
     
     function startFlappyGame(ctx, data) {
       ctx.fillStyle = "blue";

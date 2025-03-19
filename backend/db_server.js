@@ -290,3 +290,43 @@ app.post('/add-questions-answers', (req, res) => {
     }
   });
 });
+
+app.get('/api/get-questions-answers', async (req, res) => {
+  const { game_id } = req.query;
+  if (!game_id) {
+    return res.status(400).json({ error: "Missing game_id" });
+  }
+  try {
+    const query = `
+      SELECT q.question_id, q.text as question_text, a.answer_id, a.text as answer_text, a.is_correct
+      FROM Questions q
+      JOIN Answers a ON q.question_id = a.question_id
+      WHERE q.game_id = ?
+    `;
+    db.query(query, [game_id], (err, results) => {
+      if (err) {
+        console.error("Error fetching questions:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+  
+      const formattedData = {};
+      results.forEach(row => {
+        if (!formattedData[row.question_id]) {
+          formattedData[row.question_id] = {
+            question: row.question_text,
+            answers: [],
+          };
+        }
+        formattedData[row.question_id].answers.push({
+          text: row.answer_text,
+          isCorrect: row.is_correct === 1
+        });
+      });
+  
+      res.json({ questions: Object.values(formattedData) });
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+})

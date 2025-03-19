@@ -396,7 +396,6 @@ app.post('/generate-questions', async (req, res) => {
     if (!storeResponse.ok) {
       throw new Error(storeData.error || "Failed to store questions in database");
     }
-    console.log("Generated questions count:", questions.questions.length);
     console.log("Questions and answers successfully stored!");
     res.json(questions);
   } catch (error) {
@@ -475,8 +474,6 @@ app.get('/api/courses/:courseId/name', async (req, res) => {
     return res.status(400).json({ message: "Missing courseId parameter" });
   }
 
-  console.log("Received courseId:", courseId);
-
   try {
     const apiToken = getTokenFromCookie(req);
 
@@ -485,13 +482,9 @@ app.get('/api/courses/:courseId/name', async (req, res) => {
       return res.status(401).json({ message: "Unauthorized: No API token" });
     }
 
-    console.log("API Token:", apiToken);
-
     const courseResponse = await axios.get(`https://${root}/api/v1/courses/${courseId}`, {
       headers: { 'Authorization': `Bearer ${apiToken}` },
     });
-
-    console.log("COURSE_RESPONSE: ", courseResponse.data);
 
     res.json({ course_name: courseResponse.data.name });
 

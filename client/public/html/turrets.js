@@ -106,7 +106,7 @@ class Game {
         this.levelStartTime = 0; // Track when level starts
 
         // Show input container initially
-        document.getElementById('inputContainer').style.display = 'block';
+        // document.getElementById('inputContainer').style.display = 'block';
         this.canvas.style.display = 'none';
         this.questionDiv.style.display = 'none';
         
@@ -125,7 +125,7 @@ class Game {
             return;
         }
         this.questions = questions;
-        document.getElementById('inputContainer').style.display = 'none';
+        // document.getElementById('inputContainer').style.display = 'none';
         this.canvas.style.display = 'block';
         this.questionDiv.style.display = 'block';
         

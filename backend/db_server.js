@@ -209,11 +209,16 @@ app.post('/update-goal', (req, res) => {
   });
 });
 
-app.get('/api/games', async (req, res) => {
-
+app.get('/get-games', async (req, res) => {
+  const { course_ids } = req.query;
   try {
-    const query = `SELECT * FROM Games`;
-    db.query(query, (err, results) => {
+    let courseIdsArray = course_ids.split(',');
+    if (courseIdsArray.length === 0) {
+      return res.status(400).json({ message: "Invalid course_ids parameter" });
+    }
+    const placeholders = courseIdsArray.map(() => '?').join(', ');
+    const query = `SELECT * FROM Games WHERE course_id IN (${placeholders})`;
+    db.query(query, courseIdsArray, (err, results) => {
       if (err) {
         console.error('Error fetching from Games:', err);
         return res.status(500).json({ message: 'Database error' });
@@ -291,7 +296,7 @@ app.post('/add-questions-answers', (req, res) => {
   });
 });
 
-app.get('/api/get-questions-answers', async (req, res) => {
+app.get('/get-questions-answers', async (req, res) => {
   const { game_id } = req.query;
   if (!game_id) {
     return res.status(400).json({ error: "Missing game_id" });

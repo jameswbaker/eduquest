@@ -11,10 +11,9 @@ const GameDashS = () => {
   const navigate = useNavigate();
   
   // Store courses & errors from backend
+  const [courseIds, setCourseIds] = useState([]);
   const [games, setGames] = useState([]);
   const [error, setError] = useState("");
-
-
 
   useEffect(() => {
     const user = ReactSession.get('user');
@@ -26,13 +25,39 @@ const GameDashS = () => {
   }, [navigate]);
 
   useEffect(() => {
-    fetchGames();
+    fetchCourses();
   }, []);
 
-  const fetchGames = async () => {
+  useEffect(() => {
+    fetchGames(courseIds);
+  }, [courseIds]);
+
+  const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:5001/api/games`, {
+      const response = await axios.get(`${domain}:4000/api/courses`, {
+        withCredentials: true,
+      });
+      const courseIdsArray = response.data.map(course => course.id);
+      setCourseIds(courseIdsArray);
+    } catch (error) {
+      console.error(
+        "Error fetching courses:",
+        error.response ? error.response.data : error.message
+      );
+      setError("Error fetching courses. Please check your token and permissions.");
+    }
+  };
+
+  const fetchGames = async (courseIds) => {
+    setError("");
+    if (!courseIds || courseIds.length === 0) {
+      setError("No course IDs provided.");
+      return;
+    }
+    try {
+      const courseIdsString = courseIds.join(',');
+      const response = await axios.get(`${domain}:5001/get-games?course_ids=${courseIdsString}`, {
         withCredentials: true,
       });
       setGames(response.data);

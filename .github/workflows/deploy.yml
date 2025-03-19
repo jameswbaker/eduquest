@@ -20,11 +20,11 @@ jobs:
             cd /home/ubuntu/eduquest/backend
             sudo apt install nodejs npm
             npm install
-            npm install -g pm2
+            npm install pm2
             pm2 restart canvas_server.js
             pm2 restart db_server.js
             cd /home/ubuntu/eduquest/client
             npm install --force
             npm run build
-            npm install -g serve || true
+            npm install serve || true
             pm2 restart frontend

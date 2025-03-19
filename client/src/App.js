@@ -21,8 +21,7 @@ import CourseDashboardPage from './pages/CourseDashboard';
 import ProfileTPage from './pages/ProfileT';
 import IntroTPage from './pages/IntroT';
 import StudentGamePage from './pages/StudentGamePage';
-
-
+import GameDashT from "./pages/GameDashT";
 
 import './App.css';
 
@@ -81,6 +80,7 @@ function AppContent() {
           <Route path="/dashboard/:studentId" element={<DashboardPage />} />
           <Route path="/studentGame/:studentId" element={<StudentGamePage />} />
           <Route path="/teacherBoard" element={<TeacherBoardPage />} />
+          <Route path="/teacherGameBoard" element={<GameDashT />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profileT" element={<ProfileTPage />} />
           <Route path="/dataDashboard/:courseId" element={<DataDashboard />} />

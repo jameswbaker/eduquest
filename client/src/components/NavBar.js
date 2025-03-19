@@ -40,9 +40,11 @@ export default function NavBar() {
   const introRoute =
   enrollmentType === "StudentEnrollment" ? "/intro" : "/introT";
 
-  const gamifyRoute =
-  enrollmentType === "StudentEnrollment" ? "/studentGame/:studentId" : "/createGame";
+  // const gamifyRoute =
+  // enrollmentType === "StudentEnrollment" ? "/studentGame/:studentId" : "/createGame";
 
+  const gamifyRoute =
+    enrollmentType === "StudentEnrollment" ? "/studentGameBoard/:studentId" : "/teacherGameBoard";
 
   return (
     <AppBar 

@@ -145,6 +145,7 @@ const Profile = () => {
             <img src="/image/loopy_profile.jpg" alt="Profile Pic" className="profile-image" />
             <h2>{fullName || "Your Name"}</h2>
             <p><strong>Username: </strong>{username || "N/A"}</p>
+            <p><strong>Role:</strong> {ReactSession.get("enrollmentType").replace("Enrollment", "")}</p>
           </div>
         </section>
       </div>

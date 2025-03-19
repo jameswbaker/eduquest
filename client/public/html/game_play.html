@@ -39,7 +39,7 @@
       const courseId = urlParams.get("courseId");
       const gameName = urlParams.get("gameName");
 
-      document.getElementById("gameTitle").textContent = gameType ? `${gameType} Game` : "Unknown Game";
+      document.getElementById("gameTitle").textContent = (gameType && gameName) ? `${gameName} (${gameType})` : "";
       
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");

@@ -68,7 +68,7 @@ const DashboardT = () => {
     <div className="t-dashboard-container">
       {/* Header */}
       <header className="t-dashboard-header">
-        <h1>Teacher's Dashboard</h1>
+        <h1>Teacher's Course Dashboard</h1>
         {/* <div className="t-header-icons">
           <button className="t-icon-button" onClick={handleStudentView}>
             Student View

@@ -36,6 +36,8 @@ const RadarChart = ({ dataset, labels, dataset_label }) => {
         scales: {
             r: {
                 beginAtZero: true,
+                min: 0,
+                max: 100
             },
         },
     };

@@ -13,7 +13,7 @@ const potentialRoots = ["cbsd.instructure.com", "canvas.instructure.com"];
 const root = potentialRoots[1];
 
 app.use(cors({
-  origin: ['http://ec2-54-159-150-90.compute-1.amazonaws.com:3000', 'http://ec2-54-159-150-90.compute-1.amazonaws.com:4000', 'http://ec2-54-159-150-90.compute-1.amazonaws.com:5001'],  // Frontend URL
+  origin: '*',
   methods: ['GET', 'POST', 'OPTIONS'],        // Allow specific methods
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
@@ -470,5 +470,5 @@ app.get('/protected-route', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Proxy server running on http://ec2-54-159-150-90.compute-1.amazonaws.com:${PORT}`);
+  console.log(`Proxy server running on ${PORT}`);
 });

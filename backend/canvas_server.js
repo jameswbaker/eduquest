@@ -15,7 +15,7 @@ const potentialRoots = ["cbsd.instructure.com", "canvas.instructure.com"];
 const root = potentialRoots[1];
 
 app.use(cors({
-  origin: [`${domain}:3000`, `${domain}:4000`, `${domain}:5001`],  // Frontend URL
+  origin: [`${domain}:3000`, `${domain}:4000`, `${domain}:5000`, `${domain}:5001`],  // Frontend URL
   methods: ['GET', 'POST', 'OPTIONS'],        // Allow specific methods
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers

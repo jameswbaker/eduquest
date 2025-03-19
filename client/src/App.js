@@ -25,6 +25,7 @@ import GameDashT from "./pages/GameDashT";
 import GameDashS from "./pages/GameDashS";
 
 import './App.css';
+import PlayGamePage from "./pages/PlayGamePage";
 
 export const theme = createTheme({
   palette: {
@@ -83,6 +84,7 @@ function AppContent() {
           <Route path="/teacherBoard" element={<TeacherBoardPage />} />
           <Route path="/teacherGameBoard" element={<GameDashT />} />
           <Route path="/studentGameBoard/:studentId" element={<GameDashS />} />
+          <Route path="/playGame/" element={<PlayGamePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profileT" element={<ProfileTPage />} />
           <Route path="/dataDashboard/:courseId" element={<DataDashboard />} />

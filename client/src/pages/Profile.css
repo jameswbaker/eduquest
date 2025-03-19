@@ -46,7 +46,8 @@ h2 {
 /* Profile Section */
 .profile-section{
   background-color: transparent !important;
-  flex: none !important;/* Prevents it from expanding */
+  /* flex: none !important; */
+  /* Prevents it from expanding */
   width: 30% !important;
   
 }

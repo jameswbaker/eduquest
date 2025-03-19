@@ -189,7 +189,7 @@
   transform: scale(1.2); 
 }
 
-.dashboard-container {
+.dashboard-container-sd {
     background-color: #d8f4e3;
     /* min-height: 100vh; */
     /* display: flex; */

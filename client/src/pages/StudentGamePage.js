@@ -134,7 +134,7 @@ const StudentGamePage = () => {
   const colorOrder = ["yellow", "blue", "red", "pink", "green"];
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container-sd">
       {/* Header */}
       <header className="dashboard-header">
         <h1>{studentName ? `${studentName}'s Dashboard` : "Dashboard"}</h1>

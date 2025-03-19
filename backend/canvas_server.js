@@ -31,6 +31,7 @@ const openai = new OpenAI();
 
 // Helper function to extract token from cookies
 function getTokenFromCookie(req) {
+  console.log(req.cookies);
   const token = req.cookies.auth_token;
   const decoded = jwt.verify(token, JWT_SECRET);
 
@@ -464,6 +465,45 @@ app.get('/api/teacher-profile-agg/:courseId', async (req, res) => {
     });
   }
 });
+
+app.get('/api/courses/:courseId/name', async (req, res) => {
+  const { courseId } = req.params;
+
+  if (!courseId) {
+    console.error("Missing courseId parameter");
+    return res.status(400).json({ message: "Missing courseId parameter" });
+  }
+
+  console.log("Received courseId:", courseId);
+
+  try {
+    const apiToken = getTokenFromCookie(req);
+
+    if (!apiToken) {
+      console.error("No API token found");
+      return res.status(401).json({ message: "Unauthorized: No API token" });
+    }
+
+    console.log("API Token:", apiToken);
+
+    const courseResponse = await axios.get(`https://${root}/api/v1/courses/${courseId}`, {
+      headers: { 'Authorization': `Bearer ${apiToken}` },
+    });
+
+    console.log("COURSE_RESPONSE: ", courseResponse.data);
+
+    res.json({ course_name: courseResponse.data.name });
+
+  } catch (error) {
+    console.error("Error fetching course:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching course name',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
+
 
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;

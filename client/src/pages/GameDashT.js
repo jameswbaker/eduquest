@@ -91,13 +91,16 @@ const GameDashT = () => {
           <h2>Games</h2>
           <div className="t-courses-list">
             {/* Dynamically render courses */}
-            {games.map((game, index) => {
+            {games.slice() // creates a copy so the original array isn't mutated
+            .sort((a, b) => b.game_id - a.game_id)
+            .map((game, index) => {
               const color = colorOrder[index % colorOrder.length];
               return (
-                <CourseCard
-                  key={game.id}
-                  courseName={game.name}
-                  instructor={game.type}
+                <GameCard
+                  key={game.game_id}
+                  gameId={game.game_id}
+                  gameName={game.name}
+                  type={game.type}
                   color={color}
                   courseId={game.course_id}
                 />
@@ -110,19 +113,43 @@ const GameDashT = () => {
   );
 };
 
-const CourseCard = ({ courseName, instructor, color, courseId }) => {
+async function getCourseFromCourseId(courseId) {
+  try {
+    const response = await fetch(`${domain}:4000/api/courses/${courseId}/name`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch course name");
+    }
+    const data = await response.json();
+    return data.course_name;
+  } catch (error) {
+    console.error("Error fetching course name:", error);
+    return "Unknown Course";
+  }
+}
+
+const GameCard = ({ gameId, gameName, type, color, courseId }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/dataDashboard/${courseId}`);
+    navigate(`/playGame?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`);
   };
+
+  const [course, setCourse] = useState("");
+
+  useEffect(() => {
+    getCourseFromCourseId(courseId).then(setCourse);
+  }, [courseId]);
 
   return (
     <div className="t-course-card" onClick={handleClick}>
       <div className={`t-color-section ${color}`}></div>
       <div className={`t-text-section ${color}`}>
-        <h3>{courseName}</h3>
-        <p>{instructor}</p>
+        <h3>{gameName}</h3>
+        <p>{type}</p>
+        <p className="course-name">Course Name: {course}</p>
       </div>
     </div>
   );

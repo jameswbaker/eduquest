@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReactSession } from "react-client-session";
 import "./GameCreationPage.css";
+import BackButton from "../components/BackButton";
 
 const GameCreationPage = () => {
   const navigate = useNavigate();
@@ -84,9 +85,7 @@ const GameCreationPage = () => {
     <div className="background">
       <div className="game-container">
 
-      <a href={"/teacherGameBoard"}>
-        <button> Back </button>
-      </a>
+      <BackButton backRoute="/teacherGameBoard"></BackButton>
         
       <iframe
       src="/html/game_generate.html"

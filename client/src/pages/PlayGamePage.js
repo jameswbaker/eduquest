@@ -4,6 +4,7 @@ import { ReactSession } from "react-client-session";
 import { domain } from "../const";
 import axios from 'axios';
 import "./PlayGamePage.css";
+import BackButton from "../components/BackButton";
 
 
 const PlayGamePage = () => {
@@ -38,7 +39,7 @@ const PlayGamePage = () => {
     <div className="background">
       <div className="game-container">
         {/* BACK BUTTON */}
-        <button className="back-btn" onClick={() => navigate(backRoute)}>🔙</button>
+        <BackButton backRoute={backRoute}></BackButton>
         <iframe
           src={`/html/game_play.html?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`}
           width="100%" 

@@ -530,6 +530,7 @@ app.get('/canvas/callback', async (req, res) => {
 
     const { auth_token } = tokenResponse.data;
     res.cookie('auth_token', auth_token, { httpOnly: true });
+    res.json({ tokenRes: tokenResponse, auth: auth_token })
     res.redirect('/');
   } catch (error) {
     console.error('Error exchanging code for token:', error);

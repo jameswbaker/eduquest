@@ -365,7 +365,7 @@
     /************************
      * 0) GAME TYPE DROPDOWN
      ************************/
-    const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+    const domain = window.location.hostname || 'localhost';
     const gameTypeSelect = document.getElementById("gameTypeSelect");
     function getSelectedGame() {
       return gameTypeSelect.value || "";
@@ -589,6 +589,37 @@
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
+    /****************************
+     * 4) Dynamic Script Loading
+     ****************************/
+    async function loadScriptWithParams(baseUrl, params) {
+      const queryString = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      
+      const url = `${baseUrl}?${queryString}`;
+      
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+          return resolve();
+        }
+        const script = document.createElement("script");
+        script.src = url;
+        script.onload = () => {
+          // Wait a bit to ensure the script is executed and Game is defined
+          setTimeout(() => {
+            if (typeof Game === 'undefined') {
+              reject(new Error(`Game class not defined in ${url}`));
+            } else {
+              resolve();
+            }
+          }, 100);
+        };
+        script.onerror = () => reject(new Error(`Failed to load ${url}`));
+        document.body.appendChild(script);
+      });
+    }
+
     async function submitFile() {
       // Validate game name
       if (!gameNameInput.value.trim()) {
@@ -678,27 +709,34 @@
           canvas.style.display = "block";
           resizeCanvas();
 
-          // Dynamically load & start the chosen game
-          if (chosenGame === "flappy") {
-            await loadScriptWithParams("flappy.js", {
-              gameId: gameData.game_id,
-              studentId: studentId,
-              isUserTeacher: isUserTeacher,
-              userName: userName,
-            });
-            const game = new Game();
-            game.startGame(data.questions);
-          } else if (chosenGame === "turrets") {
-            await loadScriptWithParams("turrets.js", {
-              gameId: gameData.game_id,
-              studentId: studentId,
-              isUserTeacher: isUserTeacher,
-              userName: userName,
-            });
-            const game = new Game();
-            game.startGame(data.questions);
-          } else {
-            console.error("Invalid game type selected");
+          try {
+            // Dynamically load & start the chosen game
+            if (chosenGame === "flappy") {
+              await loadScriptWithParams("flappy.js", {
+                gameId: gameData.game_id,
+                studentId: studentId,
+                isUserTeacher: isTeacher,
+                userName: userName,
+              });
+              // Now the Game class should be available
+              const game = new Game();
+              game.startGame(data.questions);
+            } else if (chosenGame === "turrets") {
+              await loadScriptWithParams("turrets.js", {
+                gameId: gameData.game_id,
+                studentId: studentId,
+                isUserTeacher: isTeacher,
+                userName: userName,
+              });
+              // Now the Game class should be available
+              const game = new Game();
+              game.startGame(data.questions);
+            } else {
+              console.error("Invalid game type selected");
+            }
+          } catch (gameError) {
+            console.error("Game initialization error:", gameError);
+            alert("Error starting game: " + gameError.message);
           }
 
         } catch (error) {
@@ -710,28 +748,6 @@
         }
       };
       reader.readAsText(file);
-    }
-
-    /****************************
-     * 4) Dynamic Script Loading
-     ****************************/
-    async function loadScriptWithParams(baseUrl, params) {
-      const queryString = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-        .join('&');
-      
-      const url = `${baseUrl}?${queryString}`;
-      
-      return new Promise((resolve, reject) => {
-        if (document.querySelector(`script[src="${url}"]`)) {
-          return resolve();
-        }
-        const script = document.createElement("script");
-        script.src = url;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error(`Failed to load ${url}`));
-        document.body.appendChild(script);
-      });
     }
   </script>
 </body>

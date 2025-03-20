@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>Flappy Game</title>
+  <title>Game Play</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <style>
-    /* Basic body style */
     body {
       margin: 0;
       padding: 0;
@@ -15,538 +13,74 @@
       align-items: center;
       min-height: 100vh;
       background-color: #ffffff;
-      font-family: "Hanken Grotesk", sans-serif;    }
-
-    #question {
-      font-size: 24px;
-      margin: 20px 0;
-      padding: 10px;
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-family: "Hanken Grotesk", sans-serif;
     }
-
+    .game-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #2d6a4f;
+    }
     #gameCanvas {
       background-color: white;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       margin-bottom: 20px;
-      
     }
-
-    #inputContainer {
-    
-      padding: 40px;
-      background-color: white;
-      border-radius: 15px;
-    
-      display: block;
-      max-width: 900px;
-      width: 90%;
-      height:100%;
-    }
-
-    #inputContainer h2 {
-      color: #1976D2;
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 32px;
-    }
-
-    /* 
-      Layout container to hold the upload section
-      and the input-section side by side
-    */
-    .form-row {
-      display: flex;
-      flex-direction: row;
-      gap: 30px;  /* Space between columns */
-      justify-content: center;
-      align-items: flex-start; /* Align them at the top */
+    #iframeContainer {
+      width: 800px;
+      height: 600px;
       margin-bottom: 20px;
+      display: none; /* Hidden by default, shown when flappy game type is selected */
     }
-
-    /* --- Drag & Drop / File Upload section --- */
-    .upload-section {
-        width: 300px;
-        padding: 10px;
-        margin-bottom: 10px;
-        text-align: center; /* Center everything within */
-    }
-
-
-    .drag-drop-box {
-      /* Make the drag box smaller */
-      width: 250px;
-      height: 200px;
-      padding: 0; /* Remove extra padding inside */
-      background-color: #e9f5ee;
-      border: 2px dashed #2d6a4f;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 10px auto;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .drag-drop-box p {
-      font-size: 0.9rem; /* slightly smaller text */
-      text-align: center;
-      margin: 0;
-    }
-    #fileUpload {
-      display: none; /* Hide the actual file input */
-    }
-    .choose-file-btn {
-      background-color: #2d6a4f;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 9px;
-      cursor: pointer;
-      display: inline-block;
-      font-size: 0.9rem;
-      margin-bottom: 10px;
-    }
-    .progress-bar {
-      width: 60%;
-      background-color: #ddd;
-      margin: 10px auto;
-      border-radius: 5px;
-      height: 10px;
-    }
-    .progress {
-      background-color: #2d6a4f;
+    iframe {
+      width: 100%;
       height: 100%;
-      border-radius: 5px;
-      width: 0;
-    }
-    .uploaded-files p {
-      margin: 5px 0;
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    /* --- Game & Class Selection section --- */
-    .input-section {
-      flex-direction: column;
-      display: flex;
-      width: 300px; /* Keep it around the same width as the .upload-section */
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .input-field {
-      width: 70%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-size: 0.9rem;
-    }
-    .dropdown {
-      position: relative;
-      display: inline-block;
-      padding-bottom: 10px;
-    }
-    .dropbtn {
-      padding: 15px 20px;
-      cursor: pointer;
-      background-color: #2d6a4f;
-      color: white;
       border: none;
-      border-radius: 7px;
-      font-size: 0.9rem;
     }
-    .dropdown-content {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background-color: white;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      width: 200px;
-      z-index: 1000;
-      display: none;
-      padding: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .dropdown-search {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 0.9rem;
-    }
-    .dropdown-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .dropdown-item:hover {
-      background-color: #f0f0f0;
-    }
-    .selected-classes-container {
-      display: flex;
-      flex-wrap: wrap;
-      margin-top: 10px;
-      gap: 10px;
-      width: 100%;
-      justify-content: flex-start;
-    }
-    .selected-class-box {
-      display: flex;
-      align-items: center;
-      background-color: #e0f7fa;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      border: 1px solid #2d6a4f;
-      color: #2d6a4f;
-      position: relative;
-      white-space: nowrap;
-    }
-    .remove-class-btn {
-      background: none;
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-      margin-right: 5px;
-      color: red;
-    }
-
-    /* --- "Start Your Adventure" button --- */
-    .start-btn {
-        background-color: #333;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 7px;
-        cursor: pointer;
-        border: none;
-     
-     
-    
-     
-      transition: all 0.3s ease;
-      display: block;
-      margin: 30px auto 0 auto;
-    }
-    .start-btn:hover {
-      background-color: #1976D2;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
-    }
-    .start-btn:active {
-      transform: translateY(0);
-    }
-
-    .game-creation-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  color: #2d6a4f ;
-
-  padding-bottom: 3rem;
-  border-radius: 8px;
-  text-align: center;  /* Center the heading text */
-}
-
-
-
   </style>
 </head>
 <body>
-  <div id="inputContainer">
-<!-- The heading needs "class", not "className" -->
-<h1 class="game-creation-title">Create a new flappy bird game!</h1>
-
-  
-    <div class="form-row">
-      <!-- Drag & Drop / File Upload section -->
-      <div class="upload-section">
-        <div class="drag-drop-box" id="dropArea">
-          <p>Drag learning materials here</p>
-        </div>
-
-        <!-- Hidden file input + label button -->
-        <input
-          type="file"
-          id="fileUpload"
-          accept=".txt"
-          multiple
-        />
-        <label for="fileUpload" class="choose-file-btn">
-          Choose File
-        </label>
-
-        <!-- Progress bar -->
-        <div class="progress-bar" id="progressBar" style="display:none;">
-          <div class="progress" id="progressFill"></div>
-        </div>
-
-        <!-- List of uploaded files -->
-        <div class="uploaded-files" id="uploadedFiles" style="display:none;"></div>
-      </div>
-
-      <!-- Game & Class Selection Section -->
-      <div class="input-section">
-        <input
-          type="text"
-          placeholder="Game name*"
-          id="gameNameInput"
-          class="input-field"
-        />
-
-        <input
-          type="date"
-          id="deadlineInput"
-          class="input-field"
-        />
-
-        <div class="dropdown">
-          <button class="dropbtn" id="dropBtn">Select Classes</button>
-          <div class="dropdown-content" id="dropdownContent">
-            <input
-              type="text"
-              placeholder="Search..."
-              id="searchInput"
-              class="dropdown-search"
-            />
-            <div id="filteredList"></div>
-          </div>
-        </div>
-
-        <div class="selected-classes-container" id="selectedClasses"></div>
-      </div>
-    </div><!-- end .form-row -->
-
-   
-    <button class="start-btn" onclick="submitFile()">Create Game!</button>
+  <h1 class="game-title" id="gameTitle">Loading Game...</h1>
+  <div id="iframeContainer">
+    <iframe id="flappyIframe" src="flappy.html"></iframe>
   </div>
-
-  <!-- Question & Canvas (hidden by default) -->
-  <div id="question" style="display: none;"></div>
-  <canvas id="gameCanvas" style="display: none;"></canvas>
-
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
-    /****************************************
-     * 1. Drag & Drop + File Upload Section
-     ****************************************/
-    const dropArea = document.getElementById("dropArea");
-    const fileInput = document.getElementById("fileUpload");
-    const progressBar = document.getElementById("progressBar");
-    const progressFill = document.getElementById("progressFill");
-    const uploadedFilesList = document.getElementById("uploadedFiles");
+    document.addEventListener("DOMContentLoaded", function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameType = urlParams.get("type");
+      const gameName = urlParams.get("gameName");
 
-    let uploadedFiles = [];
-    let uploadProgress = 0;
-
-    dropArea.addEventListener("dragover", handleDragOver);
-    dropArea.addEventListener("drop", handleDrop);
-    fileInput.addEventListener("change", handleFileUpload);
-
-    function handleDragOver(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    function handleDrop(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const files = Array.from(e.dataTransfer.files);
-      processFiles(files);
-    }
-
-    function handleFileUpload(e) {
-      const files = Array.from(e.target.files);
-      processFiles(files);
-    }
-
-    function processFiles(files) {
-      uploadedFiles = [...uploadedFiles, ...files];
-      setUploadProgress(50);
-
-      setTimeout(() => {
-        setUploadProgress(100);
-      }, 800);
-
-      displayUploadedFiles();
-    }
-
-    function setUploadProgress(value) {
-      uploadProgress = value;
-      if (uploadProgress > 0) {
-        progressBar.style.display = "block";
-        progressFill.style.width = uploadProgress + "%";
-      }
-    }
-
-    function displayUploadedFiles() {
-      if (uploadedFiles.length > 0) {
-        uploadedFilesList.style.display = "block";
-        uploadedFilesList.innerHTML = "";
-        uploadedFiles.forEach((file) => {
-          const p = document.createElement("p");
-          p.textContent = "📄 " + file.name;
-          uploadedFilesList.appendChild(p);
-        });
-      }
-    }
-
-    /****************************************
-     * 2. Game & Class Selection Section
-     ****************************************/
-    let classes = ["English 1", "English Literature", "Math 101", "Science"];
-    let dropdownOpen = false;
-    let searchTerm = "";
-    let selectedClasses = [];
-
-    const gameNameInput = document.getElementById("gameNameInput");
-    const deadlineInput = document.getElementById("deadlineInput");
-    const dropBtn = document.getElementById("dropBtn");
-    const dropdownContent = document.getElementById("dropdownContent");
-    const searchInput = document.getElementById("searchInput");
-    const filteredListDiv = document.getElementById("filteredList");
-    const selectedClassesDiv = document.getElementById("selectedClasses");
-
-    // Toggle dropdown
-    dropBtn.addEventListener("click", () => {
-      dropdownOpen = !dropdownOpen;
-      dropdownContent.style.display = dropdownOpen ? "block" : "none";
-      updateFilteredClasses();
-    });
-
-    // Listen for search changes
-    searchInput.addEventListener("input", (e) => {
-      searchTerm = e.target.value;
-      updateFilteredClasses();
-    });
-
-    function updateFilteredClasses() {
-      filteredListDiv.innerHTML = "";
-      const lowerSearch = searchTerm.toLowerCase();
-      const filtered = classes.filter((cls) => cls.toLowerCase().includes(lowerSearch));
-
-      if (filtered.length > 0) {
-        filtered.forEach((cls) => {
-          const div = document.createElement("div");
-          div.className = "dropdown-item";
-          div.textContent = cls;
-          div.onclick = () => handleClassSelection(cls);
-          filteredListDiv.appendChild(div);
-        });
-      } else {
-        const p = document.createElement("p");
-        p.textContent = "No classes found";
-        filteredListDiv.appendChild(p);
-      }
-    }
-
-    function handleClassSelection(cls) {
-      if (!selectedClasses.includes(cls)) {
-        selectedClasses.push(cls);
-        renderSelectedClasses();
-      }
-    }
-
-    function renderSelectedClasses() {
-      selectedClassesDiv.innerHTML = "";
-      selectedClasses.forEach((cls) => {
-        const container = document.createElement("div");
-        container.className = "selected-class-box";
-
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-class-btn";
-        removeBtn.textContent = "✖";
-        removeBtn.onclick = () => handleRemoveClass(cls);
-
-        container.appendChild(removeBtn);
-        container.appendChild(document.createTextNode(cls));
-        selectedClassesDiv.appendChild(container);
-      });
-    }
-
-    function handleRemoveClass(cls) {
-      selectedClasses = selectedClasses.filter((c) => c !== cls);
-      renderSelectedClasses();
-    }
-
-    /****************************************
-     * 3. Start the Game (Submit File)
-     ****************************************/
-    // Resize the canvas based on window size
-    function resizeCanvas() {
+      document.getElementById("gameTitle").textContent = (gameType && gameName) ? `${gameName} : ${gameType} type` : "";
+      
+      const iframeContainer = document.getElementById("iframeContainer");
       const canvas = document.getElementById("gameCanvas");
-      canvas.width = Math.min(800, window.innerWidth - 40);
-      canvas.height = Math.min(600, window.innerHeight - 120);
+      const ctx = canvas.getContext("2d");
+
+      if (gameType === "flappy") {
+        iframeContainer.style.display = "block"; // Show the iframe container
+        canvas.style.display = "none"; // Hide the canvas
+      } else if (gameType === "turrets") {
+        startTurretsGame(ctx);
+      } else {
+        ctx.font = "20px Arial";
+        ctx.fillText("Invalid Game Type", 300, 300);
+      }
+    });
+    
+    function startFlappyGame(ctx) {
+      ctx.fillStyle = "blue";
+      ctx.fillRect(100, 250, 50, 50);
+      ctx.font = "20px Arial";
+      ctx.fillText("Flappy Game!", 350, 50);
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas(); // initial
-
-    async function submitFile() {
-      // Basic validation
-      if (!gameNameInput.value.trim()) {
-        alert("Game name is required!");
-        return;
-      }
-
-      if (uploadedFiles.length === 0) {
-        alert("Please select or drop a file first.");
-        return;
-      }
-
-      // Just read FIRST file for question generation
-      const file = uploadedFiles[0];
-      const reader = new FileReader();
-
-      reader.onload = async function (event) {
-        const content = event.target.result;
-
-        try {
-          // Example: send content + additional data to your backend
-          const response = await fetch("http://ec2-54-159-150-90.compute-1.amazonaws.com:5000/generate-questions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              content,
-              num_questions: 25,
-              num_answers: 2,
-              game_name: gameNameInput.value,
-              deadline: deadlineInput.value,
-              classes: selectedClasses
-            }),
-          });
-
-          const data = await response.json();
-          if (data.error) {
-            throw new Error(data.error);
-          }
-
-          // Hide input container and show the game
-          document.getElementById("inputContainer").style.display = "none";
-          document.getElementById("gameCanvas").style.display = "block";
-          document.getElementById("question").style.display = "block";
-
-          resizeCanvas(); // re-check size
-
-          // Start the game with questions from response
-          const game = new Game();
-          game.startGame(data.questions);
-
-        } catch (error) {
-          console.error("Error:", error);
-          alert("Error generating questions. Please try again.");
-        }
-      };
-
-      reader.readAsText(file);
+    
+    function startTurretsGame(ctx) {
+      ctx.fillStyle = "red";
+      ctx.fillRect(350, 250, 100, 100);
+      ctx.font = "20px Arial";
+      ctx.fillText("Turrets Game!", 350, 50);
     }
   </script>
-
-  <!-- Include your flappy.js or game logic here -->
-  <script src="flappy.js"></script>
 </body>
 </html>

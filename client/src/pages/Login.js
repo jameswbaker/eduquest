@@ -10,6 +10,7 @@ import './Login.css';
 ReactSession.setStoreType("localStorage");
 
 function Login() {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function Login() {
     console.log('Username:', username);
     console.log('Password:', password);
     try {
-      const response = await fetch('http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/login', {
+      const response = await fetch(`http://${domain}:5001/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ function Login() {
         // Set the user in the session so it can be accessed elsewhere
         ReactSession.set("user", userId);
 
-        const response_enrollment = await fetch('http://ec2-54-159-150-90.compute-1.amazonaws.com:4000/api/get-role', {
+        const response_enrollment = await fetch(`http://${domain}:4000/api/get-role`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

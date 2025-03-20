@@ -100,19 +100,22 @@ class Game {
         document.addEventListener('keydown', this.handleKeyDown.bind(this));
         document.addEventListener('keyup', this.handleKeyUp.bind(this));
         
-        // Add new properties
+        // Additional properties
         this.projectiles = [];
         this.turrets = [];
         this.levelStartTime = 0; // Track when level starts
 
         // Show input container initially
-        document.getElementById('inputContainer').style.display = 'block';
+        // document.getElementById('inputContainer').style.display = 'block';
         this.canvas.style.display = 'none';
         this.questionDiv.style.display = 'none';
         
-        // Add questions property
+        // Questions property
         this.questions = [];
         this.currentQuestionIndex = 0;
+
+        // Flag to ensure restart listener is added only once per game over
+        this.restartListenerAdded = false;
     }
 
     async startGame(questions) {
@@ -122,7 +125,7 @@ class Game {
             return;
         }
         this.questions = questions;
-        document.getElementById('inputContainer').style.display = 'none';
+        // document.getElementById('inputContainer').style.display = 'none';
         this.canvas.style.display = 'block';
         this.questionDiv.style.display = 'block';
         
@@ -131,11 +134,38 @@ class Game {
         this.gameLoop();
     }
 
+    // Reset only the game state (score, lives, levels, etc.) without reinitializing the entire game
+    resetGame() {
+        console.log("Resetting game state...");
+        // Reset player position and status
+        this.player.x = 50;
+        this.player.y = 300;
+        this.player.hurt = false;
+        this.player.hurtTimer = 0;
+        
+        // Reset game state
+        this.level = 1;
+        this.levelsCleared = 0;
+        this.lives = GAME_CONFIG.player.initialLives;
+        this.gameOver = false;
+        this.currentQuestion = null;
+        this.platforms = [];
+        this.answers = [];
+        this.projectiles = [];
+        this.turrets = [];
+        this.levelStartTime = 0;
+        this.currentQuestionIndex = 0;
+        
+        // Generate the first level anew
+        this.generateLevel();
+    }
+
     generateLevel(keepCurrentWord = false) {
         console.log("Generating level, question index:", this.currentQuestionIndex);
         if (this.currentQuestionIndex >= this.questions.length) {
             console.log("No more questions, game over");
             this.gameOver = true;
+            this.currentQuestion = 0;
             return;
         }
 
@@ -166,7 +196,6 @@ class Game {
         
         // Create answer areas in random positions
         const margin = GAME_CONFIG.platform.spawnMargin; // Minimum distance from edges
-        // Make sure we have a valid safeRadius
         const safeRadius = GAME_CONFIG.safeRadius || 100;
         console.log("Safe radius:", safeRadius);
         console.log("Canvas dimensions:", this.canvas.width, this.canvas.height);
@@ -516,6 +545,21 @@ class Game {
             this.ctx.fillText('Game Over!', this.canvas.width/2, this.canvas.height/2);
             this.ctx.font = GAME_CONFIG.text.finalScoreFont;
             this.ctx.fillText(`Final Score: ${this.levelsCleared}`, this.canvas.width/2, this.canvas.height/2 + 40);
+            this.ctx.fillText("Press Space to Restart", this.canvas.width/2, this.canvas.height/2 + 70);
+
+            // When space is pressed after game over, reset the score and game state.
+            if (!this.restartListenerAdded) {
+                this.restartListenerAdded = true;
+                const restartHandler = (e) => {
+                    if (e.code === 'Space') {
+                        this.resetGame();
+                        document.removeEventListener('keydown', restartHandler);
+                        this.restartListenerAdded = false;
+                        this.gameOver = false;
+                    }
+                };
+                document.addEventListener('keydown', restartHandler);
+            }
         }
     }
 
@@ -526,14 +570,11 @@ class Game {
     }
 }
 
-// Move game initialization to a separate function
+// Instead of reinitializing the entire game (and iframe), we now create one game instance.
 let game;
 function initGame() {
     game = new Game();
 }
-
-// Add submission handling
-// submitReading() is already defined in index.html, so we can remove it from here
 
 // Initialize game when page loads
 initGame();

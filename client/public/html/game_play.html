@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Game Play</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #ffffff;
+      font-family: "Hanken Grotesk", sans-serif;
+    }
+    .game-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #2d6a4f;
+    }
+    #gameCanvas {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    #question {
+      font-size: 24px;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1 class="game-title" id="gameTitle">Loading Game...</h1>
+  <div id="question"></div>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+    document.addEventListener("DOMContentLoaded", async function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameId = urlParams.get("gameId");
+      const gameType = urlParams.get("type");
+      const courseId = urlParams.get("courseId");
+      const gameName = urlParams.get("gameName");
+
+      document.getElementById("gameTitle").textContent = (gameType && gameName) ? `${gameName} (${gameType})` : "";
+      
+      if (!gameId) {
+        alert("Game ID not found!");
+        return;
+      }
+
+      const studentId = await fetchUserId();
+      if (!studentId) {
+        alert("Could not authenticate user. Please log in again.");
+        loadingOverlay.style.display = "none";
+        return;
+      }
+      const { isUserTeacher, userName } = await fetchUserRole(studentId);
+
+      try {
+        const response = await fetch(`http://${domain}:5001/get-questions-answers?game_id=${gameId}`);
+        const gameData = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch questions");
+        }
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        
+        if (gameType === "flappy") {
+          await loadScriptWithParams("flappy.js", {
+            gameId: gameId,
+            studentId: studentId,
+            isUserTeacher: isUserTeacher,
+            userName: userName,
+          });
+          const game = new Game();
+          game.startGame(gameData.questions);
+        } else if (gameType === "turrets") {
+          await loadScriptWithParams("turrets.js", {
+            gameId: gameId,
+            studentId: studentId,
+            isUserTeacher: isUserTeacher,
+            userName: userName,
+          });
+          const game = new Game();
+          game.startGame(gameData.questions);
+        } else {
+          ctx.font = "20px Arial";
+          ctx.fillText("Invalid Game Type", 300, 300);
+        }
+      } catch (error) {
+        console.error("Error loading game data:", error);
+        alert("Error loading game. Please try again.");
+      }
+    });
+
+
+    async function fetchUserId() {
+      try {
+        const response = await fetch(`http://${domain}:4000/protected-route`, {
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to authenticate user');
+        }
+        const userData = await response.json();
+        return userData.userId; 
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        alert('Authentication error: ' + error.message);
+        return null;
+      }
+    }
+
+    async function fetchUserRole(studentId) {
+      try {
+        const response = await fetch(`http://${domain}:4000/api/get-role`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: studentId }),
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to authenticate user');
+        }
+        const res_enroll_data = await response.json();
+        if (!res_enroll_data || !res_enroll_data[0] || !res_enroll_data[0].user) {
+          throw new Error('Invalid enrollment data received');
+        }
+        const isUserTeacher = res_enroll_data[0].role === "StudentEnrollment" ? false : true;
+        const userName = res_enroll_data[0].user.name;
+        return {
+          isUserTeacher,
+          userName
+        };
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        alert('Authentication error: ' + error.message);
+        return {
+          isTeacher: false,
+          userName: null
+        };
+      }
+    }
+
+    async function loadScript(url) {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+          return resolve(); // Already loaded
+        }
+        const script = document.createElement("script");
+        script.src = url;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${url}`));
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadScriptWithParams(baseUrl, params) {
+      const queryString = Object.entries(params)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join('&');
+      
+      const url = `${baseUrl}?${queryString}`;
+      
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${url}"]`)) {
+          return resolve();
+        }
+        const script = document.createElement("script");
+        script.src = url;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${url}`));
+        document.body.appendChild(script);
+      });
+    }
+    
+    function startFlappyGame(ctx, data) {
+      ctx.fillStyle = "blue";
+      ctx.fillRect(100, 250, 50, 50);
+      ctx.font = "20px Arial";
+      ctx.fillText("Flappy Game!", 350, 50);
+    }
+    
+    function startTurretsGame(ctx, data) {
+      ctx.fillStyle = "red";
+      ctx.fillRect(350, 250, 100, 100);
+      ctx.font = "20px Arial";
+      ctx.fillText("Turrets Game!", 350, 50);
+    }
+  </script>
+</body>
+</html>

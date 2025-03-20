@@ -1,3 +1,4 @@
+require('dotenv').config();
 const OpenAI = require("openai");
 const express = require('express');
 const axios = require('axios');
@@ -6,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
 const PORT = 4000;
+const domain = new URL(process.env.API_BASE_URL).hostname;
 
 const app = express();
 
@@ -13,7 +15,7 @@ const potentialRoots = ["cbsd.instructure.com", "canvas.instructure.com"];
 const root = potentialRoots[1];
 
 app.use(cors({
-  origin: ['http://ec2-54-159-150-90.compute-1.amazonaws.com:3000', 'http://ec2-54-159-150-90.compute-1.amazonaws.com:4000', 'http://ec2-54-159-150-90.compute-1.amazonaws.com:5001'],  // Frontend URL
+  origin: [`${domain}:3000`, `${domain}:4000`, `${domain}:5000`, `${domain}:5001`],  // Frontend URL
   methods: ['GET', 'POST', 'OPTIONS'],        // Allow specific methods
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
@@ -23,7 +25,6 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret used for signing
 
 const openai = new OpenAI();
@@ -297,8 +298,8 @@ app.get('/api/user/to-do', async (req, res) => {
 });
 
 app.post('/generate-questions', async (req, res) => {
-  const { content, num_answers = 4, num_questions = 25 } = req.body;
-  console.log("num_questions:", num_questions, "num_answers:", num_answers);
+  const { content, num_answers = 4, num_questions = 25, game_id } = req.body;
+  console.log("num_questions:", num_questions, "num_answers:", num_answers, "game_id:", game_id);
   try {
     const response = await openai.beta.chat.completions.parse({
       model: "gpt-4o-2024-08-06",
@@ -382,7 +383,18 @@ app.post('/generate-questions', async (req, res) => {
       }
     }
 
-    console.log("Generated questions count:", questions.questions.length);
+    const dbApiBaseUrl = "http://localhost:5001";
+    const storeResponse = await fetch(`${dbApiBaseUrl}/add-questions-answers`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ game_id, questions })
+    });
+
+    const storeData = await storeResponse.json();
+    if (!storeResponse.ok) {
+      throw new Error(storeData.error || "Failed to store questions in database");
+    }
+    console.log("Questions and answers successfully stored!");
     res.json(questions);
   } catch (error) {
     console.error("Error generating questions:", error);
@@ -452,6 +464,39 @@ app.get('/api/teacher-profile-agg/:courseId', async (req, res) => {
   }
 });
 
+app.get('/api/courses/:courseId/name', async (req, res) => {
+  const { courseId } = req.params;
+
+  if (!courseId) {
+    console.error("Missing courseId parameter");
+    return res.status(400).json({ message: "Missing courseId parameter" });
+  }
+
+  try {
+    const apiToken = getTokenFromCookie(req);
+
+    if (!apiToken) {
+      console.error("No API token found");
+      return res.status(401).json({ message: "Unauthorized: No API token" });
+    }
+
+    const courseResponse = await axios.get(`https://${root}/api/v1/courses/${courseId}`, {
+      headers: { 'Authorization': `Bearer ${apiToken}` },
+    });
+
+    res.json({ course_name: courseResponse.data.name });
+
+  } catch (error) {
+    console.error("Error fetching course:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      message: 'Error fetching course name',
+      details: error.response?.data || error.message,
+    });
+  }
+});
+
+
+
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
   const decoded = jwt.verify(token, JWT_SECRET);
@@ -470,5 +515,5 @@ app.get('/protected-route', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Proxy server running on http://ec2-54-159-150-90.compute-1.amazonaws.com:${PORT}`);
+  console.log(`Proxy server running on ${domain}:${PORT}`);
 });

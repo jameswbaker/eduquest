@@ -1,3 +1,5 @@
+require('dotenv').config();
+// const { domain } = require('./const');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
@@ -6,16 +8,16 @@ const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
+const domain = new URL(process.env.API_BASE_URL).hostname;
+
 app.use(cors({
-    origin: ['http://ec2-54-159-150-90.compute-1.amazonaws.com:3000', 'http://ec2-54-159-150-90.compute-1.amazonaws.com:4000'],  // Frontend URL
+    origin: [`${domain}:3000`, `${domain}:4000`],  // Frontend URL
     methods: ['GET', 'POST'],        // Allow specific methods
     credentials: true, // Enable cookies
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
 }));
 app.use(express.json());
 app.use(cookieParser());
-
-require('dotenv').config();
 
 // Secret key for JWT signing
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -46,7 +48,7 @@ app.post('/signup', async (req, res) => {
     }
 
     try {
-      const userResponse = await axios.get('http://ec2-18-232-60-58.compute-1.amazonaws.com:4000/api/users/user-details', {
+      const userResponse = await axios.get(`${domain}:4000/api/users/user-details`, {
           params: {
               token: canvasToken,
           },
@@ -100,7 +102,7 @@ app.post('/login', async (req, res) => {
     const user = results[0];
     if (password == user.password) {
       try {
-        const userResponse = await axios.get('http://ec2-18-232-60-58.compute-1.amazonaws.com:4000/api/users/user-details', {
+        const userResponse = await axios.get(`${domain}:4000/api/users/user-details`, {
             params: { token: user.canvas_token, },
         });
         const userId = userResponse.data.id;
@@ -207,3 +209,186 @@ app.post('/update-goal', (req, res) => {
   });
 });
 
+app.get('/get-games', async (req, res) => {
+  const { course_ids } = req.query;
+  try {
+    let courseIdsArray = course_ids.split(',');
+    if (courseIdsArray.length === 0) {
+      return res.status(400).json({ message: "Invalid course_ids parameter" });
+    }
+    const placeholders = courseIdsArray.map(() => '?').join(', ');
+    const query = `SELECT * FROM Games WHERE course_id IN (${placeholders})`;
+    db.query(query, courseIdsArray, (err, results) => {
+      if (err) {
+        console.error('Error fetching from Games:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      return res.status(200).json(results);
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+});
+
+app.post('/add-game-result', (req, res) => {
+  const { game_id, student_id, score, user_name } = req.body;
+  if (!game_id || !student_id || score == null) {
+    return res.status(400).json({ message: "game_id, student_id, and score are all required" });
+  }
+
+  const numericGameId = Number(game_id);
+  const numericStudentId = Number(student_id);
+  const numericScore = Number(score);
+
+  console.log("game_id:", numericGameId, "student_id:", numericStudentId, 
+              "score:", numericScore, "user_name:", user_name);
+  
+  // First check if student exists
+  const checkStudentQuery = `SELECT student_id FROM Students WHERE student_id = ?`;
+  db.query(checkStudentQuery, [numericStudentId], (checkErr, students) => {
+    if (checkErr) {
+      console.error("Error checking student:", checkErr);
+      return res.status(500).json({ message: "Database error while checking student" });
+    }
+    
+    // If student doesn't exist, insert them first
+    if (students.length === 0) {      
+      const studentName = req.body.user_name || `Student ${numericStudentId}`;
+      
+      const insertStudentQuery = `INSERT INTO Students (student_id, name) VALUES (?, ?)`;
+      
+      db.query(insertStudentQuery, [numericStudentId, studentName], (insertErr) => {
+        if (insertErr) {
+          console.error("Error inserting student:", insertErr);
+          return res.status(500).json({ message: "Database error while inserting student" });
+        }
+        
+        // Now save the game result
+        saveGameResult();
+      });
+    } else {
+      // Student exists, just save the game result
+      saveGameResult();
+    }
+  });
+  
+  function saveGameResult() {
+    const query = `INSERT INTO GameResults (game_id, student_id, score) VALUES (?, ?, ?)`;
+    db.query(query, [numericGameId, numericStudentId, numericScore], (err, result) => {
+      if (err) {
+        console.error("Error updating game results:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+      return res.status(200).json({ 
+        message: "Game results updated successfully",
+        result_id: result.insertId,
+      });
+    });
+  }
+});
+
+app.post('/add-game', (req, res) => {
+  const { name, type, course_id } = req.body;
+  if (!name || !type || !course_id) {
+    return res.status(400).json({ message: "name, type, and course_id are all required" });
+  }
+  const query = `INSERT INTO Games (name, type, course_id) VALUES (?, ?, ?)`;
+  db.query(query, [name, type, course_id], (err, result) => {
+    if (err) {
+      console.error("Error updating games:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+    return res.status(200).json({ 
+      message: "Games updated successfully",
+      game_id: result.insertId,
+    });
+  });
+});
+
+app.post('/add-questions-answers', (req, res) => {
+  const { game_id, questions: questionData } = req.body;
+
+  if (!game_id || !questionData || !Array.isArray(questionData.questions) || questionData.questions.length === 0) {
+    return res.status(400).json({ error: "Missing or invalid game_id/questions" });
+  }
+
+  db.beginTransaction(async (err) => {
+    if (err) {
+      console.error("Transaction error:", err);
+      return res.status(500).json({ error: "Database transaction error" });
+    }
+
+    try {
+      for (const q of questionData.questions) {
+        // Insert question
+        const [questionResult] = await db.promise().execute(
+          `INSERT INTO Questions (text, game_id) VALUES (?, ?)`,
+          [q.question, game_id]
+        );
+
+        const questionId = questionResult.insertId; // Get the inserted question ID
+
+        // Insert answers for the question
+        for (const ans of q.answers) {
+          await db.promise().execute(
+            `INSERT INTO Answers (text, is_correct, question_id) VALUES (?, ?, ?)`,
+            [ans.text, ans.isCorrect ? 1 : 0, questionId] // Convert true/false to 1/0
+          );
+        }
+      }
+
+      db.commit((commitErr) => {
+        if (commitErr) {
+          console.error("Commit error:", commitErr);
+          return res.status(500).json({ error: "Failed to commit transaction" });
+        }
+        res.json({ message: "Questions and answers stored successfully!" });
+      });
+
+    } catch (error) {
+      db.rollback(() => console.error("Transaction rolled back due to error:", error));
+      res.status(500).json({ error: "Error inserting questions and answers" });
+    }
+  });
+});
+
+app.get('/get-questions-answers', async (req, res) => {
+  const { game_id } = req.query;
+  if (!game_id) {
+    return res.status(400).json({ error: "Missing game_id" });
+  }
+  try {
+    const query = `
+      SELECT q.question_id, q.text as question_text, a.answer_id, a.text as answer_text, a.is_correct
+      FROM Questions q
+      JOIN Answers a ON q.question_id = a.question_id
+      WHERE q.game_id = ?
+    `;
+    db.query(query, [game_id], (err, results) => {
+      if (err) {
+        console.error("Error fetching questions:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+  
+      const formattedData = {};
+      results.forEach(row => {
+        if (!formattedData[row.question_id]) {
+          formattedData[row.question_id] = {
+            question: row.question_text,
+            answers: [],
+          };
+        }
+        formattedData[row.question_id].answers.push({
+          text: row.answer_text,
+          isCorrect: row.is_correct === 1
+        });
+      });
+  
+      res.json({ questions: Object.values(formattedData) });
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+})

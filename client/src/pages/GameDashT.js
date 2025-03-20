@@ -1,17 +1,18 @@
-// DashboardT.jsx
+// GameDashT.jsx
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import axios from 'axios';
-import "./DashboardT.css";
+import "./GameDashT.css";
 
-const DashboardT = () => {
+const GameDashT = () => {
   const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const navigate = useNavigate();
   
   // Store courses & errors from backend
-  const [courses, setCourses] = useState([]);
+  const [courseIds, setCourseIds] = useState([]);
+  const [games, setGames] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -38,19 +39,45 @@ const DashboardT = () => {
     fetchCourses();
   }, []);
 
+  useEffect(() => {
+    fetchGames(courseIds);
+  }, [courseIds]);
+
   const fetchCourses = async () => {
     setError("");
     try {
       const response = await axios.get(`http://${domain}:4000/api/courses`, {
         withCredentials: true,
       });
-      setCourses(response.data);
+      const courseIdsArray = response.data.map(course => course.id);
+      setCourseIds(courseIdsArray);
     } catch (error) {
       console.error(
         "Error fetching courses:",
         error.response ? error.response.data : error.message
       );
       setError("Error fetching courses. Please check your token and permissions.");
+    }
+  };
+
+  const fetchGames = async (courseIds) => {
+    setError("");
+    if (!courseIds || courseIds.length === 0) {
+      setError("No course IDs provided.");
+      return;
+    }
+    try {
+      const courseIdsString = courseIds.join(',');
+      const response = await axios.get(`http://${domain}:5001/get-games?course_ids=${courseIdsString}`, {
+        withCredentials: true,
+      });
+      setGames(response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching games:",
+        error.response ? error.response.data : error.message
+      );
+      setError("Error fetching games. Please check your token and permissions.");
     }
   };
 
@@ -65,10 +92,10 @@ const DashboardT = () => {
   };
 
   return (
-    <div className="t-dashboard-container">
+    <div className="t-game-dashboard-container">
       {/* Header */}
       <header className="t-dashboard-header">
-        <h1>Teacher's Course Dashboard</h1>
+        <h1>Teacher's Game Dashboard</h1>
         {/* <div className="t-header-icons">
           <button className="t-icon-button" onClick={handleStudentView}>
             Student View
@@ -76,25 +103,33 @@ const DashboardT = () => {
         </div> */}
       </header>
 
+
+      <a href={"/createGame"}> 
+        <button> Create New Game </button>
+      </a>
+
       {/* Show error (if any) */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Main Content */}
       <div className="t-dashboard-main">
-        {/* Courses Section */}
+        {/* Games Section */}
         <div className="t-courses-section">
-          <h2>Courses</h2>
+          <h2>Games</h2>
           <div className="t-courses-list">
             {/* Dynamically render courses */}
-            {courses.map((course, index) => {
+            {games.slice() // creates a copy so the original array isn't mutated
+            .sort((a, b) => b.game_id - a.game_id)
+            .map((game, index) => {
               const color = colorOrder[index % colorOrder.length];
               return (
-                <CourseCard
-                  key={course.id}
-                  courseName={course.name}
-                  instructor="Unknown Instructor" // or course.instructor if available
+                <GameCard
+                  key={game.game_id}
+                  gameId={game.game_id}
+                  gameName={game.name}
+                  type={game.type}
                   color={color}
-                  courseId={course.id}
+                  courseId={game.course_id}
                 />
               );
             })}
@@ -105,22 +140,47 @@ const DashboardT = () => {
   );
 };
 
-const CourseCard = ({ courseName, instructor, color, courseId }) => {
+async function getCourseFromCourseId(courseId) {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+  try {
+    const response = await fetch(`http://${domain}:4000/api/courses/${courseId}/name`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch course name");
+    }
+    const data = await response.json();
+    return data.course_name;
+  } catch (error) {
+    console.error("Error fetching course name:", error);
+    return "Unknown Course";
+  }
+}
+
+const GameCard = ({ gameId, gameName, type, color, courseId }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/dataDashboard/${courseId}`);
+    navigate(`/playGame?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`);
   };
+
+  const [course, setCourse] = useState("");
+
+  useEffect(() => {
+    getCourseFromCourseId(courseId).then(setCourse);
+  }, [courseId]);
 
   return (
     <div className="t-course-card" onClick={handleClick}>
       <div className={`t-color-section ${color}`}></div>
       <div className={`t-text-section ${color}`}>
-        <h3>{courseName}</h3>
-        <p>{instructor}</p>
+        <h3>{gameName}</h3>
+        <p>{type}</p>
+        <p className="course-name">Course Name: {course}</p>
       </div>
     </div>
   );
 };
 
-export default DashboardT;
+export default GameDashT;

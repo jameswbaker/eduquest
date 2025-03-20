@@ -8,6 +8,7 @@ import SearchBar from "../components/SearchBar";
 import CardComponent from "../components/Card";
 
 const IntroPage = () => {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const [goals, setGoals] = useState([]);
@@ -27,7 +28,7 @@ const IntroPage = () => {
   const fetchGoals = async (user) => {
     try {
       const response = await axios.get(
-        `http://ec2-54-159-150-90.compute-1.amazonaws.com:5001/get-goals?account_id=${user}`,
+        `http://${domain}:5001/get-goals?account_id=${user}`,
         { withCredentials: true }
       );
       console.log("Fetched goals:", response.data);

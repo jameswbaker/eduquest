@@ -83,6 +83,10 @@ const GameCreationPage = () => {
   return (
     <div className="background">
       <div className="game-container">
+
+      <a href={"/teacherGameBoard"}>
+        <button> Back </button>
+      </a>
         
       <iframe
       src="/html/game_generate.html"

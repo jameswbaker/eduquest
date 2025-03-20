@@ -12,9 +12,11 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ${{ secrets.EC2_USERNAME }}          
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
+            
             # Update repository
             cd /home/ubuntu/eduquest
             git pull origin main
@@ -41,4 +43,4 @@ jobs:
             pm2 restart frontend || pm2 start serve.js --name frontend
             
             # Save PM2 configuration so it persists after reboot
-            pm2 save 
+            pm2 save

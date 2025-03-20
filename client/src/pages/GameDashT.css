@@ -1,231 +1,268 @@
 body {
-    background-color: #8FCE5D;
-  } 
-  
-  .t-game-dashboard-container {
-    padding: 20px;
-    min-height: 100vh;
-    border: 4px;
-  
-    background-color: #d8f4e3;
-  }
-  
-  .t-dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .t-dashboard-header h1 {
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .t-header-icons {
-    
-    display: flex;
-    gap: 10px;
-  }
-  
-  .t-icon-button {
-    font-family:'Hammersmith One', sans-serif;
-    padding: 12px 18px; 
-    background-color: #5586E0;
-    border: 3px solid black;
-    border-radius: 40px; 
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    color: black;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .t-icon-button:hover {
-    background-color: #13449e; 
-    color: white;
-  }
-  /* Main Content Layout */
-  .t-dashboard-main {
-    display: flex;
-    gap: 20px;
-  }
-  
-  /* Courses Section */
-  .t-courses-section {
-    flex: 1;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    border: 4px solid black;
-  }
-  
-  .t-courses-section h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .t-courses-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  /* T-Course Card Styling (Matching Dashboard Course Cards) */
-  .t-course-card {
+  background-color: #8FCE5D;
+} 
+
+.t-game-dashboard-container {
+  padding: 20px;
+  min-height: 100vh;
+  border: 4px;
+
+  background-color: #d8f4e3;
+}
+
+.t-dashboard-header {
   display: flex;
-  align-items: stretch;
-  width: 100%;
-  height: 120px;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.t-dashboard-header h1 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.t-header-icons {
+  
+  display: flex;
+  gap: 10px;
+}
+
+.t-icon-button {
+  font-family:'Hammersmith One', sans-serif;
+  padding: 12px 18px; 
+  background-color: #5586E0;
   border: 3px solid black;
-  overflow: hidden;
-  box-sizing: border-box;
-  }
-  
-  /* Left color section */
-  .t-color-section {
-  flex-basis: 10%;
-  min-width: 10%;
-  height: 100%;
-  box-sizing: border-box;
-  
-  }
-  
-  /* Text section with a lighter shade */
-  .t-text-section {
-  flex-grow: 1;
-  height: 100%;
+  border-radius: 40px; 
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  color: black;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.t-icon-button:hover {
+  background-color: #13449e; 
+  color: white;
+}
+/* Main Content Layout */
+.t-dashboard-main {
+  display: flex;
+  gap: 20px;
+}
+
+/* Courses Section */
+.t-courses-section {
+  flex: 1;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  border: 4px solid black;
+}
+
+.t-courses-section h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.t-courses-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  box-sizing: border-box;
-  padding-left: 15px;
-  }
-  
-  /* Increased text size */
-  .t-text-section h3 {
+  gap: 10px;
+}
+
+/* T-Course Card Styling (Matching Dashboard Course Cards) */
+.t-course-card {
+display: flex;
+align-items: stretch;
+width: 100%;
+height: 120px;
+border-radius: 15px;
+cursor: pointer;
+transition: transform 0.2s ease-in-out;
+border: 3px solid black;
+overflow: hidden;
+box-sizing: border-box;
+}
+
+/* Left color section */
+.t-color-section {
+flex-basis: 10%;
+min-width: 10%;
+height: 100%;
+box-sizing: border-box;
+
+}
+
+/* Text section with a lighter shade */
+.t-text-section {
+flex-grow: 1;
+height: 100%;
+display: flex;
+flex-direction: column;
+justify-content: center;
+box-sizing: border-box;
+padding-left: 15px;
+}
+
+/* Increased text size */
+.t-text-section h3 {
+font-size: 20px;
+font-weight: bold;
+color: black;
+margin: 0;
+}
+
+.t-text-section p {
+font-size: 16px;
+color: gray;
+margin: 5px 0 0;
+}
+
+/* Course Colors */
+.t-color-section.yellow {
+background-color: #F2C100;
+}
+
+.t-text-section.yellow {
+background-color: #FBE79F; /* Lighter yellow */
+}
+
+.t-color-section.blue {
+background-color: #5586E0;
+}
+
+.t-text-section.blue {
+background-color: #A9C6F5; /* Lighter blue */
+}
+
+.t-color-section.red {
+background-color: #E54B32;
+}
+
+.t-text-section.red {
+background-color: #F6A79B; /* Lighter red */
+}
+
+.t-color-section.pink {
+background-color: #EA97B3;
+}
+
+.t-text-section.pink {
+background-color: #F7C3D1; /* Lighter pink */
+}
+
+.t-color-section.green {
+background-color: #8FCE5D;
+}
+
+.t-text-section.green {
+background-color: #C5E6A0; /* Lighter green */
+}
+
+
+h3 {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 20%px;
+}
+
+/* To-Do List Section */
+.todo-section {
+  flex: 2;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  border: 4px solid black;
+}
+
+.todo-section h2 {
   font-size: 20px;
-  font-weight: bold;
-  color: black;
-  margin: 0;
-  }
-  
-  .t-text-section p {
-  font-size: 16px;
-  color: gray;
-  margin: 5px 0 0;
-  }
-  
-  /* Course Colors */
-  .t-color-section.yellow {
+  margin-bottom: 10px;
+}
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.todo-card {
+  /* padding: 15px; */
+  padding-left: 15px;
+  border: 1px solid black;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.todo-card:hover {
+  transform: scale(1.05);
+}
+
+.todo-card h3 {
+  padding-top: 5px;
+}
+
+.todo-card p {
+  padding-bottom: 15px;
+}
+
+/* To-Do Colors */
+.todo-card.yellow {
   background-color: #F2C100;
-  }
-  
-  .t-text-section.yellow {
-  background-color: #FBE79F; /* Lighter yellow */
-  }
-  
-  .t-color-section.blue {
-  background-color: #5586E0;
-  }
-  
-  .t-text-section.blue {
-  background-color: #A9C6F5; /* Lighter blue */
-  }
-  
-  .t-color-section.red {
-  background-color: #E54B32;
-  }
-  
-  .t-text-section.red {
-  background-color: #F6A79B; /* Lighter red */
-  }
-  
-  .t-color-section.pink {
-  background-color: #EA97B3;
-  }
-  
-  .t-text-section.pink {
-  background-color: #F7C3D1; /* Lighter pink */
-  }
-  
-  .t-color-section.green {
+}
+
+.todo-card.green {
   background-color: #8FCE5D;
-  }
-  
-  .t-text-section.green {
-  background-color: #C5E6A0; /* Lighter green */
-  }
-  
-  
-  h3 {
-    font-family: 'Hanken Grotesk', sans-serif;
-    font-size: 20%px;
-  }
-  
-  /* To-Do List Section */
-  .todo-section {
-    flex: 2;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    border: 4px solid black;
-  }
-  
-  .todo-section h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .todo-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .todo-card {
-    /* padding: 15px; */
-    padding-left: 15px;
-    border: 1px solid black;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .todo-card:hover {
-    transform: scale(1.05);
-  }
-  
-  .todo-card h3 {
-    padding-top: 5px;
-  }
-  
-  .todo-card p {
-    padding-bottom: 15px;
-  }
-  
-  /* To-Do Colors */
-  .todo-card.yellow {
-    background-color: #F2C100;
-  }
-  
-  .todo-card.green {
-    background-color: #8FCE5D;
-  }
-  
-  .todo-card.red {
-    background-color: #E54B32;
-  }
-  
-  /* Optional Highlighting */
-  .border-black {
-    border: 3px solid black;
-  }
-  
+}
+
+.todo-card.red {
+  background-color: #E54B32;
+}
+
+/* Optional Highlighting */
+.border-black {
+  border: 3px solid black;
+}
+
+.game-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* Adjust spacing as needed */
+  justify-content: center; /* Centers the row */
+}
+
+.game-grid > * {
+  flex: 1 1 calc(20% - 20px); /* Ensures 4 items per row */
+  max-width: calc(20% - 20px); /* Ensures 4 items per row */
+  min-width: 200px; /* Prevents shrinking too much */
+}
+
+.start-btn {
+padding: 0.75rem 1.5rem;
+font-size: 1.2rem;
+background-color: #6fae7b;
+color: white;
+border-radius: 15px;
+cursor: pointer;
+transition: background-color 0.3s;
+border: 3px solid black;
+}
+
+.start-btn:hover {
+background-color: #558e62;
+}
+.create-game-container {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%; /* Ensures full width */
+margin-top: 20px; /* Adjust spacing */
+margin-bottom: 20px;
+}
+
+

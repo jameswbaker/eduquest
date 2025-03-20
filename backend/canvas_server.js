@@ -1,5 +1,4 @@
-const { domain } = require('./const');
-
+require('dotenv').config();
 const OpenAI = require("openai");
 const express = require('express');
 const axios = require('axios');
@@ -8,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 
 const PORT = 4000;
+const domain = new URL(process.env.API_BASE_URL).hostname;
 
 const app = express();
 
@@ -25,7 +25,6 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET; // Ensure this matches the secret used for signing
 
 const openai = new OpenAI();

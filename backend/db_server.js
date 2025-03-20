@@ -1,4 +1,5 @@
-const { domain } = require('./const');
+require('dotenv').config();
+// const { domain } = require('./const');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const mysql = require('mysql2');
@@ -7,6 +8,7 @@ const cors = require('cors');
 const axios = require('axios');
 
 const app = express();
+const domain = new URL(process.env.API_BASE_URL).hostname;
 
 app.use(cors({
     origin: [`${domain}:3000`, `${domain}:4000`],  // Frontend URL
@@ -16,8 +18,6 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
-
-require('dotenv').config();
 
 // Secret key for JWT signing
 const JWT_SECRET = process.env.JWT_SECRET;

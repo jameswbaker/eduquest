@@ -51,7 +51,7 @@ const FLAPPY_CONFIG = {
   }
 };
 
-const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+const domain = window.domain || 'localhost';
 
 let gameId = null;
 let studentId = null;

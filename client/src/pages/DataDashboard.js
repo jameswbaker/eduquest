@@ -21,15 +21,11 @@ import axios from 'axios'
 const TDashboard = () => {
   const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const { courseId } = useParams();
-  console.log('courseId ', courseId);
-
-
   const navigate = useNavigate();
 
-
-useEffect(() => {
-  const enrollmentType = ReactSession.get("enrollmentType");
-  console.log(enrollmentType);
+  useEffect(() => {
+    const enrollmentType = ReactSession.get("enrollmentType");
+    console.log(enrollmentType);
     if (enrollmentType === "StudentEnrollment") {
       alert("Not authorized to access teacher page");
       navigate('/dashboard/:studentId');
@@ -145,13 +141,14 @@ useEffect(() => {
 
   const fetchGamesInCourse = async () => {
     setError('');
-    console.log("FETCH GAMES course_id", courseId);
     try {
         const response = await axios.get(`http://${domain}:5001/get-games-by-course?course_id=${courseId}`, {
             withCredentials: true,
         });
         setGameIds(response.data.game_ids);
         setGameNames(response.data.game_names);
+        console.log(gameIds);
+        console.log(gameNames);
     } catch (error) {
         console.error('Error fetching students:', error.response ? error.response.data : error.message);
         setError('Error fetching students. Please check your token and permissions.');
@@ -181,7 +178,6 @@ useEffect(() => {
       });
   
       const course = response.data;
-      console.log('Raw course data:', course);
       // Build our aggregator for all users
       const aggregatedData = aggregateAllRubricData(course);
       console.log('Aggregated rubric data by student:', aggregatedData);

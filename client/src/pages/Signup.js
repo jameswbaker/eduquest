@@ -32,9 +32,14 @@ function SignUp() {
 
   const exchangeCodeForToken = async (code) => {
     try {
-      const response = await axios.post(`http://${domain}:4000/exchange-token`, { code });
+      const response = await axios.post(`http://${domain}:4000/exchange-token`, 
+        { code },
+        {
+          headers: { 'Content-Type': 'application.json' },
+          withCredentials: true,
+        });
 
-      if (response.data.auth_token) {
+      if (response.data && response.data.auth_token) {
         setCanvasToken(response.data.auth_token);
         console.log('Canvas token received:', response.data.auth_token);
       } else {

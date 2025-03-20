@@ -105,12 +105,13 @@ const GameDashS = () => {
                 .map((game, index) => {
                   const colorKey = colorOrder[index % colorOrder.length];
                   const colors = colorMapping[colorKey];
+                  const subtitle = game.type + "\n" + getCourseFromCourseId(game.course_id);
 
                   return (
                     <CardComponent
                       key={game.game_id}
                       title={game.name}
-                      subtitle={game.type}
+                      subtitle={subtitle}
                       date={game.due_date || "No due date"}
                       progress={0}
                       progressText={"0%"}
@@ -129,7 +130,7 @@ const GameDashS = () => {
 
 async function getCourseFromCourseId(courseId) {
   try {
-    const response = await fetch(`${domain}:4000/api/courses/${courseId}/name`, {
+    const response = await fetch(`http://${domain}:4000/api/courses/${courseId}/name`, {
       method: 'GET',
       credentials: 'include'
     });
@@ -137,7 +138,8 @@ async function getCourseFromCourseId(courseId) {
       throw new Error("Failed to fetch course name");
     }
     const data = await response.json();
-    return data.course_name;
+    console.log(data);
+    return data;
   } catch (error) {
     console.error("Error fetching course name:", error);
     return "Unknown Course";

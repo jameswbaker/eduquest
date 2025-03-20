@@ -1,10 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ReactSession } from "react-client-session";
+import axios from 'axios';
+import "./PlayGamePage.css";
+import BackButton from "../components/BackButton";
+
 
 const PlayGamePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [backRoute, setBackRoute] = useState("/"); // Default fallback
+
 
   // Parse query params using URLSearchParams
   const queryParams = new URLSearchParams(location.search);
@@ -13,6 +19,8 @@ const PlayGamePage = () => {
   const type = queryParams.get('type');
   const courseId = queryParams.get('courseId');
 
+  
+
   useEffect(() => {
     const user = ReactSession.get("user");
     console.log("User is:", user);
@@ -20,24 +28,25 @@ const PlayGamePage = () => {
       alert("Please log in first");
       navigate("/");
     }
+    const enrollmentType = ReactSession.get("enrollmentType");
+    const route = enrollmentType === "StudentEnrollment" ? "/studentGameBoard/:studentId" : "/teacherGameBoard";
+    setBackRoute(route);
+    console.log("This is backRoute:", route);
   }, [navigate]);
 
   return (
     <div className="background">
       <div className="game-container">
-        <a href="/teacherGameBoard">
-          <button>Back</button>
-        </a>
-        {/* TODO: direct to either teacher dashboard or student dashboard depending on role */}
-        
+        {/* BACK BUTTON */}
+        <BackButton backRoute={backRoute}></BackButton>
         <iframe
           src={`/html/game_play.html?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`}
-          width="700"
+          width="100%" 
           height="600"
           frameBorder="0"
           title="Play Game"
-          scrolling="no"
-          style={{ overflow: "hidden" }}
+          scrolling="yes" 
+          style={{ maxWidth: "900px", minWidth: "700px", borderRadius: "10px" }} 
         />
       </div>
     </div>

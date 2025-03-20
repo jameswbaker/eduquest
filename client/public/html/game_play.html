@@ -41,7 +41,13 @@
   <div id="question"></div>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
-    const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+    let gameDomain;
+    if (typeof domain === 'undefined') {
+      gameDomain = window.location.hostname || 'localhost';
+    } else {
+      gameDomain = domain;
+    }
+
     document.addEventListener("DOMContentLoaded", async function() {
       const urlParams = new URLSearchParams(window.location.search);
       const gameId = urlParams.get("gameId");
@@ -65,7 +71,7 @@
       const { isUserTeacher, userName } = await fetchUserRole(studentId);
 
       try {
-        const response = await fetch(`http://${domain}:5001/get-questions-answers?game_id=${gameId}`);
+        const response = await fetch(`http://${gameDomain}:5001/get-questions-answers?game_id=${gameId}`);
         const gameData = await response.json();
         if (!response.ok) {
           throw new Error(data.error || "Failed to fetch questions");
@@ -105,7 +111,7 @@
 
     async function fetchUserId() {
       try {
-        const response = await fetch(`http://${domain}:4000/protected-route`, {
+        const response = await fetch(`http://${gameDomain}:4000/protected-route`, {
           credentials: 'include'
         });
         
@@ -123,7 +129,7 @@
 
     async function fetchUserRole(studentId) {
       try {
-        const response = await fetch(`http://${domain}:4000/api/get-role`, {
+        const response = await fetch(`http://${gameDomain}:4000/api/get-role`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

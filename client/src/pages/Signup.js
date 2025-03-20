@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import axios from "axios";
-import useLocation from 'react-router-dom';
 // import Cookies from 'js-cookie'; // Import js-cookie
 import './SignUp.css';
 

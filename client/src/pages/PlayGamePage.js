@@ -36,17 +36,17 @@ const PlayGamePage = () => {
 
   return (
     <div className="background">
-      <div className="game-container">
+      <div className="play-game-container">
         {/* BACK BUTTON */}
-        <BackButton backRoute={backRoute}></BackButton>
+        <BackButton backRoute={backRoute} style={{ transform: 'translateY(100px)'}}></BackButton>
         <iframe
           src={`/html/game_play.html?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`}
           width="100%" 
-          height="600"
+          height="800px"
           frameBorder="0"
           title="Play Game"
-          scrolling="yes" 
-          style={{ maxWidth: "900px", minWidth: "700px", borderRadius: "10px" }} 
+          scrolling="no" 
+          style={{ maxWidth: "1000px", minWidth: "500px", borderRadius: "10px" }} 
         />
       </div>
     </div>

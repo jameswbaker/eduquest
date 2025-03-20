@@ -530,8 +530,8 @@ app.get('/canvas/callback', async (req, res) => {
 
     const { auth_token } = tokenResponse.data;
     res.cookie('auth_token', auth_token, { httpOnly: true });
-    res.json({ tokenRes: tokenResponse, auth: auth_token })
-    res.redirect(`/?token=${access_token}`);
+    // res.json({ tokenRes: tokenResponse, auth: auth_token })
+    res.redirect(`/?token=${auth_token}`);
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     res.status(500).json({ error: 'Failed to exchange code for access token' });

@@ -12,7 +12,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}          
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
@@ -37,6 +37,16 @@ jobs:
             # Deploy frontend
             cd /home/ubuntu/eduquest/client
             npm install --force
+            
+            # Create the .env file for React
+            echo "REACT_APP_CLIENT_ID=${{ secrets.REACT_APP_CLIENT_ID }}" > .env
+            echo "REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }}" >> .env
+            echo "REACT_APP_REDIRECT_URI=${{ secrets.REACT_APP_REDIRECT_URI }}" >> .env
+            
+            # Ensure the .env file is correctly formatted
+            cat .env
+            
+            # Build the frontend
             npm run build
             
             # Start or restart the frontend

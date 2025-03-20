@@ -20,17 +20,20 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
       return;
     }
-
+  
     // Retrieve the canvasToken (auth_token) from the cookie
     const authToken = Cookies.get('auth_token'); // Using js-cookie to get the cookie
-    if (authToken) {
-      setCanvasToken(authToken); // Set the canvasToken in state
+    if (!authToken) {
+      alert('Authentication failed. No auth_token. Please log in to Canvas first to get an auth_token.');
+      return; // Don't proceed with the sign-up process
     }
+    
+    setCanvasToken(authToken); // Set the canvasToken in state
   
     try {
       const response = await fetch(`http://${domain}:5001/signup`, {
@@ -92,6 +95,7 @@ function SignUp() {
       alert(`Sign Up Failed: ${error.message}`);
     }
   };
+  
 
   const handleCanvasLogin = () => {
     const canvasBaseUrl = "https://cbsd.instructure.com"; // Change this if using a school-specific Canvas URL

@@ -11,7 +11,7 @@ const app = express();
 const domain = new URL(process.env.API_BASE_URL).hostname;
 
 app.use(cors({
-    origin: [`${domain}:3000`, `${domain}:4000`],  // Frontend URL
+    origin: [`${domain}:3000`, `${domain}:4000`, "http://localhost:5001"],  // Frontend URL
     methods: ['GET', 'POST'],        // Allow specific methods
     credentials: true, // Enable cookies
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers

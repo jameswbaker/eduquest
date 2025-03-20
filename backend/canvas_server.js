@@ -497,6 +497,73 @@ app.get('/api/courses/:courseId/name', async (req, res) => {
 
 
 
+
+// app.get('/canvas/auth', async (req, res) => {
+//   // Generate the URL for Canvas authentication
+//   const canvasAuthUrl = `https://${root}/login/oauth2/auth?client_id=${process.env.CANVAS_CLIENT_ID}&redirect_uri=${process.env.CANVAS_REDIRECT_URI}&response_type=code&scope=read`;
+
+//   // Redirect the user to Canvas for authentication
+//   res.redirect(canvasAuthUrl);
+// });
+
+app.get('/canvas/callback', async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.status(400).json({ error: 'No code provided' });
+  }
+
+  console.log('Authorization code received:', code);  // Log the code to verify this route is called
+
+  try {
+    const tokenResponse = await axios.post(`https://${root}/login/oauth2/token`, null, {
+      params: {
+        client_id: process.env.CANVAS_CLIENT_ID,
+        client_secret: process.env.CANVAS_CLIENT_SECRET,
+        code: code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.CANVAS_REDIRECT_URI,
+      }
+    });
+
+    const { auth_token } = tokenResponse.data;
+    res.cookie('auth_token', auth_token, { httpOnly: true, sameSite: 'None' });
+    // res.json({ tokenRes: tokenResponse, auth: auth_token })
+    return res.redirect(`/?token=${auth_token}`);
+  } catch (error) {
+    console.error('Error exchanging code for token:', error);
+    res.status(500).json({ error: 'Failed to exchange code for access token' });
+  }
+});
+
+app.post('/exchange-token', async (req, res) => {
+  const { code } = req.body;
+  if (!code) {
+    return res.status(400).json({ error: 'Missing code parameter' });
+  }
+
+  try {
+    const tokenResponse = await axios.post('https://cbsd.instructure.com/login/oauth2/token', null, {
+      params: {
+        client_id: process.env.CANVAS_CLIENT_ID,
+        client_secret: process.env.CANVAS_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.CANVAS_REDIRECT_URI,
+      }
+    });
+
+    const { access_token } = tokenResponse.data;
+    res.json({ auth_token: access_token });
+  } catch (error) {
+    console.error('Error exchanging code for token:', error);
+    res.status(500).json({ error: 'Failed to exchange code for access token' });
+  }
+});
+
+
+
+
 app.get('/protected-route', (req, res) => {
   const token = req.cookies.auth_token;
   const decoded = jwt.verify(token, JWT_SECRET);

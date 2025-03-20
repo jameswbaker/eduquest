@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import Cookies from 'js-cookie'; // Import js-cookie
+// import Cookies from 'js-cookie'; // Import js-cookie
 import './SignUp.css';
 
 function SignUp() {
@@ -27,13 +27,13 @@ function SignUp() {
     }
   
     // Retrieve the canvasToken (auth_token) from the cookie
-    const authToken = Cookies.get('auth_token'); // Using js-cookie to get the cookie
-    if (!authToken) {
-      alert('Authentication failed. No auth_token. Please log in to Canvas first to get an auth_token.');
-      return; // Don't proceed with the sign-up process
-    }
+    // const authToken = Cookies.get('auth_token'); // Using js-cookie to get the cookie
+    // if (!authToken) {
+    //   alert('Authentication failed. No auth_token. Please log in to Canvas first to get an auth_token.');
+    //   return; // Don't proceed with the sign-up process
+    // }
     
-    setCanvasToken(authToken); // Set the canvasToken in state
+    // setCanvasToken(authToken); // Set the canvasToken in state
   
     try {
       const response = await fetch(`http://${domain}:5001/signup`, {

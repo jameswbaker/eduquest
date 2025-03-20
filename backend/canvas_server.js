@@ -526,6 +526,8 @@ app.get('/canvas/callback', async (req, res) => {
       }
     });
 
+    console.log("tokenResponse is: ", tokenResponse);
+
     const { auth_token } = tokenResponse.data;
     res.cookie('auth_token', auth_token, { httpOnly: true });
     res.redirect('/');

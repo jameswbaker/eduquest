@@ -6,6 +6,8 @@ import { ReactSession } from 'react-client-session';
 import axios from 'axios';
 import "./GameDashT.css";
 import { domain } from "../const.js";
+import CardComponent from "../components/Card";  // Adjust path if necessary
+
 
 const GameDashT = () => {
   const navigate = useNavigate();
@@ -102,11 +104,11 @@ const GameDashT = () => {
           </button>
         </div> */}
       </header>
-
-
-      <a href={"/createGame"}> 
-        <button> Create New Game </button>
-      </a>
+      <div className="create-game-container">
+        <a href="/createGame">
+          <button className="start-btn">Create New Game</button>
+        </a>
+      </div>
 
       {/* Show error (if any) */}
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -118,21 +120,28 @@ const GameDashT = () => {
           <h2>Games</h2>
           <div className="t-courses-list">
             {/* Dynamically render courses */}
-            {games.slice() // creates a copy so the original array isn't mutated
-            .sort((a, b) => b.game_id - a.game_id)
-            .map((game, index) => {
-              const color = colorOrder[index % colorOrder.length];
-              return (
-                <GameCard
-                  key={game.game_id}
-                  gameId={game.game_id}
-                  gameName={game.name}
-                  type={game.type}
-                  color={color}
-                  courseId={game.course_id}
-                />
-              );
-            })}
+            <div className="game-grid">
+              {games.slice()
+                .sort((a, b) => b.game_id - a.game_id)
+                .map((game, index) => {
+                  const colorKey = colorOrder[index % colorOrder.length];
+                  const colors = colorMapping[colorKey];
+
+                  return (
+                    <CardComponent
+                      key={game.game_id}
+                      title={game.name}
+                      subtitle={game.type}
+                      date={game.due_date || "No due date"}
+                      progress={0}
+                      progressText={"0%"}
+                      backgroundColor={colors.primary} // Use primary color
+                      link={`/playGame?gameId=${game.game_id}&gameName=${game.name}&type=${game.type}&courseId=${game.course_id}`}
+                    />
+                  );
+                })}
+            </div>
+            
           </div>
         </div>
       </div>
@@ -157,29 +166,16 @@ async function getCourseFromCourseId(courseId) {
   }
 }
 
-const GameCard = ({ gameId, gameName, type, color, courseId }) => {
-  const navigate = useNavigate();
 
-  const handleClick = () => {
-    navigate(`/playGame?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`);
-  };
-
-  const [course, setCourse] = useState("");
-
-  useEffect(() => {
-    getCourseFromCourseId(courseId).then(setCourse);
-  }, [courseId]);
-
-  return (
-    <div className="t-course-card" onClick={handleClick}>
-      <div className={`t-color-section ${color}`}></div>
-      <div className={`t-text-section ${color}`}>
-        <h3>{gameName}</h3>
-        <p>{type}</p>
-        <p className="course-name">Course Name: {course}</p>
-      </div>
-    </div>
-  );
+const colorMapping = {
+  yellow: { primary: "#F2C100", lighter: "#FBE79F" },
+  blue: { primary: "#5586E0", lighter: "#A9C6F5" },
+  red: { primary: "#E54B32", lighter: "#F6A79B" },
+  pink: { primary: "#EA97B3", lighter: "#F7C3D1" },
+  green: { primary: "#8FCE5D", lighter: "#C5E6A0" },
 };
+
+// Maintain a cycle of colors for the games
+const colorOrder = ["yellow", "blue", "red", "pink", "green"];
 
 export default GameDashT;

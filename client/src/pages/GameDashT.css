@@ -229,3 +229,41 @@ body {
     border: 3px solid black;
   }
   
+  .game-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adjust spacing as needed */
+    justify-content: center; /* Centers the row */
+  }
+  
+  .game-grid > * {
+    flex: 1 1 calc(20% - 20px); /* Ensures 4 items per row */
+    max-width: calc(20% - 20px); /* Ensures 4 items per row */
+    min-width: 200px; /* Prevents shrinking too much */
+  }
+
+.start-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  background-color: #6fae7b;
+  color: white;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border: 3px solid black;
+}
+
+.start-btn:hover {
+  background-color: #558e62;
+}
+.create-game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Ensures full width */
+  margin-top: 20px; /* Adjust spacing */
+  margin-bottom: 20px;
+}
+
+
+  

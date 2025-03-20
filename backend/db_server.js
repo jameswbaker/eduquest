@@ -48,7 +48,7 @@ app.post('/signup', async (req, res) => {
     }
 
     try {
-      const userResponse = await axios.get(`${domain}:4000/api/users/user-details`, {
+      const userResponse = await axios.get(`http://${domain}:4000/api/users/user-details`, {
           params: {
               token: canvasToken,
           },
@@ -102,7 +102,7 @@ app.post('/login', async (req, res) => {
     const user = results[0];
     if (password == user.password) {
       try {
-        const userResponse = await axios.get(`${domain}:4000/api/users/user-details`, {
+        const userResponse = await axios.get(`http://${domain}:4000/api/users/user-details`, {
             params: { token: user.canvas_token, },
         });
         const userId = userResponse.data.id;

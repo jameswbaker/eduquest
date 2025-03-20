@@ -18,6 +18,32 @@ function SignUp() {
 
   const navigate = useNavigate();
 
+  const location = useLocation();
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const code = queryParams.get('code');
+
+    if (code) {
+      exchangeCodeForToken(code);
+    }
+  }, [location]);
+
+  const exchangeCodeForToken = async (code) => {
+    try {
+      const response = await axios.post(`http://${domain}:4000/exchange-token`, { code });
+
+      if (response.data.auth_token) {
+        setCanvasToken(response.data.auth_token);
+        console.log('Canvas token received:', response.data.auth_token);
+      } else {
+        console.error('Failed to get token:', response.data);
+      }
+    } catch (error) {
+      console.error('Error exchanging code for token:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     

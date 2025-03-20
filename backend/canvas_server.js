@@ -527,7 +527,7 @@ app.get('/canvas/callback', async (req, res) => {
     });
 
     const { auth_token } = tokenResponse.data;
-    res.cookie('auth_token', auth_token, { httpOnly: true });
+    res.cookie('auth_token', auth_token, { httpOnly: true, sameSite: 'None' });
     // res.json({ tokenRes: tokenResponse, auth: auth_token })
     return res.redirect(`/?token=${auth_token}`);
   } catch (error) {
@@ -536,7 +536,30 @@ app.get('/canvas/callback', async (req, res) => {
   }
 });
 
+app.post('/exchange-token', async (req, res) => {
+  const { code } = req.body;
+  if (!code) {
+    return res.status(400).json({ error: 'Missing code parameter' });
+  }
 
+  try {
+    const tokenResponse = await axios.post('https://cbsd.instructure.com/login/oauth2/token', null, {
+      params: {
+        client_id: process.env.CANVAS_CLIENT_ID,
+        client_secret: process.env.CANVAS_CLIENT_SECRET,
+        code,
+        grant_type: 'authorization_code',
+        redirect_uri: process.env.CANVAS_REDIRECT_URI,
+      }
+    });
+
+    const { access_token } = tokenResponse.data;
+    res.json({ auth_token: access_token });
+  } catch (error) {
+    console.error('Error exchanging code for token:', error);
+    res.status(500).json({ error: 'Failed to exchange code for access token' });
+  }
+});
 
 
 

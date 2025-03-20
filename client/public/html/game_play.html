@@ -41,7 +41,7 @@
   <div id="question"></div>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
-    const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+    const domain = window.location.hostname || 'localhost';
     document.addEventListener("DOMContentLoaded", async function() {
       const urlParams = new URLSearchParams(window.location.search);
       const gameId = urlParams.get("gameId");

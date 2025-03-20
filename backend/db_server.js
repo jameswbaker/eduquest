@@ -231,6 +231,28 @@ app.get('/get-games', async (req, res) => {
   }
 });
 
+app.get('/get-games-by-course', (req, res) => {
+  const { course_id } = req.query;
+  console.log(course_id);
+  try {
+    const query = `SELECT * FROM Games WHERE course_id = ?`;
+    db.query(query, [course_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching from Games:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      const game_ids = results.map(game => game.game_id);
+      const game_names = results.map(game => game.name);
+      console.log(game_ids);
+      console.log(game_names);
+      return res.status(200).json({ game_ids, game_names });
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+});
+
 app.post('/add-game-result', (req, res) => {
   const { game_id, student_id, score, user_name } = req.body;
   if (!game_id || !student_id || score == null) {

@@ -96,11 +96,6 @@ useEffect(() => {
     setSelectedRubricItems
   } = useCourseSummary(courseId);
 
-  console.log('this is students ', students);
-  console.log('this is rubric items ', rubricItems);
-  console.log('this is assignments ', assignments);
-
-
   const [analyticsData, setAnalyticsData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -108,6 +103,8 @@ useEffect(() => {
     students: [],
     timeRange: "",
   });
+  const [gameIds, setGameIds] = useState([]);
+  const [gameNames, setGameNames] = useState([]);
 
   useEffect(() => {
     if (assignments.length > 0 && selectedRubricItems.length > 0) {
@@ -140,6 +137,21 @@ useEffect(() => {
         setCourseCode(response.data.course_code);
         setAssignments(response.data.assignments);
         extractRubricItems(response.data.assignments);
+    } catch (error) {
+        console.error('Error fetching students:', error.response ? error.response.data : error.message);
+        setError('Error fetching students. Please check your token and permissions.');
+    }
+  };
+
+  const fetchGamesInCourse = async () => {
+    setError('');
+    console.log("FETCH GAMES course_id", courseId);
+    try {
+        const response = await axios.get(`http://${domain}:5001/get-games-by-course?course_id=${courseId}`, {
+            withCredentials: true,
+        });
+        setGameIds(response.data.game_ids);
+        setGameNames(response.data.game_names);
     } catch (error) {
         console.error('Error fetching students:', error.response ? error.response.data : error.message);
         setError('Error fetching students. Please check your token and permissions.');
@@ -185,6 +197,7 @@ useEffect(() => {
   useEffect(() => {
     fetchStudents();
     fetchCourseDetails();
+    fetchGamesInCourse();
     aggregateCourseDetails(courseId);
   }, [courseId]);
 

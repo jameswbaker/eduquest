@@ -48,7 +48,7 @@ const GameDashT = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:4000/api/courses`, {
+      const response = await axios.get(`http://${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       const courseIdsArray = response.data.map(course => course.id);
@@ -70,7 +70,7 @@ const GameDashT = () => {
     }
     try {
       const courseIdsString = courseIds.join(',');
-      const response = await axios.get(`${domain}:5001/get-games?course_ids=${courseIdsString}`, {
+      const response = await axios.get(`http://${domain}:5001/get-games?course_ids=${courseIdsString}`, {
         withCredentials: true,
       });
       setGames(response.data);

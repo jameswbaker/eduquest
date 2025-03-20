@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import axios from 'axios';
 import "./GameDashT.css";
-import { domain } from "../const.js";
 import CardComponent from "../components/Card";  // Adjust path if necessary
 
+const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
 
 const GameDashT = () => {
   const navigate = useNavigate();

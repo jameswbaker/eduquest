@@ -37,17 +37,20 @@ const PlayGamePage = () => {
   return (
     <div className="background">
       <div className="game-container">
-        {/* BACK BUTTON */}
-        <BackButton backRoute={backRoute}></BackButton>
-        <iframe
-          src={`/html/game_play.html?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`}
-          width="100%" 
-          height="600"
-          frameBorder="0"
-          title="Play Game"
-          scrolling="yes" 
-          style={{ maxWidth: "900px", minWidth: "700px", borderRadius: "10px" }} 
-        />
+        <div className="game-layout">
+          <div className="sidebar">
+            <BackButton backRoute={backRoute}></BackButton>
+          </div>
+          <div className="iframe-container">
+            <iframe
+              src={`/html/game_play.html?gameId=${gameId}&gameName=${gameName}&type=${type}&courseId=${courseId}`}
+              frameBorder="0"
+              title="Play Game"
+              scrolling="no" 
+              className="game-frame"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

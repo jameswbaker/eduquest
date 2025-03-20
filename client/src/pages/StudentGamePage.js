@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { ReactSession } from "react-client-session";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { domain } from "../const.js";
 import "./StudentGamePage.css";
 
 const StudentGamePage = () => {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [error, setError] = useState("");
@@ -48,7 +48,7 @@ const StudentGamePage = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:4000/api/courses`, {
+      const response = await axios.get(`http://${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       setCourses(response.data);
@@ -77,7 +77,7 @@ const StudentGamePage = () => {
   const fetchTodos = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:4000/api/user/to-do`, {
+      const response = await axios.get(`http://${domain}:4000/api/user/to-do`, {
         withCredentials: true,
       });
       const formattedTodos = response.data.map((todo, index) => {
@@ -112,7 +112,7 @@ const StudentGamePage = () => {
   // Fetch student info (full name) from Canvas API
   const fetchStudentCanvasInfo = async () => {
     try {
-      const response = await axios.get(`${domain}:4000/api/users/user-details`, {
+      const response = await axios.get(`http://${domain}:4000/api/users/user-details`, {
         withCredentials: true,
       });
       setStudentName(response.data.name);

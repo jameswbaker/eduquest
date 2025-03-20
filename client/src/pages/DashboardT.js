@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import axios from 'axios';
 import "./DashboardT.css";
-import { domain } from "../const.js";
 
 const DashboardT = () => {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const navigate = useNavigate();
   
   // Store courses & errors from backend
@@ -41,7 +41,7 @@ const DashboardT = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:4000/api/courses`, {
+      const response = await axios.get(`http://${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       setCourses(response.data);

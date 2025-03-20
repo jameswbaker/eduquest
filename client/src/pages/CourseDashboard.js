@@ -9,9 +9,9 @@ import RubricCard from '../components/RubricCard';
 import Navbar from '../components/NavBar';
 import './CourseDashboard.css';
 import { ReactSession } from "react-client-session";
-import { domain } from '../const.js';
 
 export default function CourseDashboard() {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   // Get courseId from URL path parameters
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export default function CourseDashboard() {
     setError('');
     try {
       const response = await axios.get(
-        `${domain}:4000/api/courses/${courseId}/course-details`,
+        `http://${domain}:4000/api/courses/${courseId}/course-details`,
         { withCredentials: true }
       );
       setCourseName(response.data.course_name);
@@ -96,7 +96,7 @@ export default function CourseDashboard() {
   async function aggregateCourseDetailsData() {
     try {
       const response = await axios.get(
-        `${domain}:4000/api/course-details-agg/${courseId}`,
+        `http://${domain}:4000/api/course-details-agg/${courseId}`,
         { withCredentials: true }
       );
       const course = response.data;

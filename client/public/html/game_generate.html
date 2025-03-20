@@ -365,6 +365,7 @@
     /************************
      * 0) GAME TYPE DROPDOWN
      ************************/
+    const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
     const gameTypeSelect = document.getElementById("gameTypeSelect");
     function getSelectedGame() {
       return gameTypeSelect.value || "";
@@ -500,7 +501,7 @@
    ****************************/
   async function fetchCoursesFromAPI() {
     try {
-      const response = await fetch("http://localhost:4000/api/courses", { credentials: 'include' });
+      const response = await fetch(`http://${domain}:4000/api/courses`, { credentials: 'include' });
       // const response = await fetch("http://ec2-18-232-60-58.compute-1.amazonaws.com:4000/api/courses", { credentials: 'include' });
       if (!response.ok) {
         throw new Error("Failed to fetch courses");
@@ -523,7 +524,7 @@
 
   async function fetchUserId() {
     try {
-      const response = await fetch('http://localhost:4000/protected-route', {
+      const response = await fetch(`http://${domain}:4000/protected-route`, {
         credentials: 'include'
       });
       
@@ -541,7 +542,7 @@
 
   async function fetchUserRole(studentId) {
     try {
-      const response = await fetch('http://localhost:4000/api/get-role', {
+      const response = await fetch(`http://${domain}:4000/api/get-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -634,8 +635,8 @@
         try {
           // Use the config
           // const apiBaseUrl = window.APP_CONFIG.apiBaseUrl;
-          const canvasApiBaseUrl = "http://localhost:4000";
-          const dbApiBaseUrl = "http://localhost:5001";
+          const canvasApiBaseUrl = `http://${domain}:4000`;
+          const dbApiBaseUrl = `http://${domain}:5001`;
 
           const gameDbResponse = await fetch(`${dbApiBaseUrl}/add-game`, {
             method: "POST",

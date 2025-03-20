@@ -51,6 +51,8 @@ const FLAPPY_CONFIG = {
   }
 };
 
+const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
+
 let gameId = null;
 let studentId = null;
 let isUserTeacher = false;
@@ -214,7 +216,7 @@ class Game {
 
     try {
       console.log("Score:", this.score);
-      const response = await fetch(`http://localhost:5001/add-game-result`, {
+      const response = await fetch(`http://${domain}:5001/add-game-result`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

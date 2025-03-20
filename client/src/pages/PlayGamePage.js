@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ReactSession } from "react-client-session";
-import { domain } from "../const";
-import axios from 'axios';
 
 const PlayGamePage = () => {
   const navigate = useNavigate();

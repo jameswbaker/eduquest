@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { ReactSession } from 'react-client-session';
 import axios from 'axios';
 import "./GameDashT.css";
-import { domain } from "../const.js";
 
 const GameDashS = () => {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const navigate = useNavigate();
   
   // Store courses & errors from backend
@@ -35,7 +35,7 @@ const GameDashS = () => {
   const fetchCourses = async () => {
     setError("");
     try {
-      const response = await axios.get(`${domain}:4000/api/courses`, {
+      const response = await axios.get(`http://${domain}:4000/api/courses`, {
         withCredentials: true,
       });
       const courseIdsArray = response.data.map(course => course.id);
@@ -57,7 +57,7 @@ const GameDashS = () => {
     }
     try {
       const courseIdsString = courseIds.join(',');
-      const response = await axios.get(`${domain}:5001/get-games?course_ids=${courseIdsString}`, {
+      const response = await axios.get(`http://${domain}:5001/get-games?course_ids=${courseIdsString}`, {
         withCredentials: true,
       });
       setGames(response.data);
@@ -120,8 +120,9 @@ const GameDashS = () => {
 };
 
 async function getCourseFromCourseId(courseId) {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   try {
-    const response = await fetch(`${domain}:4000/api/courses/${courseId}/name`, {
+    const response = await fetch(`http://${domain}:4000/api/courses/${courseId}/name`, {
       method: 'GET',
       credentials: 'include'
     });

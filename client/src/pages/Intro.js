@@ -6,9 +6,9 @@ import axios from "axios";
 import "./Intro.css";
 import SearchBar from "../components/SearchBar";
 import CardComponent from "../components/Card";
-import { domain } from "../const.js";
 
 const IntroPage = () => {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
   const [goals, setGoals] = useState([]);
@@ -49,7 +49,7 @@ const IntroPage = () => {
   const fetchGoals = async (user) => {
     try {
       const response = await axios.get(
-        `${domain}:5001/get-goals?account_id=${user}`,
+        `http://${domain}:5001/get-goals?account_id=${user}`,
         { withCredentials: true }
       );
       console.log("Fetched goals:", response.data);
@@ -80,7 +80,7 @@ const IntroPage = () => {
   // Fetch upcoming assignments (to-dos) and sort them by due date
   const fetchTodos = async (user) => {
     try {
-      const response = await axios.get(`${domain}:4000/api/user/to-do`, {
+      const response = await axios.get(`http://${domain}:4000/api/user/to-do`, {
         withCredentials: true,
       });
       const formattedTodos = response.data.map((todo, index) => {

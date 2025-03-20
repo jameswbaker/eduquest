@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
-import { domain } from "../const.js";
 import './SignUp.css';
 
 function SignUp() {
+  const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const [firstName, setFirstName]       = useState('');
   const [lastName, setLastName]         = useState('');
   const [email, setEmail]               = useState('');
@@ -26,7 +26,7 @@ function SignUp() {
     }
 
     try {
-      const response = await fetch(`${domain}:5001/signup`, {
+      const response = await fetch(`http://${domain}:5001/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ function SignUp() {
         
         const { userId } = data;
 
-        const responseEnrollment = await fetch(`${domain}:4000/api/get-role`, {
+        const responseEnrollment = await fetch(`http://${domain}:4000/api/get-role`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

@@ -62,6 +62,35 @@ const GAME_CONFIG = {
     }
 };
 
+const domain = window.domain || 'localhost';
+
+let gameId = null;
+let studentId = null;
+let isUserTeacher = false;
+let userName = null;
+
+function extractURLParams() {
+  try {
+    // Get the current script's URL
+    const scripts = document.getElementsByTagName('script');
+    const currentScript = scripts[scripts.length - 1]; // Most recently added script
+    
+    if (currentScript && currentScript.src && currentScript.src.includes('?')) {
+      const urlParams = new URLSearchParams(currentScript.src.split('?')[1]);
+      gameId = urlParams.get('gameId');
+      studentId = urlParams.get('studentId');
+      isUserTeacher = urlParams.get('isUserTeacher') === 'true';
+      userName = urlParams.get('userName');
+    } else {
+      console.warn('No URL parameters found in script tag');
+    }
+  } catch (e) {
+    console.error('Error extracting URL parameters:', e);
+  }
+}
+
+extractURLParams();
+
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -76,6 +105,11 @@ class Game {
         }
         
         this.questionDiv = document.getElementById('question');
+
+        this.gameId = gameId;
+        this.studentId = studentId;
+        this.isUserTeacher = isUserTeacher;
+        this.userName = userName;
         
         // Player properties
         this.player = {
@@ -192,6 +226,7 @@ class Game {
             console.log("No more questions, game over");
             this.gameOver = true;
             this.currentQuestion = 0;
+            this.saveGameResult();
             return;
         }
 
@@ -572,6 +607,7 @@ class Game {
             
             if (this.lives <= 0) {
                 this.gameOver = true;
+                this.saveGameResult();
             } else {
                 // Regenerate level with same word set
                 this.generateLevel(true);
@@ -585,7 +621,6 @@ class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Draw answer areas
-        console.log("Drawing answers:", this.answers.length);
         this.answers.forEach(answer => {
             this.ctx.fillStyle = GAME_CONFIG.colors.answerArea; // All answers same color
             this.ctx.fillRect(
@@ -637,6 +672,7 @@ class Game {
 
         // Draw turrets
         console.log("Drawing turrets:", this.turrets.length);
+        this.ctx.fillStyle = GAME_CONFIG.turret.color;
         this.turrets.forEach(turret => {
             if (this.turretImage && this.turretImage.complete) {
                 // Save current context state
@@ -811,6 +847,39 @@ class Game {
         this.draw();
         requestAnimationFrame(this.gameLoop.bind(this));
     }
+
+    async saveGameResult() {
+        if (!this.gameId || !this.studentId) {
+          console.error('Cannot save game result: missing gameId or studentId');
+          return;
+        }
+    
+        if (isUserTeacher) {
+          console.log("Player is a teacher. Don't save results");
+          return;
+        }
+    
+        try {
+          console.log("Score:", this.levelsCleared);
+          const response = await fetch(`http://${domain}:5001/add-game-result`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              game_id: this.gameId,
+              student_id: this.studentId,
+              score: this.levelsCleared,
+              user_name: this.userName,
+            }),
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to save game result: ${response.status} ${response.statusText}`);
+          }
+          const data = await response.json();
+          console.log("Game result saved:", data);
+        } catch (error) {
+          console.error("Error saving game result:", error);
+        }
+    };
 }
 
 // Instead of reinitializing the entire game (and iframe), we now create one game instance.

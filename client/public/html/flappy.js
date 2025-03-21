@@ -54,7 +54,7 @@ const FLAPPY_CONFIG = {
     bird: '#FF6B6B',
     score: 'black',
     answerTopText: 'black',
-    answerBottomText: 'red'
+    answerBottomText: 'black'
   },
   ui: {
     scoreFont: "24px 'Hanken Grotesk', sans-serif",

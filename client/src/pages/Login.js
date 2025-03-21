@@ -35,6 +35,10 @@ function Login() {
       if (response.ok) {
         const data = await response.json();
         console.log(data);
+        if (data.needsCanvasAuth) {
+          handleCanvasLogin();
+          return;
+        }
         const { userId } = data;
         console.log("userId in frontend: ", userId);
 
@@ -83,6 +87,16 @@ function Login() {
     // Optionally reset form
     setUsername('');
     setPassword('');
+  };
+
+  const handleCanvasLogin = () => {
+    const canvasBaseUrl = "https://cbsd.instructure.com";
+    const clientId = process.env.REACT_APP_CLIENT_ID;
+    const redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
+    const state = Math.random().toString(36).substring(7);
+    localStorage.setItem('oauthState', state);
+    const authUrl = `${canvasBaseUrl}/login/oauth2/auth?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&state=${state}`;
+    window.location.href = authUrl;
   };
 
   return (

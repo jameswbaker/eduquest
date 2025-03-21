@@ -12,7 +12,7 @@ const domain = new URL(process.env.API_BASE_URL).hostname;
 const app = express();
 
 const potentialRoots = ["cbsd.instructure.com", "canvas.instructure.com"];
-const root = potentialRoots[1];
+const root = potentialRoots[0];
 
 app.use(cors({
   origin: true, 
@@ -535,10 +535,17 @@ app.get('/canvas/callback', async (req, res) => {
   }
 });
 
-app.post('/exchange-token', async (req, res) => {
-  const { code } = req.body;
+app.get('/oauth2response', async (req, res) => {
+  const { code, error, error_description, state } = req.query;
+
+  if (error) {
+    console.error('OAuth error:', error_description);
+    // Redirect to frontend with error
+    return res.redirect(`${process.env.FRONTEND_URL}/signup?error=${error}`);
+  }
+
   if (!code) {
-    return res.status(400).json({ error: 'Missing code parameter' });
+    return res.redirect(`${process.env.FRONTEND_URL}/signup?error=no_code`);
   }
 
   try {
@@ -554,9 +561,10 @@ app.post('/exchange-token', async (req, res) => {
         redirect_uri: process.env.CANVAS_REDIRECT_URI,
       }
     });
-    console.log(tokenResponse.data);
-    const { access_token } = tokenResponse.data;
-    res.json({ auth_token: access_token });
+    const { access_token, refresh_token } = tokenResponse.data;
+    console.log("access_token:", access_token);
+    console.log("refresh_token:", refresh_token);
+    res.redirect(`http://${domain}/signup?success=true&canvasToken=${access_token}&refreshToken=${refresh_token}`);
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     res.status(500).json({ error: 'Failed to exchange code for access token' });

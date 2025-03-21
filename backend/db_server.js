@@ -39,12 +39,22 @@ db.connect((err) => {
   console.log('Connected to RDS database.');
 });
 
+async function updateStoredCanvasToken(username, newToken) {
+  return new Promise((resolve, reject) => {
+    const query = 'UPDATE Account_Info SET canvas_token = ? WHERE username = ?';
+    db.query(query, [newToken, username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+}
+
 // Route to handle signup
 app.post('/signup', async (req, res) => {
-    const { username, password, canvasToken } = req.body;
+    const { username, password, canvasToken, refreshToken } = req.body;
 
-    if (!username || !password || !canvasToken) {
-        return res.status(400).json({ message: 'Username, password, and canvas token are required' });
+    if (!username || !password || !canvasToken || !refreshToken) {
+        return res.status(400).json({ message: 'Username, password, canvas token, and refresh token are required' });
     }
 
     try {
@@ -55,10 +65,10 @@ app.post('/signup', async (req, res) => {
       });
       const teacherCanvasId = userResponse.data.id;
       const query = `
-        INSERT INTO Account_Info (account_id, username, password, canvas_token) 
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Account_Info (account_id, username, password, canvas_token, refresh_token) 
+        VALUES (?, ?, ?, ?, ?)
       `;
-      db.query(query, [teacherCanvasId, username, password, canvasToken], async (err, result) => {
+      db.query(query, [teacherCanvasId, username, password, canvasToken, refreshToken], async (err, result) => {
         if (err) {
           console.error('Error inserting into Account_Info:', err);
           return res.status(500).json({ message: 'Database error' });
@@ -87,50 +97,117 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
-  // Query the database to find the user by username
-  db.query('SELECT * FROM Account_Info WHERE username = ?', [username], async (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: 'Database error' });
-    }
+  try {
+    const [user] = await new Promise((resolve, reject) => {
+      db.query('SELECT * FROM Account_Info WHERE username = ?', [username], (err, results) => {
+        if (err) reject(err);
+        else resolve(results);
+      });
+    });
 
-    // If no user found, return an error
-    if (results.length === 0) {
+    if (!user || password !== user.password) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
-    
-    // Compare entered password with the stored hashed password
-    const user = results[0];
-    if (password == user.password) {
-      try {
-        const userResponse = await axios.get(`http://${domain}:4000/api/users/user-details`, {
-            params: { token: user.canvas_token, },
-        });
-        const userId = userResponse.data.id;
 
-        // Set up cookie
-        const token = jwt.sign({ username: user.username, userId: userId, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
-        // Set JWT token as an HTTP-only cookie
-        res.cookie('auth_token', token, {
-          httpOnly: false,
-          secure: false,
-          sameSite: 'lax',  // Prevent CSRF
-          maxAge: 3600000,  // 1 hour
-        });
+    try {
+      const tokenResponse = await axios.post(`https://cbsd.instructure.com/login/oauth2/token`, null, {
+        params: {
+          grant_type: 'refresh_token',
+          client_id: process.env.CANVAS_CLIENT_ID,
+          client_secret: process.env.CANVAS_CLIENT_SECRET,
+          refresh_token: user.refresh_token
+        }
+      });
 
-        return res.json({ 
-          username: user.username,
-          userId: userId,
-          message: 'Login successful!', 
-          });
-      } catch (error) {
-        console.log(error);
-      }
+      const { access_token } = tokenResponse.data;
       
-    } else {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      // Update the stored token
+      await updateStoredCanvasToken(username, access_token);
+
+      // Get user details with new token
+      const userResponse = await axios.get(`http://${domain}:4000/api/users/user-details`, {
+        params: { token: access_token }
+      });
+      
+      const userId = userResponse.data.id;
+
+      // Create JWT
+      const token = jwt.sign(
+        { username: user.username, userId, canvasToken: access_token },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      res.cookie('auth_token', token, {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 3600000,
+      });
+
+      return res.json({
+        username: user.username,
+        userId,
+        message: 'Login successful!'
+      });
+    } catch (error) {
+      // If refresh token fails, we might need to redirect to Canvas login
+      console.error('Token refresh failed:', error);
+      return res.status(401).json({ 
+        message: 'Session expired. Please log in to Canvas again.',
+        needsCanvasAuth: true 
+      });
     }
-  });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
+
+  // Query the database to find the user by username
+//   db.query('SELECT * FROM Account_Info WHERE username = ?', [username], async (err, results) => {
+//     if (err) {
+//       return res.status(500).json({ message: 'Database error' });
+//     }
+
+//     // If no user found, return an error
+//     if (results.length === 0) {
+//       return res.status(401).json({ message: 'Invalid credentials' });
+//     }
+    
+//     // Compare entered password with the stored hashed password
+//     const user = results[0];
+//     if (password == user.password) {
+//       try {
+//         const userResponse = await axios.get(`http://${domain}:4000/api/users/user-details`, {
+//             params: { token: user.canvas_token, },
+//         });
+//         const userId = userResponse.data.id;
+
+//         // Set up cookie
+//         const token = jwt.sign({ username: user.username, userId: userId, canvasToken: user.canvas_token }, JWT_SECRET, { expiresIn: '1h' });
+//         // Set JWT token as an HTTP-only cookie
+//         res.cookie('auth_token', token, {
+//           httpOnly: false,
+//           secure: false,
+//           sameSite: 'lax',  // Prevent CSRF
+//           maxAge: 3600000,  // 1 hour
+//         });
+
+//         return res.json({ 
+//           username: user.username,
+//           userId: userId,
+//           message: 'Login successful!', 
+//           });
+//       } catch (error) {
+//         console.log(error);
+//       }
+      
+//     } else {
+//       return res.status(401).json({ message: 'Invalid credentials' });
+//     }
+//   });
+// });
 
 app.post('/add-goal', async (req, res) => {
   const { goal_title, description, deadline, account_id } = req.body;

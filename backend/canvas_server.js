@@ -91,6 +91,9 @@ app.get('/api/courses', async (req, res) => {
         hasMorePages = false;
       }
     }
+
+    // Log all courses to the console
+    console.log('All courses fetched:', allCourses);
     
     // Filter to only get the course with ID 105746
     const targetCourse = allCourses.find(course => course.id == 105746);

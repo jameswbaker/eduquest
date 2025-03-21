@@ -61,15 +61,38 @@ app.get('/api/users/user-details', async (req, res) => {
 app.get('/api/courses', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
-    const response = await axios.get(`https://${root}/api/v1/courses`, {
-      headers: {
-        'Authorization': `Bearer ${apiToken}`,
-      },
-      params: {
-        'enrollment_state': 'active',
-      },
-    });
-    res.json(response.data); // Return the courses data
+    
+    // Fetch all courses with pagination
+    let allCourses = [];
+    let url = `https://${root}/api/v1/courses`;
+    let hasMorePages = true;
+    
+    while (hasMorePages) {
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+        },
+        params: {
+          'enrollment_state': 'active',
+          'per_page': 100, // Maximum allowed per page
+        },
+      });
+      
+      // Add current page results to our collection
+      allCourses = allCourses.concat(response.data);
+      
+      // Check if there's a next page link in the headers
+      const linkHeader = response.headers.link;
+      if (linkHeader && linkHeader.includes('rel="next"')) {
+        // Extract the URL for the next page
+        const nextLink = linkHeader.split(',').find(link => link.includes('rel="next"'));
+        url = nextLink.match(/<(.*)>/)[1];
+      } else {
+        hasMorePages = false;
+      }
+    }
+    
+    res.json(allCourses); // Return all the courses data
   } catch (error) {
     res.status(error.response?.status || 500).json({
       message: 'Error fetching courses',

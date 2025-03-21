@@ -224,9 +224,8 @@ function SignUp() {
 
             {/* Submit Button */}
             <button 
-              className={`signin-button ${!isCanvasAuthenticated ? 'disabled' : ''}`} 
+              className="signin-button" 
               type="submit"
-              disabled={!isCanvasAuthenticated}
             >
               Sign Up
             </button>

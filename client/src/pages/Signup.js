@@ -18,6 +18,7 @@ function SignUp() {
   const [username, setUsername]         = useState('');
   const [password, setPassword]         = useState('');
   const [canvasToken, setCanvasToken]   = useState('');
+  const [refreshToken, setRefreshToken]   = useState('');
   const [canvasAuthenticated, setCanvasAuthenticated] = useState(false);
 
   const navigate = useNavigate();
@@ -25,12 +26,14 @@ function SignUp() {
 
   useEffect(() => {
     const success = searchParams.get('success');
-    const tokenFromUrl = searchParams.get('canvasToken');
+    const canvasTokenUrl = searchParams.get('canvasToken');
+    const refreshTokenUrl = searchParams.get('refreshToken');
     const error = searchParams.get('error');
 
-    if (success && tokenFromUrl) {
+    if (success && canvasTokenUrl && refreshTokenUrl) {
       console.log('Successfully authenticated with Canvas!');
-      setCanvasToken(tokenFromUrl);
+      setCanvasToken(canvasTokenUrl);
+      setRefreshToken(refreshTokenUrl);
       setCanvasAuthenticated(true);
     } else if (error) {
       console.error('Authentication error:', error);
@@ -61,6 +64,7 @@ function SignUp() {
           username,
           password,
           canvasToken,
+          refreshToken,
         }),
         credentials: 'include',
       });
@@ -85,6 +89,8 @@ function SignUp() {
         const resEnrollData = await responseEnrollment.json();
         console.log("RESPONSE_ENROLLMENT: ", resEnrollData);
         ReactSession.set("enrollmentType", resEnrollData[0].role);
+
+        console.log("refreshToken:", refreshToken);
   
         const isTeacher = resEnrollData[0]?.role === "StudentEnrollment" ? false : true;
   
@@ -93,15 +99,6 @@ function SignUp() {
         } else {
           navigate(`/dashboard/${userId}`);
         }
-  
-        // Reset the form fields
-        setFirstName('');
-        setLastName('');
-        setEmail('');
-        setUsername('');
-        setPassword('');
-        setCanvasToken('');
-        setConfirmPassword('');
         setUserRole('student');
       } else {
         const errorData = await response.json();

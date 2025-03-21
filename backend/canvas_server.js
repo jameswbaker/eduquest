@@ -558,9 +558,10 @@ app.get('/oauth2response', async (req, res) => {
         redirect_uri: process.env.CANVAS_REDIRECT_URI,
       }
     });
-    const { access_token } = tokenResponse.data;
+    const { access_token, refresh_token } = tokenResponse.data;
     console.log("access_token:", access_token);
-    res.redirect(`http://${domain}/signup?success=true&canvasToken=${access_token}`);
+    console.log("refresh_token:", refresh_token);
+    res.redirect(`http://${domain}/signup?success=true&canvasToken=${access_token}&refreshToken=${refresh_token}`);
   } catch (error) {
     console.error('Error exchanging code for token:', error);
     res.status(500).json({ error: 'Failed to exchange code for access token' });

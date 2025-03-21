@@ -383,8 +383,7 @@ app.post('/generate-questions', async (req, res) => {
       }
     }
 
-    const dbApiBaseUrl = "http://localhost:5001";
-    const storeResponse = await fetch(`${dbApiBaseUrl}/add-questions-answers`, {
+    const storeResponse = await fetch(`http://${domain}:5001/add-questions-answers`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ game_id, questions })

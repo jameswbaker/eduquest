@@ -99,8 +99,30 @@ const TDashboard = () => {
     students: [],
     timeRange: "",
   });
-  const [gameIds, setGameIds] = useState([]);
-  const [gameNames, setGameNames] = useState([]);
+  const [gameItems, setGameItems] = useState([]);
+
+  const fetchGamesInCourse = async () => {
+    setError('');
+    try {
+      const response = await axios.get(`http://${domain}:5001/get-class-games-results?course_id=${courseId}`, {
+        withCredentials: true,
+      });
+      
+      // Format game data in a consistent way
+      const formattedGames = response.data.game_ids.map((id, index) => ({
+        id: id,
+        name: response.data.game_names[index],
+        average: response.data.average_scores[index] || 0,
+        type: 'game'
+      }));
+      
+      setGameItems(formattedGames);
+      console.log("Games loaded:", formattedGames);
+    } catch (error) {
+      console.error('Error fetching games:', error.response ? error.response.data : error.message);
+      setError('Error fetching games. Please check your connection.');
+    }
+  };
 
   useEffect(() => {
     if (assignments.length > 0 && selectedRubricItems.length > 0) {
@@ -133,22 +155,6 @@ const TDashboard = () => {
         setCourseCode(response.data.course_code);
         setAssignments(response.data.assignments);
         extractRubricItems(response.data.assignments);
-    } catch (error) {
-        console.error('Error fetching students:', error.response ? error.response.data : error.message);
-        setError('Error fetching students. Please check your token and permissions.');
-    }
-  };
-
-  const fetchGamesInCourse = async () => {
-    setError('');
-    try {
-        const response = await axios.get(`http://${domain}:5001/get-games-by-course?course_id=${courseId}`, {
-            withCredentials: true,
-        });
-        setGameIds(response.data.game_ids);
-        setGameNames(response.data.game_names);
-        console.log(gameIds);
-        console.log(gameNames);
     } catch (error) {
         console.error('Error fetching students:', error.response ? error.response.data : error.message);
         setError('Error fetching students. Please check your token and permissions.');
@@ -404,7 +410,6 @@ const getChartLabel = () => {
           <h2>Rubric Items</h2>
           <div className="courses-list">
             {rubricItems.map((item, index) => (
-              // TODO: edit the style for this
               <RubricCard 
                 key={index} 
                 rubricName={item} 

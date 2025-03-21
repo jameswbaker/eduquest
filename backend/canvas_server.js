@@ -93,7 +93,7 @@ app.get('/api/courses', async (req, res) => {
     }
     
     // Filter to only get the course with ID 105746
-    const targetCourse = allCourses.find(course => course.course_id === 105746);
+    const targetCourse = allCourses.find(course => course.course_name === "Writing - 05 - 5WR - Schlotter");
     
     // Return only the target course if found, otherwise return an empty array
     res.json(targetCourse ? [targetCourse] : []);

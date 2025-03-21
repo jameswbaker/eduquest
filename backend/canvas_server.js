@@ -92,7 +92,11 @@ app.get('/api/courses', async (req, res) => {
       }
     }
     
-    res.json(allCourses); // Return all the courses data
+    // Filter to only get the course with ID 105746
+    const targetCourse = allCourses.find(course => course.course_id === 105746);
+    
+    // Return only the target course if found, otherwise return an empty array
+    res.json(targetCourse ? [targetCourse] : []);
   } catch (error) {
     res.status(error.response?.status || 500).json({
       message: 'Error fetching courses',

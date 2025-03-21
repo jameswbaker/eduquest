@@ -23,40 +23,38 @@ body {
 }
 
 .canvas-login-button {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  background-color: #2D3B45; /* Canvas brand color */
+  background-color: #1e88e5;
   color: white;
+  padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+  width: 100%;
   transition: background-color 0.3s ease;
 }
 
 .canvas-login-button:hover {
-  background-color: #34444f;
+  background-color: #1565c0;
 }
 
 .canvas-login-button.authenticated {
-  background-color: #3b5738;
+  background-color: #43a047;
   cursor: default;
 }
 
 .canvas-login-button.authenticated:hover {
-  background-color: #3b5738;
+  background-color: #43a047;
 }
 
-.signin-button:disabled {
+.signin-button.disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
-.signin-button:disabled:hover {
+.signin-button.disabled:hover {
   background-color: #cccccc;
 }
 

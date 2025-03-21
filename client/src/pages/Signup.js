@@ -14,6 +14,7 @@ function SignUp() {
   const [email, setEmail]               = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userRole, setUserRole]         = useState('student');
+  const [isCanvasAuthenticated, setIsCanvasAuthenticated] = useState(false);
 
   const [username, setUsername]         = useState('');
   const [password, setPassword]         = useState('');
@@ -41,16 +42,34 @@ function SignUp() {
     }
   }, [searchParams]);
 
+  const exchangeCodeForToken = async (code) => {
+    try {
+      const response = await axios.post(`http://${domain}:4000/exchange-token`, { code });
+
+      if (response.data.auth_token) {
+        setCanvasToken(response.data.auth_token);
+        setIsCanvasAuthenticated(true);
+        console.log('Canvas token received:', response.data.auth_token);
+      } else {
+        console.error('Failed to get token:', response.data);
+        setIsCanvasAuthenticated(false);
+      }
+    } catch (error) {
+      console.error('Error exchanging code for token:', error);
+      setIsCanvasAuthenticated(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+    if (!isCanvasAuthenticated) {
+      alert('Please authenticate with Canvas first before signing up.');
       return;
     }
 
-    if (!canvasToken) {
-      alert('Please use the button to sign in to Canvas first before continuing with signup.');
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
       return;
     }
   
@@ -195,12 +214,20 @@ function SignUp() {
               required
             />
 
-            <button type="button" className="canvas-login-button" onClick={handleCanvasLogin}>
-              Sign in to Canvas
+            <button 
+              type="button" 
+              className={`canvas-login-button ${isCanvasAuthenticated ? 'authenticated' : ''}`} 
+              onClick={handleCanvasLogin}
+            >
+              {isCanvasAuthenticated ? '✓ Authenticated with Canvas' : 'Authenticate with Canvas'}
             </button>
 
             {/* Submit Button */}
-            <button className="signin-button" type="submit">
+            <button 
+              className={`signin-button ${!isCanvasAuthenticated ? 'disabled' : ''}`} 
+              type="submit"
+              disabled={!isCanvasAuthenticated}
+            >
               Sign Up
             </button>
           </form>

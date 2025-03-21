@@ -16,7 +16,7 @@ const FLAPPY_CONFIG = {
     width: 35,
     gapHeight: 240,
     gapSpacing: 150,
-    pipeSpacing: 400,
+    pipeSpacing: 600,
     speed: 180.0,
     preGenerateCount: 5,
     removeOffset: -100,
@@ -27,7 +27,7 @@ const FLAPPY_CONFIG = {
     color: 'red'
   },
   pause: {
-    duration: 7.5  // Fixed 7.5 seconds pause between questions
+    duration: 5.0  // Decreased from 7.5 to 5.0 seconds
   },
   lives: {
     initial: 3,

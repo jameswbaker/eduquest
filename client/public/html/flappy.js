@@ -191,7 +191,8 @@ class Game {
     // Game state control
     this.isPaused = false;
     this.pauseTimer = 0;
-    this.pauseDuration = FLAPPY_CONFIG.pause.duration;  // In seconds now
+    this.basePauseDuration = FLAPPY_CONFIG.pause.duration;  // Store the base duration
+    this.pauseDuration = this.basePauseDuration;  // Start with the base duration
     this.feedbackTimer = 0;
     this.feedbackDuration = FLAPPY_CONFIG.feedback.duration;  // In seconds now
 
@@ -490,11 +491,16 @@ class Game {
 
       if (!pipe.passed && this.bird.x > pipe.x + this.pipeWidth) {
         pipe.passed = true;
+        // Only increment score if the pipe was passed successfully without collision
+        // Score is now awarded here only, not on collision
         this.score++;
         const nextQuestionIndex = pipe.questionIndex + 1;
         if (nextQuestionIndex < this.questions.length) {
           this.currentQuestion = this.questions[nextQuestionIndex].question;
           this.questionDiv.textContent = this.currentQuestion;
+          
+          // Increase pause duration as player progresses (0.05 seconds per level)
+          this.pauseDuration = this.basePauseDuration + (nextQuestionIndex * 0.05);
         }
         this.isPaused = true;
         this.pauseTimer = this.pauseDuration;
@@ -568,6 +574,8 @@ class Game {
     // If bird is in the wrong answer box, lose a life
     if ((inTopBox && !pipe.isTopCorrect) || (inBottomBox && pipe.isTopCorrect)) {
       this.loseLife("Wrong Answer!");
+      // Mark pipe as passed but don't increment score for wrong answer
+      pipe.passed = true;
       return true;
     }
     
@@ -587,6 +595,8 @@ class Game {
       // If not in a gap, the bird has hit the pipe
       if (!inTopGap && !inBottomGap) {
         this.loseLife("Pipe Collision!");
+        // Mark pipe as passed but don't increment score for collision
+        pipe.passed = true;
         return true;
       }
     }

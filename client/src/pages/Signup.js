@@ -62,11 +62,6 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!isCanvasAuthenticated) {
-      alert('Please authenticate with Canvas first before signing up.');
-      return;
-    }
 
     if (password !== confirmPassword) {
       alert('Passwords do not match!');

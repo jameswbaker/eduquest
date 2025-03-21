@@ -33,6 +33,11 @@ jobs:
             npm install
             pm2 restart db_server.js || pm2 start db_server.js
             pm2 restart canvas_server.js || pm2 start canvas_server.js
+
+            # Create the .env file for React
+            echo "REACT_APP_CLIENT_ID=${{ secrets.REACT_APP_CLIENT_ID }}" >> .env
+            echo "REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }}" >> .env
+            echo "REACT_APP_REDIRECT_URI=${{ secrets.REACT_APP_REDIRECT_URI }}" >> .env
             
             # Deploy frontend
             cd /home/ubuntu/eduquest/client

@@ -27,7 +27,7 @@ const FLAPPY_CONFIG = {
     color: 'red'
   },
   pause: {
-    duration: 0.75  // Changed to seconds instead of frames
+    duration: 7.5  // Fixed 7.5 seconds pause between questions
   },
   lives: {
     initial: 3,
@@ -499,8 +499,8 @@ class Game {
           this.currentQuestion = this.questions[nextQuestionIndex].question;
           this.questionDiv.textContent = this.currentQuestion;
           
-          // Increase pause duration as player progresses (0.05 seconds per level)
-          this.pauseDuration = this.basePauseDuration + (nextQuestionIndex * 0.05);
+          // Use fixed pause duration
+          this.pauseDuration = FLAPPY_CONFIG.pause.duration;
         }
         this.isPaused = true;
         this.pauseTimer = this.pauseDuration;

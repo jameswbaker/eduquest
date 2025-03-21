@@ -281,10 +281,12 @@ app.get('/get-student-games-results', (req, res) => {
         console.error('Error fetching from Games:', err);
         return res.status(500).json({ message: 'Database error' });
       }
+
       const game_ids = results.map(game => game.game_id);
       const game_names = results.map(game => game.name);
+      const student_ids = results.map(game => game.student_id);
       const average_scores = results.map(game => game.average_score);
-      return res.status(200).json({ game_ids, game_names, average_scores });
+      return res.status(200).json({ game_ids, game_names, student_ids, average_scores });
     });
   } catch (error) {
     console.error('Error fetching goals from database: ', error.response?.data || error.message);

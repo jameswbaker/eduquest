@@ -308,6 +308,69 @@ app.get('/get-games', async (req, res) => {
   }
 });
 
+app.get('/get-class-games-results', (req, res) => {
+  const { course_id } = req.query;
+  try {
+    const query = `
+    SELECT g.game_id, g.name, g.type, COUNT(gr.student_id) AS number_of_attempts,
+      AVG(gr.score) AS average_score, MIN(gr.score) AS min_score, 
+      MAX(gr.score) AS max_score
+    FROM Games g
+    INNER JOIN GameResults gr ON g.game_id = gr.game_id
+    WHERE g.course_id = ?
+    GROUP BY g.game_id, g.name, g.type
+    ORDER BY g.game_id;
+    `;
+    db.query(query, [course_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching from Games:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      const game_ids = results.map(game => game.game_id);
+      const game_names = results.map(game => game.name);
+      const average_scores = results.map(game => game.average_score);
+      return res.status(200).json({ game_ids, game_names, average_scores });
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+});
+
+app.get('/get-student-games-results', (req, res) => {
+  const { course_id } = req.query;
+  try {
+    const query = `
+    SELECT g.game_id, g.name, g.type, gr.student_id, 
+       COUNT(gr.result_id) AS attempts,
+       AVG(gr.score) AS average_score,
+       MAX(gr.score) AS best_score,
+       MIN(gr.time_played) AS first_attempt,
+       MAX(gr.time_played) AS latest_attempt
+    FROM Games g
+    INNER JOIN GameResults gr ON g.game_id = gr.game_id
+    WHERE g.course_id = ?
+    GROUP BY g.game_id, g.name, g.type, gr.student_id
+    ORDER BY g.game_id, gr.student_id;
+    `;
+    db.query(query, [course_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching from Games:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      const game_ids = results.map(game => game.game_id);
+      const game_names = results.map(game => game.name);
+      const student_ids = results.map(game => game.student_id);
+      const average_scores = results.map(game => game.average_score);
+      return res.status(200).json({ game_ids, game_names, student_ids, average_scores });
+    });
+  } catch (error) {
+    console.error('Error fetching goals from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch goals from database' });
+  }
+});
+
 app.post('/add-game-result', (req, res) => {
   const { game_id, student_id, score, user_name } = req.body;
   if (!game_id || !student_id || score == null) {

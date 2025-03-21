@@ -365,7 +365,12 @@
     /************************
      * 0) GAME TYPE DROPDOWN
      ************************/
-    const domain = window.location.hostname || 'localhost';
+    let gameDomain;
+    if (typeof domain === 'undefined') {
+      gameDomain = window.location.hostname || 'localhost';
+    } else {
+      gameDomain = domain;
+    }
     const gameTypeSelect = document.getElementById("gameTypeSelect");
     function getSelectedGame() {
       return gameTypeSelect.value || "";
@@ -501,7 +506,7 @@
    ****************************/
   async function fetchCoursesFromAPI() {
     try {
-      const response = await fetch(`http://${domain}:4000/api/courses`, { credentials: 'include' });
+      const response = await fetch(`http://${gameDomain}:4000/api/courses`, { credentials: 'include' });
       // const response = await fetch("http://ec2-18-232-60-58.compute-1.amazonaws.com:4000/api/courses", { credentials: 'include' });
       if (!response.ok) {
         throw new Error("Failed to fetch courses");
@@ -524,7 +529,7 @@
 
   async function fetchUserId() {
     try {
-      const response = await fetch(`http://${domain}:4000/protected-route`, {
+      const response = await fetch(`http://${gameDomain}:4000/protected-route`, {
         credentials: 'include'
       });
       
@@ -542,7 +547,7 @@
 
   async function fetchUserRole(studentId) {
     try {
-      const response = await fetch(`http://${domain}:4000/api/get-role`, {
+      const response = await fetch(`http://${gameDomain}:4000/api/get-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -666,8 +671,8 @@
         try {
           // Use the config
           // const apiBaseUrl = window.APP_CONFIG.apiBaseUrl;
-          const canvasApiBaseUrl = `http://${domain}:4000`;
-          const dbApiBaseUrl = `http://${domain}:5001`;
+          const canvasApiBaseUrl = `http://${gameDomain}:4000`;
+          const dbApiBaseUrl = `http://${gameDomain}:5001`;
 
           const gameDbResponse = await fetch(`${dbApiBaseUrl}/add-game`, {
             method: "POST",

@@ -549,7 +549,10 @@ app.get('/oauth2response', async (req, res) => {
   }
 
   try {
-    const tokenResponse = await axios.post('https://cbsd.instructure.com/login/oauth2/token', null, {
+    console.log(process.env.CANVAS_CLIENT_ID);
+    console.log(process.env.CANVAS_CLIENT_SECRET);
+    console.log(process.env.CANVAS_REDIRECT_URI);
+    const tokenResponse = await axios.post(`https://${root}/login/oauth2/token`, null, {
       params: {
         client_id: process.env.CANVAS_CLIENT_ID,
         client_secret: process.env.CANVAS_CLIENT_SECRET,

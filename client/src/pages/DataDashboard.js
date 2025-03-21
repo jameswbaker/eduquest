@@ -21,15 +21,11 @@ import axios from 'axios'
 const TDashboard = () => {
   const domain = process.env.REACT_APP_API_BASE_URL || 'localhost';
   const { courseId } = useParams();
-  console.log('courseId ', courseId);
-
-
   const navigate = useNavigate();
 
-
-useEffect(() => {
-  const enrollmentType = ReactSession.get("enrollmentType");
-  console.log(enrollmentType);
+  useEffect(() => {
+    const enrollmentType = ReactSession.get("enrollmentType");
+    console.log(enrollmentType);
     if (enrollmentType === "StudentEnrollment") {
       alert("Not authorized to access teacher page");
       navigate('/dashboard/:studentId');
@@ -96,11 +92,6 @@ useEffect(() => {
     setSelectedRubricItems
   } = useCourseSummary(courseId);
 
-  console.log('this is students ', students);
-  console.log('this is rubric items ', rubricItems);
-  console.log('this is assignments ', assignments);
-
-
   const [analyticsData, setAnalyticsData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -108,6 +99,69 @@ useEffect(() => {
     students: [],
     timeRange: "",
   });
+  const [gameItems, setGameItems] = useState([]);
+  const [studentGameItems, setStudentGameItems] = useState([]);
+
+  const gameItemsScores = gameItems.map(item => item.average);
+
+  const [mergedItems, setMergedItems] = useState([]);
+  useEffect(() => {
+    // console.log("Rubric items: ", rubricItems);
+    // console.log("Game items: ", gameItems);
+    var gameItemsNames = gameItems.filter((gameItem) => gameItem.average != 0);
+    if (selectedStudent) {
+      gameItemsNames.filter((gameItem) => gameItem.student_id === selectedStudent.user.id);
+    }
+    gameItemsNames = gameItemsNames.map(item => item.name);
+    setMergedItems([].concat(rubricItems).concat(gameItemsNames));
+  }, [rubricItems, gameItems, selectedStudent])
+
+  const fetchGamesInCourse = async () => {
+    setError('');
+    try {
+      const response = await axios.get(`http://${domain}:5001/get-class-games-results?course_id=${courseId}`, {
+        withCredentials: true,
+      });
+      
+      // Format game data in a consistent way
+      const formattedGames = response.data.game_ids.map((id, index) => ({
+        id: id,
+        name: response.data.game_names[index],
+        average: response.data.average_scores[index] || 0,
+        type: 'game'
+      }));
+      
+      setGameItems(formattedGames);
+      console.log("Games loaded:", formattedGames);
+    } catch (error) {
+      console.error('Error fetching games:', error.response ? error.response.data : error.message);
+      setError('Error fetching games. Please check your connection.');
+    }
+  };
+
+  const fetchGamesForStudent = async () => {
+    setError('');
+    try {
+      const response = await axios.get(`http://${domain}:5001/get-student-games-results?course_id=${courseId}`, {
+        withCredentials: true,
+      });
+      
+      // Format game data in a consistent way
+      const formattedGames = response.data.game_ids.map((id, index) => ({
+        id: id,
+        name: response.data.game_names[index],
+        student_id: response.data.student_ids[index],
+        average: response.data.average_scores[index] || 0,
+        type: 'game'
+      }));
+      
+      setStudentGameItems(formattedGames);
+      // console.log("Games loaded:", formattedGames);
+    } catch (error) {
+      console.error('Error fetching games:', error.response ? error.response.data : error.message);
+      setError('Error fetching games. Please check your connection.');
+    }
+  };
 
   useEffect(() => {
     if (assignments.length > 0 && selectedRubricItems.length > 0) {
@@ -169,7 +223,6 @@ useEffect(() => {
       });
   
       const course = response.data;
-      console.log('Raw course data:', course);
       // Build our aggregator for all users
       const aggregatedData = aggregateAllRubricData(course);
       console.log('Aggregated rubric data by student:', aggregatedData);
@@ -185,6 +238,8 @@ useEffect(() => {
   useEffect(() => {
     fetchStudents();
     fetchCourseDetails();
+    fetchGamesInCourse();
+    fetchGamesForStudent();
     aggregateCourseDetails(courseId);
   }, [courseId]);
 
@@ -207,7 +262,21 @@ useEffect(() => {
     if (!selectedStudent) {
         const classAverages = computeClassAverages(processedData);
         const entries = Object.values(classAverages);
-        const filteredEntries = filterSelectedRubricItems(entries);
+        console.log(gameItems.length);
+        const gameItemsFiltered = gameItems.filter((gameItem) => gameItem.average != 0);
+        console.log(gameItemsFiltered.length);
+        const gameEntries = gameItemsFiltered.map((game) => ({
+          description: game.name,
+          totalEarned: parseFloat(game.average)/26, // Convert string to number if necessary
+          totalPossible: 26,
+          percentage: parseFloat(game.average)/26 * 100, // Convert to percentage
+        }));
+    
+        console.log("Game entries are: ", gameEntries);
+    
+        // Combine rubric entries and game entries
+        const combinedEntries = [...entries, ...gameEntries];
+        const filteredEntries = filterSelectedRubricItems(combinedEntries);
         filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
 
         const chartLabels = filteredEntries.map((e) => e.description);
@@ -230,9 +299,33 @@ useEffect(() => {
     }
   
     // userCriteriaMap is an object of { [critId]: { description, totalEarned, totalPossible, percentage } }
+    // gameItems is a list of {id: 18, name: 'testGame', average: '0.0000', type: 'game'}
     // Convert it to arrays for the chart
+
+    // add to the userCriteriaMap the gameItems list
+
     const entries = Object.values(userCriteriaMap); 
-    const filteredEntries = filterSelectedRubricItems(entries);
+
+    // Merge gameItems into the same structure as userCriteriaMap
+    console.log("StudentGameItems are: ", studentGameItems);
+    console.log("Student selected: ", userId);
+    const studentGameItemsFiltered = studentGameItems.filter((game_item) => game_item.student_id === userId);
+    const studentGameItemsFilteredZeroes = studentGameItemsFiltered.filter((gameItem) => gameItem.average != 0);
+    console.log(studentGameItemsFilteredZeroes);
+    console.log("StudentGameItems are: ", studentGameItemsFilteredZeroes);
+    const gameEntries = studentGameItemsFilteredZeroes.map((game) => ({
+      description: game.name,
+      totalEarned: parseFloat(game.average)/26, // Convert string to number if necessary
+      totalPossible: 26,
+      percentage: parseFloat(game.average)/26 * 100, // Convert to percentage
+    }));
+    
+
+    console.log("Filtered game entries are: ", gameEntries);
+
+    // Combine rubric entries and game entries
+    const combinedEntries = [...entries, ...gameEntries];
+    const filteredEntries = filterSelectedRubricItems(combinedEntries);
     filteredEntries.sort((a, b) => a.description.localeCompare(b.description));
 
     // Convert criteriaScores into chart arrays
@@ -392,10 +485,9 @@ const getChartLabel = () => {
         </div>
 
         <div className="courses-section">
-          <h2>Rubric Items</h2>
+          <h2>Rubric and Game Items</h2>
           <div className="courses-list">
-            {rubricItems.map((item, index) => (
-              // TODO: edit the style for this
+            {mergedItems.map((item, index) => (
               <RubricCard 
                 key={index} 
                 rubricName={item} 

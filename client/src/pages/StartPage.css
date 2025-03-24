@@ -39,9 +39,11 @@
     cursor: pointer;
     transition: background-color 0.3s;
     border: 3px solid black;
+
   }
   
   .start-button:hover {
     background-color: #558e62;
   }
+  
   

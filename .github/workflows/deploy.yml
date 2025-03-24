@@ -36,7 +36,7 @@ jobs:
             
             # Deploy frontend
             cd /home/ubuntu/eduquest/client
-            npm install --force
+            npm install --legacy-peer-deps
                                     
             # Build the frontend
             npm run build

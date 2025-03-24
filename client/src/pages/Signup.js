@@ -152,6 +152,14 @@ function SignUp() {
           <h1>Sign Up</h1>
 
           <form onSubmit={handleSubmit}>
+            {/* Authenticate with canvas */}
+            <button 
+              type="button" 
+              className={`canvas-login-button ${isCanvasAuthenticated ? 'authenticated' : ''}`} 
+              onClick={handleCanvasLogin}
+            >
+              {isCanvasAuthenticated ? '✓ Authenticated with Canvas' : 'Authenticate with Canvas'}
+            </button>
             {/* First & Last Name (kept for UI, not used in request) */}
             <div className="name-fields">
               <input
@@ -208,14 +216,6 @@ function SignUp() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-
-            <button 
-              type="button" 
-              className={`canvas-login-button ${isCanvasAuthenticated ? 'authenticated' : ''}`} 
-              onClick={handleCanvasLogin}
-            >
-              {isCanvasAuthenticated ? '✓ Authenticated with Canvas' : 'Authenticate with Canvas'}
-            </button>
 
             {/* Submit Button */}
             <button 

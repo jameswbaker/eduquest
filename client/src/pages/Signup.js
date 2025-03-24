@@ -152,6 +152,22 @@ function SignUp() {
           <h1>Sign Up</h1>
 
           <form onSubmit={handleSubmit}>
+            {/* Canvas Authentication Button - At top */}
+            <button 
+              type="button" 
+              className="canvas-login-button"
+              onClick={handleCanvasLogin}
+            >
+              {canvasAuthenticated ? '✓ Connected to Canvas' : 'Connect to Canvas'}
+            </button>
+
+            {/* Canvas Authentication Status */}
+            {canvasAuthenticated && (
+              <div className="canvas-status success">
+                Successfully connected to Canvas!
+              </div>
+            )}
+
             {/* First & Last Name (kept for UI, not used in request) */}
             <div className="name-fields">
               <input
@@ -209,17 +225,9 @@ function SignUp() {
               required
             />
 
-            <button 
-              type="button" 
-              className={`canvas-login-button ${isCanvasAuthenticated ? 'authenticated' : ''}`} 
-              onClick={handleCanvasLogin}
-            >
-              {isCanvasAuthenticated ? '✓ Authenticated with Canvas' : 'Authenticate with Canvas'}
-            </button>
-
             {/* Submit Button */}
             <button 
-              className="signin-button" 
+              className="signin-button"
               type="submit"
             >
               Sign Up

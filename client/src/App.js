@@ -23,6 +23,9 @@ import IntroTPage from './pages/IntroT';
 import StudentGamePage from './pages/StudentGamePage';
 import GameDashT from "./pages/GameDashT";
 import GameDashS from "./pages/GameDashS";
+import StartTurrets from "./pages/StartTurrets"; 
+import StartFlappy from "./pages/StartFlappy"; 
+
 
 import './App.css';
 import PlayGamePage from "./pages/PlayGamePage";
@@ -91,6 +94,8 @@ function AppContent() {
           {/* <Route path="/game" element={<GamePage />} /> */}
           <Route path="/game/:gameName" element={<GamePage />} />
           <Route path="/startGame/:gameName" element={<StartPage />} />
+          <Route path="/startTurrets/:gameName" element={<StartTurrets />} />
+        <Route path="/startFlappy/:gameName" element={<StartFlappy />} />
           <Route path="/linkCanvas" element={<LinkCanvasPage />} />
           <Route path="/createGame" element={<GameCreationPage />} />
           <Route path="/courseDashboard/:courseId" element={<CourseDashboardPage />} />

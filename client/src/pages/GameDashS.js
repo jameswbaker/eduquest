@@ -16,6 +16,7 @@ const GameDashS = () => {
   const [courseIds, setCourseIds] = useState([]);
   const [games, setGames] = useState([]);
   const [error, setError] = useState("");
+  const [studentName, setStudentName] = useState(""); // For full name
 
   useEffect(() => {
     const user = ReactSession.get('user');
@@ -23,7 +24,10 @@ const GameDashS = () => {
     if (!user) {
       alert("Please log in first");
       navigate('/');
+    }else {
+      fetchStudentCanvasInfo();
     }
+   
   }, [navigate]);
 
   useEffect(() => {
@@ -72,6 +76,20 @@ const GameDashS = () => {
     }
   };
 
+  const fetchStudentCanvasInfo = async () => {
+    try {
+      const response = await axios.get(`http://${domain}:4000/api/users/user-details`, {
+        withCredentials: true,
+      });
+      setStudentName(response.data.name);
+    } catch (error) {
+      console.error(
+        "Error fetching student canvas info:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
+
   // 3. Color cycle array
   const colorOrder = ["yellow", "blue", "red", "pink", "green"];
 
@@ -86,7 +104,7 @@ const GameDashS = () => {
     <div className="t-game-dashboard-container">
       {/* Header */}
       <header className="t-dashboard-header">
-        <h1>Student's Game Dashboard</h1>
+      <h1>{studentName ? `${studentName}'s Dashboard` : "Dashboard"}</h1>
       </header>
 
       {/* Show error (if any) */}

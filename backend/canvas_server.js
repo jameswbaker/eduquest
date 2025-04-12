@@ -274,16 +274,46 @@ app.get('/api/courses/:courseId/students', async (req, res) => {
 app.post('/api/get-role', async (req, res) => {
   try {
     const apiToken = getTokenFromCookie(req); // get token from browser cookie
-    // Make a request to Canvas API to get enrollments and filter by 'StudentEnrollment'
-
     const { userId } = req.body;
-    const response = await axios.get(`https://${root}/api/v1/users/${userId}/enrollments`, {
-      headers: {
-        'Authorization': `Bearer ${apiToken}`,
-      },
+
+    // Fetch all enrollments with pagination
+    let allEnrollments = [];
+    let url = `https://${root}/api/v1/users/${userId}/enrollments`;
+    let hasMorePages = true;
+    
+    while (hasMorePages) {
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+        },
+        params: {
+          'per_page': 100, 
+        },
+      });
+      
+      allEnrollments = allEnrollments.concat(response.data);
+      
+      const linkHeader = response.headers.link;
+      if (linkHeader && linkHeader.includes('rel="next"')) {
+        const nextLink = linkHeader.split(',').find(link => link.includes('rel="next"'));
+        url = nextLink.match(/<(.*)>/)[1];
+      } else {
+        hasMorePages = false;
+      }
+    }
+
+    // Reorder enrollments so non-student roles appear first
+    allEnrollments.sort((a, b) => {
+      if (a.role === 'StudentEnrollment' && b.role !== 'StudentEnrollment') {
+        return 1; 
+      }
+      if (a.role !== 'StudentEnrollment' && b.role === 'StudentEnrollment') {
+        return -1; 
+      }
+      return 0; 
     });
 
-    res.json(response.data);
+    res.json(allEnrollments);
   } catch (error) {
     // Return detailed error message
     res.status(error.response?.status || 500).json({

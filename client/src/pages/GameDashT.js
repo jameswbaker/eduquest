@@ -121,25 +121,34 @@ const GameDashT = () => {
           <div className="t-courses-list">
             {/* Dynamically render courses */}
             <div className="game-grid">
-              {games.slice()
-                .sort((a, b) => b.game_id - a.game_id)
-                .map((game, index) => {
-                  const colorKey = colorOrder[index % colorOrder.length];
-                  const colors = colorMapping[colorKey];
+            {games.slice()
+              .sort((a, b) => b.game_id - a.game_id)
+              .map((game, index) => {
+                const colorKey = colorOrder[index % colorOrder.length];
+                const colors = colorMapping[colorKey];
+                const subtitle = game.type + "\n" + getCourseFromCourseId(game.course_id);
 
-                  return (
-                    <CardComponent
-                      key={game.game_id}
-                      title={game.name}
-                      subtitle={game.type}
-                      date={game.due_date || "No due date"}
-                      progress={0}
-                      progressText={"0%"}
-                      backgroundColor={colors.primary} // Use primary color
-                      link={`/playGame?gameId=${game.game_id}&gameName=${game.name}&type=${game.type}&courseId=${game.course_id}`}
-                    />
-                  );
-                })}
+                let startPage = `/startPage/${game.name}`;
+                console.log("game type: ", game.type);
+                if (game.type.toLowerCase() === "turrets") {
+                  startPage = `/startTurrets/${game.name}`;
+                } else if (game.type.toLowerCase() === "flappy") {
+                  startPage = `/startFlappy/${game.name}`;
+                }
+
+                return (
+                  <CardComponent
+                    key={game.game_id}
+                    title={game.name}
+                    subtitle={subtitle}
+                    date={game.due_date || "No due date"}
+                    progress={0}
+                    progressText={"0%"}
+                    backgroundColor={colors.primary} // Use primary color
+                    link={`${startPage}?gameId=${game.game_id}&gameName=${game.name}&type=${game.type}&courseId=${game.course_id}`}
+                  />
+                );
+              })}
             </div>
             
           </div>

@@ -58,7 +58,7 @@ export default function NavBar() {
             <img 
               src={eduquestLogo} 
               alt="EduQuest Logo" 
-              style={{ height: '60px' }} // Adjust height as needed
+              style={{ height: '80px',  display: 'block' }} // Adjust height as needed
             />
           </Box>
           

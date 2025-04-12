@@ -328,21 +328,11 @@ const Profile = () => {
               <p>n/a</p>
               <span>Total Games Completed</span>
             </div>
-            <div className="summary-card">
-              <p>n/a</p>
-              <span>Average Assignment Score</span>
-            </div>
+         
           </div>
         </section>
 
-        <section className="progress-section">
-          <h2>Progress of Course</h2>
-          <div className="progress-chart">
-            <div className="chart-placeholder">
-              <p>Chart Here</p>
-            </div>
-          </div>
-        </section>
+      
       </div>
     </div>
   );

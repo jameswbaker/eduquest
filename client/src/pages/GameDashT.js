@@ -126,7 +126,7 @@ const GameDashT = () => {
               .map((game, index) => {
                 const colorKey = colorOrder[index % colorOrder.length];
                 const colors = colorMapping[colorKey];
-                const subtitle = game.type + "\n" + getCourseFromCourseId(game.course_id);
+                const subtitle = game.type;
 
                 let startPage = `/startPage/${game.name}`;
                 console.log("game type: ", game.type);

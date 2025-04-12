@@ -23,20 +23,25 @@ app.use(cookieParser());
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Configure your database connection
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   port: process.env.DB_PORT || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect((err) => {
+// Test the connection
+db.getConnection((err, connection) => {
   if (err) {
     console.error('Database connection failed:', err.stack);
     return;
   }
   console.log('Connected to RDS database.');
+  connection.release();
 });
 
 async function updateStoredCanvasToken(username, newToken) {

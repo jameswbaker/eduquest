@@ -15,6 +15,7 @@ const Profile = () => {
   const [accountId, setAccountId] = useState('');
   const [email, setEmail] = useState('(no email for now)');
   const [courses, setCourses] = useState([]);
+  const [gamesPlayed, setGamesPlayed] = useState('');
 
   // States for Goals
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,6 +39,7 @@ const Profile = () => {
       fetchStudentCanvasInfo();
       fetchCourses();
       fetchGoals(user);
+      fetchGamesPlayed(user)
     }
   }, [navigate]);
 
@@ -88,6 +90,20 @@ const Profile = () => {
       console.error('Error fetching courses:', error.response ? error.response.data : error.message);
     }
   };
+
+  // Fetch games info
+  const fetchGamesPlayed = async(user) => {
+    console.log(user);
+    try {
+      const response = await axios.get(`http://${domain}:5001/get-games-played?student_id=${user}`, {
+        withCredentials: true,
+      });
+      console.log(response.data[0].games_played);
+      setGamesPlayed(response.data[0].games_played);
+    } catch (error) {
+      console.error('Error fetching games:', error.response ? error.response.data : error.message);
+    }
+  }
 
   // Format ISO date string to MM-DD-YYYY
   function formatDate(isoString) {
@@ -321,11 +337,7 @@ const Profile = () => {
               <span>Total Courses Enrolled</span>
             </div>
             <div className="summary-card">
-              <p>n/a</p>
-              <span>Total Assignments Completed</span>
-            </div>
-            <div className="summary-card">
-              <p>n/a</p>
+              <p>{gamesPlayed}</p>
               <span>Total Games Completed</span>
             </div>
          

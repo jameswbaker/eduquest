@@ -313,6 +313,30 @@ app.get('/get-games', async (req, res) => {
   }
 });
 
+app.get('/get-games-played', async (req, res) => {
+  const { student_id } = req.query;
+  if (!student_id) {
+    return res.status(400).json({ message: 'student_id is required' });
+  }
+
+  try {
+    const query = `SELECT COUNT(DISTINCT game_id) AS games_played
+                   FROM GameResults
+                   WHERE student_id = ?
+                   GROUP BY student_id;`;
+    db.query(query, [student_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching from GameResults:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      return res.status(200).json(results);
+    });
+  } catch (error) {
+    console.error('Error fetching games played from database: ', error.response?.data || error.message);
+    return res.status(500).json({ message: 'Failed to fetch games played from database' });
+  }
+})
+
 app.get('/get-class-games-results', (req, res) => {
   const { course_id } = req.query;
   try {
